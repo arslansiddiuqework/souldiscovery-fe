@@ -4,3 +4,4 @@ export * from "./adaptive";
 export * from "./achievements";
 export * from "./insights";
 export * from "./storage";
+export * from "./catalog";

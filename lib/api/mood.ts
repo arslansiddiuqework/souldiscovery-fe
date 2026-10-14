@@ -34,8 +34,14 @@ export async function trackMood(
   });
 
   if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || "Failed to track mood");
+    let message = "Failed to track mood";
+    try {
+      const error = await response.json();
+      message = error.error || error.message || message;
+    } catch {
+      /* ignore */
+    }
+    throw new Error(message);
   }
 
   return response.json();

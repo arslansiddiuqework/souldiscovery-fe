@@ -47,26 +47,26 @@ export function DashboardMusic() {
       </CardHeader>
       <CardContent className="flex-1 pt-0">
         {loading ? (
-          <div className="flex h-48 flex-col items-center justify-center space-y-3 rounded-[16px] border border-[rgba(216,191,227,0.18)] bg-white/[0.03]">
-            <Loader2 className="h-8 w-8 animate-spin text-[#b384c9]" />
-            <p className="text-sm text-[rgba(231,218,237,0.55)]">
+          <div className="flex h-48 flex-col items-center justify-center space-y-3 rounded-[16px] border border-[#EADCE5] bg-white">
+            <Loader2 className="h-8 w-8 animate-spin text-[#B74783]" />
+            <p className="text-sm text-[#927C8B]">
               Curating your sounds...
             </p>
           </div>
         ) : playlists.length > 0 ? (
           <div className="space-y-4">
-            <p className="text-sm leading-relaxed text-[rgba(231,218,237,0.55)]">
+            <p className="text-sm leading-relaxed text-[#927C8B]">
               Because your mood indicates a need for{" "}
-              <span className="font-semibold text-white">{query}</span>:
+              <span className="font-semibold text-[#49263D]">{query}</span>:
             </p>
-            <div className="overflow-hidden rounded-[16px] border border-[rgba(216,191,227,0.18)] bg-[#121212] shadow-card">
+            <div className="overflow-hidden rounded-[16px] border border-[#EADCE5] bg-[#121212] shadow-card">
               <SpotifyCard playlists={playlists} />
             </div>
           </div>
         ) : (
-          <div className="flex h-48 flex-col items-center justify-center rounded-[16px] border border-dashed border-[rgba(216,191,227,0.18)] bg-white/[0.03] px-4 text-center">
-            <Music className="mb-3 h-10 w-10 text-[rgba(231,218,237,0.55)]/30" />
-            <p className="text-sm leading-relaxed text-[rgba(231,218,237,0.55)]">
+          <div className="flex h-48 flex-col items-center justify-center rounded-[16px] border border-dashed border-[#EADCE5] bg-white px-4 text-center">
+            <Music className="mb-3 h-10 w-10 text-[#927C8B]/30" />
+            <p className="text-sm leading-relaxed text-[#927C8B]">
               We couldn&apos;t fetch music recommendations right now. Please try
               again later.
             </p>

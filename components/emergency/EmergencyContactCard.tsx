@@ -25,24 +25,24 @@ interface Props {
 export function EmergencyContactCard({ contact, onDelete, onToggle, onEdit, onTestCall, testCallLoading }: Props) {
   return (
     <div
-      className={`p-4 rounded-xl border border-[rgba(216,191,227,0.18)] flex items-center justify-between gap-3 transition-all hover:shadow-[var(--shadow-card)] ${
-        contact.enabled ? "opacity-100 bg-white/[0.035]" : "opacity-60 bg-white/[0.02]"
+      className={`p-4 rounded-xl border border-[#EADCE5] flex items-center justify-between gap-3 transition-all hover:shadow-[var(--shadow-card)] ${
+        contact.enabled ? "opacity-100 bg-white" : "opacity-60 bg-white/[0.02]"
       }`}
     >
       <div className="flex items-center gap-4 min-w-0">
-        <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 bg-[rgba(179,132,201,0.12)] text-[#b384c9]">
+        <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 bg-[#FFE5F0] text-[#B74783]">
           <User className="w-5 h-5" />
         </div>
 
         <div className="min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <h3 className="font-bold text-sm tracking-tight text-white">{contact.name}</h3>
-            <span className="text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider font-bold bg-white/[0.06] text-[rgba(231,218,237,0.55)]">
+            <h3 className="font-bold text-sm tracking-tight text-[#49263D]">{contact.name}</h3>
+            <span className="text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider font-bold bg-[#FFF0F6] text-[#927C8B]">
               {contact.relationship}
             </span>
           </div>
 
-          <div className="flex flex-col gap-1 mt-1 text-sm text-[rgba(231,218,237,0.55)]">
+          <div className="flex flex-col gap-1 mt-1 text-sm text-[#927C8B]">
             {(!contact.preferredContactMethod || contact.preferredContactMethod === "phone" || contact.preferredContactMethod === "both") && contact.phone && (
               <div className="flex items-center gap-1.5">
                 <PhoneCall className="w-3.5 h-3.5" />
@@ -66,7 +66,7 @@ export function EmergencyContactCard({ contact, onDelete, onToggle, onEdit, onTe
           className={`px-3 py-1 text-xs font-bold rounded-lg transition-colors ${
             contact.enabled
               ? "bg-info/10 text-info hover:bg-info/20"
-              : "bg-white/[0.06] text-[rgba(231,218,237,0.55)] cursor-not-allowed"
+              : "bg-[#FFF0F6] text-[#927C8B] cursor-not-allowed"
           }`}
           title="Send a test emergency call"
         >
@@ -75,7 +75,7 @@ export function EmergencyContactCard({ contact, onDelete, onToggle, onEdit, onTe
 
         <button
           onClick={onEdit}
-          className="px-2 py-1.5 text-xs font-medium text-[rgba(231,218,237,0.55)] hover:bg-white/[0.06] hover:text-white rounded-lg transition-colors"
+          className="px-2 py-1.5 text-xs font-medium text-[#927C8B] hover:bg-[#FFF0F6] hover:text-[#49263D] rounded-lg transition-colors"
           title="Edit contact"
         >
           Edit
@@ -83,7 +83,7 @@ export function EmergencyContactCard({ contact, onDelete, onToggle, onEdit, onTe
         <button
           onClick={() => onToggle(!contact.enabled)}
           className={`relative w-9 h-5 rounded-full transition-colors ${
-            contact.enabled ? "bg-success" : "bg-white/[0.06]-foreground/30"
+            contact.enabled ? "bg-success" : "bg-[#FFF0F6]-foreground/30"
           }`}
           title={contact.enabled ? "Disable contact" : "Enable contact"}
         >

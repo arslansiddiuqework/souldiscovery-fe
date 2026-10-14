@@ -23,8 +23,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { MoodForm } from "@/components/mood/mood-form";
+import { BreathingGame } from "@/components/games/breathing-game";
 import { PlanTask, TASK_TYPE_LABELS } from "@/lib/wellness-plan/types";
 import { cn } from "@/lib/utils";
+import { GroundingExperience } from "./hub/grounding-experience";
 
 interface TaskRunnerProps {
   task: PlanTask | null;
@@ -93,12 +95,12 @@ export function TaskRunner({ task, open, onClose, onComplete }: TaskRunnerProps)
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto border-[rgba(216,191,227,0.22)] bg-[rgba(16,11,32,0.96)] text-[#f3eefa] sm:max-w-lg">
+      <DialogContent className="max-h-[90vh] overflow-y-auto border-[#EADCE5] bg-white text-[#49263D] sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="font-display text-xl">
             {task.title}
           </DialogTitle>
-          <DialogDescription className="text-[rgba(231,218,237,0.55)]">
+          <DialogDescription className="text-[#927C8B]">
             {task.description} · ~{task.estimatedMinutes} min
           </DialogDescription>
         </DialogHeader>
@@ -108,7 +110,7 @@ export function TaskRunner({ task, open, onClose, onComplete }: TaskRunnerProps)
             <MoodForm onSuccess={() => finish()} />
             <Button
               variant="ghost"
-              className="w-full text-[rgba(231,218,237,0.55)]"
+              className="w-full text-[#927C8B]"
               onClick={() => finish({ notes: "Check-in acknowledged" })}
             >
               Mark check-in complete
@@ -118,7 +120,7 @@ export function TaskRunner({ task, open, onClose, onComplete }: TaskRunnerProps)
 
         {task.type === "ai_conversation" && (
           <div className="space-y-5 py-2">
-            <div className="rounded-2xl border border-[rgba(216,191,227,0.18)] bg-white/[0.03] p-4 text-sm leading-relaxed text-[rgba(231,218,237,0.7)]">
+            <div className="rounded-2xl border border-[#EADCE5] bg-white p-4 text-sm leading-relaxed text-[#795A70]">
               Open a reflection session with Soul Discovery. When you return, this
               mission will be marked complete.
             </div>
@@ -150,7 +152,7 @@ export function TaskRunner({ task, open, onClose, onComplete }: TaskRunnerProps)
                   ? "List three things you're grateful for…"
                   : "Write freely. Nothing has to be polished."
               }
-              className="w-full resize-none rounded-2xl border border-[rgba(216,191,227,0.22)] bg-white/[0.04] px-4 py-3 text-sm text-[#f3eefa] outline-none placeholder:text-[rgba(231,218,237,0.35)] focus:border-[#b384c9]/40"
+              className="w-full resize-none rounded-2xl border border-[#EADCE5] bg-white px-4 py-3 text-sm text-[#49263D] outline-none placeholder:text-[#927C8B] focus:border-[#B74783]/40"
             />
             <Button
               className="btn-spatium w-full gap-2"
@@ -163,22 +165,45 @@ export function TaskRunner({ task, open, onClose, onComplete }: TaskRunnerProps)
           </div>
         )}
 
-        {(task.type === "breathing" ||
-          task.type === "mindfulness" ||
+        {task.type === "breathing" && (
+          <div className="space-y-4 py-2">
+            <div className="overflow-hidden rounded-[18px] border border-[#EEDCE9] bg-[#FCF8FC] p-2">
+              <BreathingGame />
+            </div>
+            <p className="text-xs text-[#927C8B]">
+              Stop anytime if breath focus feels uncomfortable. This does not
+              claim to stop panic or treat medical conditions.
+            </p>
+            <Button
+              className="btn-spatium w-full gap-2"
+              onClick={() => finish({ notes: "Breathing session completed" })}
+            >
+              <Check className="h-4 w-4" />
+              Mark complete
+            </Button>
+          </div>
+        )}
+
+        {task.type === "mindfulness" &&
+          /ground/i.test(task.title) && (
+            <div className="py-2">
+              <GroundingExperience onClose={() => finish({ notes: "Grounding completed" })} />
+            </div>
+          )}
+
+        {((task.type === "mindfulness" && !/ground/i.test(task.title)) ||
           task.type === "meditation") && (
           <div className="space-y-6 py-4 text-center">
-            <div className="mx-auto flex h-28 w-28 items-center justify-center rounded-full border border-[#b384c9]/30 bg-[#b384c9]/10">
-              <span className="font-display text-3xl font-bold tabular-nums text-[#f3eefa]">
+            <div className="mx-auto flex h-28 w-28 items-center justify-center rounded-full border border-[#B74783]/30 bg-[#B74783]/10">
+              <span className="font-display text-3xl font-bold tabular-nums text-[#49263D]">
                 {formatTime(timerSeconds)}
               </span>
             </div>
             <Progress value={timerProgress} className="h-1.5" />
-            <p className="text-sm text-[rgba(231,218,237,0.55)]">
+            <p className="text-sm text-[#927C8B]">
               {timerDone
                 ? "Session complete — well done."
-                : task.type === "breathing"
-                  ? "Breathe slowly. Inhale calm, exhale tension."
-                  : "Stay with your breath. Let thoughts pass without chasing them."}
+                : "Stay with your breath. Let thoughts pass without chasing them."}
             </p>
             <div className="flex gap-3">
               {!timerDone ? (
@@ -211,13 +236,13 @@ export function TaskRunner({ task, open, onClose, onComplete }: TaskRunnerProps)
 
         {(task.type === "walk" || task.type === "reading") && (
           <div className="space-y-5 py-2">
-            <div className="rounded-2xl border border-[rgba(216,191,227,0.18)] bg-white/[0.03] p-5 text-center">
+            <div className="rounded-2xl border border-[#EADCE5] bg-white p-5 text-center">
               {task.type === "walk" ? (
-                <Footprints className="mx-auto mb-3 h-8 w-8 text-[#b384c9]" />
+                <Footprints className="mx-auto mb-3 h-8 w-8 text-[#B74783]" />
               ) : (
-                <BookOpen className="mx-auto mb-3 h-8 w-8 text-[#b384c9]" />
+                <BookOpen className="mx-auto mb-3 h-8 w-8 text-[#B74783]" />
               )}
-              <p className="text-sm leading-relaxed text-[rgba(231,218,237,0.65)]">
+              <p className="text-sm leading-relaxed text-[#795A70]">
                 {task.type === "walk"
                   ? "Take your mindful walk. When you return, mark this mission complete."
                   : "Read something that nourishes you. Mark complete when finished."}
@@ -259,7 +284,7 @@ export function taskIcon(type: PlanTask["type"]) {
 
 export function TaskTypeBadge({ type }: { type: PlanTask["type"] }) {
   return (
-    <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[rgba(231,218,237,0.4)]">
+    <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[#927C8B]">
       {TASK_TYPE_LABELS[type]}
     </span>
   );
@@ -277,8 +302,8 @@ export function MissionCheckbox({
       className={cn(
         "flex h-6 w-6 shrink-0 items-center justify-center rounded-full border transition",
         completed
-          ? "border-[#b384c9] bg-[#b384c9] text-[#1c1033]"
-          : "border-[rgba(216,191,227,0.3)] bg-transparent",
+          ? "border-[#B74783] bg-[#B74783] text-[#49263D]"
+          : "border-[#EADCE5] bg-transparent",
         className
       )}
     >

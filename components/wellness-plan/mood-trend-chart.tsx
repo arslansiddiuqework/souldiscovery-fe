@@ -109,7 +109,7 @@ export function MoodTrendChart() {
                 className={cn(
                   "h-8 rounded-xl text-xs",
                   range === r &&
-                    "border-[#b384c9]/40 bg-[rgba(179,132,201,0.12)] text-[#d8bfe3]"
+                    "border-[#B74783]/40 bg-[#FFE5F0] text-[#D9B8F5]"
                 )}
               >
                 Last {r} Days
@@ -121,16 +121,16 @@ export function MoodTrendChart() {
       <CardContent className="h-[260px]">
         {loading ? (
           <div className="flex h-full items-center justify-center">
-            <Loader2 className="h-6 w-6 animate-spin text-[#b384c9]" />
+            <Loader2 className="h-6 w-6 animate-spin text-[#B74783]" />
           </div>
         ) : !hasData ? (
-          <div className="flex h-full items-center justify-center text-sm text-[rgba(231,218,237,0.45)]">
+          <div className="flex h-full items-center justify-center text-sm text-[#927C8B]">
             Track your mood to see trends here.
           </div>
         ) : (
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={data}>
-              <CartesianGrid stroke="rgba(216,191,227,0.08)" vertical={false} />
+              <CartesianGrid stroke="rgba(231, 224, 240,0.08)" vertical={false} />
               <XAxis
                 dataKey="label"
                 tick={{ fill: "rgba(231,218,237,0.45)", fontSize: 11 }}
@@ -146,18 +146,18 @@ export function MoodTrendChart() {
               />
               <Tooltip
                 contentStyle={{
-                  background: "rgba(16,11,32,0.95)",
-                  border: "1px solid rgba(216,191,227,0.22)",
+                  background: "#FFFFFF",
+                  border: "1px solid rgba(231, 224, 240,0.22)",
                   borderRadius: 12,
-                  color: "#f3eefa",
+                  color: "#49263D",
                 }}
               />
               <Line
                 type="monotone"
                 dataKey="score"
-                stroke="#b384c9"
+                stroke="#B74783"
                 strokeWidth={2.5}
-                dot={{ r: 3, fill: "#b384c9" }}
+                dot={{ r: 3, fill: "#B74783" }}
                 connectNulls
               />
             </LineChart>

@@ -7,6 +7,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import {
   Bell,
   CheckCircle2,
+  ChevronDown,
   Clock,
   LogOut,
   Menu,
@@ -20,6 +21,16 @@ import { useSession } from "@/lib/contexts/session-context";
 import { cn } from "@/lib/utils";
 import { BrandLogo } from "@/components/brand-logo";
 import { BRAND_NAME } from "@/lib/branding";
+import { Button } from "@/components/ui/button";
+import { AvatarImage } from "@/components/ui/avatar-image";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 /**
  * Spatium-style floating pill navbar.
@@ -30,13 +41,42 @@ export function Navbar() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [showNotifs, setShowNotifs] = useState(false);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [notifications, setNotifications] = useState<any[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [avatarBroken, setAvatarBroken] = useState(false);
   const rootRef = useRef<HTMLElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
+  const profileMenuRef = useRef<HTMLDivElement>(null);
+  const profileImage = user?.profileImage;
+  const showAvatar = Boolean(profileImage) && !avatarBroken;
+
+  useEffect(() => {
+    setAvatarBroken(false);
+  }, [profileImage]);
+
+  const requestLogout = () => {
+    setShowNotifs(false);
+    setShowProfileMenu(false);
+    setMobileOpen(false);
+    setLogoutConfirmOpen(true);
+  };
+
+  const confirmLogout = async () => {
+    setIsLoggingOut(true);
+    try {
+      await logout();
+      setLogoutConfirmOpen(false);
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
 
   const navItems = [
     { href: "/features", label: "Features" },
+    { href: "/assessments", label: "Assessments" },
   ];
 
   useEffect(() => {
@@ -47,10 +87,21 @@ export function Navbar() {
       if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
         setShowNotifs(false);
       }
+      if (
+        profileMenuRef.current &&
+        !profileMenuRef.current.contains(e.target as Node)
+      ) {
+        setShowProfileMenu(false);
+      }
     };
     document.addEventListener("mousedown", onDocClick);
     return () => document.removeEventListener("mousedown", onDocClick);
   }, []);
+
+  useEffect(() => {
+    setShowProfileMenu(false);
+    setShowNotifs(false);
+  }, [pathname]);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -186,7 +237,7 @@ export function Navbar() {
 
   return (
     <header ref={rootRef} className="pointer-events-none fixed inset-x-0 top-0 z-50">
-      <div className="pointer-events-auto mx-auto flex w-full max-w-[1120px] justify-center px-4 pt-5 md:pt-6">
+      <div className="pointer-events-auto mx-auto flex w-full max-w-[1120px] justify-center px-4 pt-3 md:pt-4">
         {/*
           Desktop / large tablet floating pill
           Structure: [Logo] [Nav links] [Actions: Dashboard | Bell | Logout]
@@ -196,22 +247,27 @@ export function Navbar() {
           className="nav-pill hidden w-full max-w-[1080px] lg:flex"
           aria-label="Primary"
         >
-          {/* Logo */}
+          {/* Logo — icon on lg, full mark from xl to avoid crowding */}
           <Link
             href="/"
-            className="flex shrink-0 items-center"
+            className="mr-1 flex shrink-0 items-center xl:mr-2"
             aria-label={BRAND_NAME}
           >
-            <BrandLogo variant="mark" size={36} />
+            <BrandLogo variant="icon" size={36} className="xl:hidden" />
+            <BrandLogo variant="mark" size={34} className="hidden xl:inline-flex" />
           </Link>
 
-          {/* Navigation — text links only; each item owns its space */}
-          <div className="flex min-w-0 flex-1 items-center justify-center gap-5 xl:gap-7">
+          {/* Navigation — compact center links */}
+          <div className="flex min-w-0 flex-1 items-center justify-center gap-1 xl:gap-2">
             {navItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                data-active={pathname === item.href}
+                data-active={
+                  item.href === "/assessments"
+                    ? pathname?.startsWith("/assessments")
+                    : pathname === item.href
+                }
                 className="nav-link"
               >
                 {item.label}
@@ -224,44 +280,129 @@ export function Navbar() {
                   data-active={pathname?.startsWith("/wellness-plan")}
                   className="nav-link"
                 >
-                  Wellness Plan
+                  Wellness Plans
                 </Link>
                 <Link
-                  href="/profile"
-                  data-active={pathname === "/profile"}
+                  href="/progress"
+                  data-active={pathname?.startsWith("/progress")}
                   className="nav-link"
                 >
-                  Profile
-                </Link>
-                <Link
-                  href="/settings/emergency"
-                  data-active={pathname?.startsWith("/settings/emergency")}
-                  className="nav-link"
-                >
-                  Emergency
+                  Progress
                 </Link>
               </>
             )}
           </div>
 
-          {/* Actions — Dashboard and Notification are siblings with explicit gap */}
-          <div className="flex shrink-0 items-center gap-2.5 xl:gap-3">
+          {/* Actions */}
+          <div className="flex shrink-0 items-center gap-2 xl:gap-2.5">
             {isAuthenticated ? (
               <>
                 <Link href="/dashboard" className="nav-dashboard-btn">
                   Dashboard
                 </Link>
 
+                <div className="relative shrink-0" ref={profileMenuRef}>
+                  <button
+                    type="button"
+                    aria-label="Profile menu"
+                    aria-expanded={showProfileMenu}
+                    aria-haspopup="menu"
+                    onClick={() => {
+                      setShowNotifs(false);
+                      setShowProfileMenu((v) => !v);
+                    }}
+                    className={cn(
+                      "flex h-9 items-center gap-1 rounded-full border border-[#EADCE5] bg-[#FFF0F6] pl-0.5 pr-1.5 text-[#795A70] transition hover:border-[#E5B8D4] hover:bg-[#FFF0F6]",
+                      (pathname === "/profile" ||
+                        pathname?.startsWith("/settings/emergency")) &&
+                        "border-[#BE4A8B]/40 ring-1 ring-[#BE4A8B]/20"
+                    )}
+                  >
+                    <span className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full">
+                      {showAvatar ? (
+                        <AvatarImage
+                          src={profileImage!}
+                          alt={user?.name ? `${user.name}'s profile` : "Profile"}
+                          width={32}
+                          height={32}
+                          className="h-full w-full object-cover"
+                          onError={() => setAvatarBroken(true)}
+                        />
+                      ) : (
+                        <User className="h-4 w-4" aria-hidden />
+                      )}
+                    </span>
+                    <ChevronDown
+                      className={cn(
+                        "h-3.5 w-3.5 opacity-70 transition",
+                        showProfileMenu && "rotate-180"
+                      )}
+                      aria-hidden
+                    />
+                  </button>
+
+                  <AnimatePresence>
+                    {showProfileMenu && (
+                      <motion.div
+                        role="menu"
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 8 }}
+                        className="absolute right-0 top-12 z-50 w-56 overflow-hidden rounded-[18px] border border-[#EADCE5] bg-white py-1.5 shadow-[0_8px_28px_rgba(123,57,98,0.1)]"
+                      >
+                        <Link
+                          role="menuitem"
+                          href="/profile"
+                          onClick={() => setShowProfileMenu(false)}
+                          className={cn(
+                            "flex items-center gap-2.5 px-3.5 py-2.5 text-sm font-semibold text-[#49263D] transition hover:bg-[#FFF0F6]",
+                            pathname === "/profile" && "bg-[#FFF0F6] text-[#B74783]"
+                          )}
+                        >
+                          <User className="h-4 w-4 text-[#B74783]" />
+                          Profile
+                        </Link>
+                        <Link
+                          role="menuitem"
+                          href="/settings/emergency"
+                          onClick={() => setShowProfileMenu(false)}
+                          className={cn(
+                            "flex items-center gap-2.5 px-3.5 py-2.5 text-sm font-semibold text-[#49263D] transition hover:bg-[#FFF0F6]",
+                            pathname?.startsWith("/settings/emergency") &&
+                              "bg-[#FFF0F6] text-[#B74783]"
+                          )}
+                        >
+                          <ShieldAlert className="h-4 w-4 text-[#B74783]" />
+                          Emergency
+                        </Link>
+                        <div className="my-1 border-t border-[#EADCE5]" />
+                        <button
+                          type="button"
+                          role="menuitem"
+                          onClick={requestLogout}
+                          className="flex w-full items-center gap-2.5 px-3.5 py-2.5 text-left text-sm font-semibold text-[#795A70] transition hover:bg-[#FFF0F6] hover:text-[#49263D]"
+                        >
+                          <LogOut className="h-4 w-4" />
+                          Sign out
+                        </button>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+
                 <div className="relative shrink-0" ref={notifRef}>
                   <button
                     type="button"
                     aria-label="Notifications"
-                    onClick={() => setShowNotifs((v) => !v)}
-                    className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[rgba(231,218,237,0.82)] transition hover:bg-white/5 hover:text-[#f3eefa]"
+                    onClick={() => {
+                      setShowProfileMenu(false);
+                      setShowNotifs((v) => !v);
+                    }}
+                    className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[#795A70] transition hover:bg-[#FFF0F6] hover:text-[#49263D]"
                   >
                     <Bell className="h-4 w-4" />
                     {unreadCount > 0 && (
-                      <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-[#b384c9]" />
+                      <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-[#B74783]" />
                     )}
                   </button>
 
@@ -271,16 +412,16 @@ export function Navbar() {
                         initial={{ opacity: 0, y: 8 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 8 }}
-                        className="absolute right-0 top-12 z-50 w-80 overflow-hidden rounded-[20px] border border-[rgba(216,191,227,0.22)] bg-[rgba(16,11,32,0.95)] shadow-[0_20px_60px_rgba(6,3,16,0.55)] backdrop-blur-xl"
+                        className="absolute right-0 top-12 z-50 w-80 overflow-hidden rounded-[20px] border border-[#EADCE5] bg-white shadow-[0_8px_28px_rgba(123,57,98,0.08)] backdrop-blur-xl"
                       >
-                        <div className="flex items-center justify-between border-b border-white/8 px-4 py-3">
-                          <span className="text-sm font-semibold text-[#f3eefa]">
+                        <div className="flex items-center justify-between border-b border-[#EADCE5] px-4 py-3">
+                          <span className="text-sm font-semibold text-[#49263D]">
                             Notifications
                           </span>
                           {notifications.length > 0 && (
                             <button
                               onClick={markAllRead}
-                              className="text-xs font-semibold text-[rgba(231,218,237,0.7)] hover:text-[#f3eefa]"
+                              className="text-xs font-semibold text-[#795A70] hover:text-[#49263D]"
                             >
                               Mark all read
                             </button>
@@ -288,7 +429,7 @@ export function Navbar() {
                         </div>
                         <div className="max-h-72 overflow-y-auto">
                           {notifications.length === 0 ? (
-                            <div className="px-4 py-8 text-center text-sm text-[rgba(231,218,237,0.5)]">
+                            <div className="px-4 py-8 text-center text-sm text-[#927C8B]">
                               <CheckCircle2 className="mx-auto mb-2 h-7 w-7 opacity-40" />
                               All caught up
                             </div>
@@ -308,14 +449,14 @@ export function Navbar() {
                                     setShowNotifs(false);
                                     dismiss(notif.id);
                                   }}
-                                  className="flex gap-3 border-b border-white/5 px-4 py-3 transition hover:bg-white/[0.04]"
+                                  className="flex gap-3 border-b border-[#EADCE5] px-4 py-3 transition hover:bg-white"
                                 >
-                                  <Icon className="mt-0.5 h-4 w-4 shrink-0 text-[#b384c9]" />
+                                  <Icon className="mt-0.5 h-4 w-4 shrink-0 text-[#B74783]" />
                                   <div>
-                                    <p className="text-sm font-semibold text-[#f3eefa]">
+                                    <p className="text-sm font-semibold text-[#49263D]">
                                       {notif.title}
                                     </p>
-                                    <p className="mt-0.5 line-clamp-2 text-xs text-[rgba(231,218,237,0.55)]">
+                                    <p className="mt-0.5 line-clamp-2 text-xs text-[#927C8B]">
                                       {notif.message}
                                     </p>
                                   </div>
@@ -328,15 +469,6 @@ export function Navbar() {
                     )}
                   </AnimatePresence>
                 </div>
-
-                <button
-                  type="button"
-                  onClick={logout}
-                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[rgba(231,218,237,0.7)] transition hover:bg-white/5 hover:text-[#f3eefa]"
-                  aria-label="Sign out"
-                >
-                  <LogOut className="h-4 w-4" />
-                </button>
               </>
             ) : (
               <Link href="/login" className="btn-spatium !px-4 !py-2.5 text-[14px]">
@@ -362,9 +494,33 @@ export function Navbar() {
           </Link>
           <div className="flex shrink-0 items-center gap-1.5">
             {isAuthenticated ? (
-              <Link href="/dashboard" className="nav-dashboard-btn !h-9 !px-3 !text-[13px]">
-                Dashboard
-              </Link>
+              <>
+                <Link href="/dashboard" className="nav-dashboard-btn !h-9 !px-3 !text-[13px]">
+                  Dashboard
+                </Link>
+                <Link
+                  href="/profile"
+                  aria-label="Profile"
+                  data-active={pathname === "/profile"}
+                  className={cn(
+                    "flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[#EADCE5] bg-[#FFF0F6] text-[#795A70] transition hover:border-[#E5B8D4]",
+                    pathname === "/profile" && "border-[#BE4A8B]/40 ring-1 ring-[#BE4A8B]/20"
+                  )}
+                >
+                  {showAvatar ? (
+                    <AvatarImage
+                      src={profileImage!}
+                      alt={user?.name ? `${user.name}'s profile` : "Profile"}
+                      width={36}
+                      height={36}
+                      className="h-full w-full object-cover"
+                      onError={() => setAvatarBroken(true)}
+                    />
+                  ) : (
+                    <User className="h-4 w-4" aria-hidden />
+                  )}
+                </Link>
+              </>
             ) : (
               <Link href="/login" className="btn-spatium !px-3 !py-2 text-[13px]">
                 Sign In
@@ -374,7 +530,7 @@ export function Navbar() {
               type="button"
               aria-label={mobileOpen ? "Close menu" : "Open menu"}
               onClick={() => setMobileOpen((v) => !v)}
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-[#f3eefa]"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-[#49263D]"
             >
               {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
@@ -388,7 +544,7 @@ export function Navbar() {
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
-            className="pointer-events-auto mx-4 mt-3 overflow-hidden rounded-[24px] border border-[rgba(216,191,227,0.22)] bg-[rgba(16,11,32,0.92)] p-3 shadow-[0_20px_60px_rgba(6,3,16,0.55)] backdrop-blur-xl lg:hidden"
+            className="pointer-events-auto mx-4 mt-3 overflow-hidden rounded-[24px] border border-[#EADCE5] bg-white p-3 shadow-[0_8px_28px_rgba(123,57,98,0.08)] backdrop-blur-xl lg:hidden"
           >
             <div className="flex flex-col gap-1">
               {navItems.map((item) => (
@@ -397,8 +553,8 @@ export function Navbar() {
                   href={item.href}
                   onClick={closeMobile}
                   className={cn(
-                    "rounded-xl px-4 py-3 text-[15px] font-semibold text-[rgba(231,218,237,0.82)] transition hover:bg-white/5 hover:text-[#f3eefa]",
-                    pathname === item.href && "bg-white/5 text-[#f3eefa]"
+                    "rounded-xl px-4 py-3 text-[15px] font-semibold text-[#795A70] transition hover:bg-[#FFF0F6] hover:text-[#49263D]",
+                    pathname === item.href && "bg-white/5 text-[#49263D]"
                   )}
                 >
                   {item.label}
@@ -410,8 +566,8 @@ export function Navbar() {
                     href="/dashboard"
                     onClick={closeMobile}
                     className={cn(
-                      "rounded-xl px-4 py-3 text-[15px] font-semibold text-[rgba(231,218,237,0.82)] transition hover:bg-white/5 hover:text-[#f3eefa]",
-                      pathname === "/dashboard" && "bg-white/5 text-[#f3eefa]"
+                      "rounded-xl px-4 py-3 text-[15px] font-semibold text-[#795A70] transition hover:bg-[#FFF0F6] hover:text-[#49263D]",
+                      pathname === "/dashboard" && "bg-white/5 text-[#49263D]"
                     )}
                   >
                     Dashboard
@@ -420,41 +576,53 @@ export function Navbar() {
                     href="/wellness-plan"
                     onClick={closeMobile}
                     className={cn(
-                      "rounded-xl px-4 py-3 text-[15px] font-semibold text-[rgba(231,218,237,0.82)] hover:bg-white/5 hover:text-[#f3eefa]",
+                      "rounded-xl px-4 py-3 text-[15px] font-semibold text-[#795A70] hover:bg-[#FFF0F6] hover:text-[#49263D]",
                       pathname?.startsWith("/wellness-plan") &&
-                        "bg-white/5 text-[#f3eefa]"
+                        "bg-white/5 text-[#49263D]"
                     )}
                   >
-                    Wellness Plan
+                    Wellness Plans
                   </Link>
+                  <Link
+                    href="/progress"
+                    onClick={closeMobile}
+                    className={cn(
+                      "rounded-xl px-4 py-3 text-[15px] font-semibold text-[#795A70] hover:bg-[#FFF0F6] hover:text-[#49263D]",
+                      pathname?.startsWith("/progress") &&
+                        "bg-white/5 text-[#49263D]"
+                    )}
+                  >
+                    Progress
+                  </Link>
+                  <div className="my-1 border-t border-[#EADCE5]" />
+                  <p className="px-4 pb-1 pt-2 text-[11px] font-bold uppercase tracking-[0.12em] text-[#927C8B]">
+                    Profile
+                  </p>
                   <Link
                     href="/profile"
                     onClick={closeMobile}
                     className={cn(
-                      "rounded-xl px-4 py-3 text-[15px] font-semibold text-[rgba(231,218,237,0.82)] hover:bg-white/5 hover:text-[#f3eefa]",
-                      pathname === "/profile" && "bg-white/5 text-[#f3eefa]"
+                      "rounded-xl px-4 py-3 text-[15px] font-semibold text-[#795A70] hover:bg-[#FFF0F6] hover:text-[#49263D]",
+                      pathname === "/profile" && "bg-white/5 text-[#49263D]"
                     )}
                   >
-                    Profile
+                    Profile settings
                   </Link>
                   <Link
                     href="/settings/emergency"
                     onClick={closeMobile}
                     className={cn(
-                      "rounded-xl px-4 py-3 text-[15px] font-semibold text-[rgba(231,218,237,0.82)] hover:bg-white/5 hover:text-[#f3eefa]",
+                      "rounded-xl px-4 py-3 text-[15px] font-semibold text-[#795A70] hover:bg-[#FFF0F6] hover:text-[#49263D]",
                       pathname?.startsWith("/settings/emergency") &&
-                        "bg-white/5 text-[#f3eefa]"
+                        "bg-white/5 text-[#49263D]"
                     )}
                   >
                     Emergency
                   </Link>
                   <button
                     type="button"
-                    onClick={() => {
-                      logout();
-                      closeMobile();
-                    }}
-                    className="rounded-xl px-4 py-3 text-left text-[15px] font-semibold text-[rgba(231,218,237,0.82)] hover:bg-white/5 hover:text-[#f3eefa]"
+                    onClick={requestLogout}
+                    className="rounded-xl px-4 py-3 text-left text-[15px] font-semibold text-[#795A70] hover:bg-[#FFF0F6] hover:text-[#49263D]"
                   >
                     Sign out
                   </button>
@@ -464,6 +632,35 @@ export function Navbar() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <Dialog open={logoutConfirmOpen} onOpenChange={setLogoutConfirmOpen}>
+        <DialogContent className="max-w-[400px] sm:rounded-[22px]">
+          <DialogHeader>
+            <DialogTitle>Sign out?</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to sign out of your Soul Discovery account?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setLogoutConfirmOpen(false)}
+              disabled={isLoggingOut}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              onClick={confirmLogout}
+              disabled={isLoggingOut}
+              className="bg-[#B74783] text-white hover:bg-[#9E3A70]"
+            >
+              {isLoggingOut ? "Signing out…" : "Yes, sign out"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </header>
   );
 }

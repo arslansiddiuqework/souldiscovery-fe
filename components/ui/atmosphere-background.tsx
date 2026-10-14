@@ -1,5 +1,3 @@
-"use client";
-
 import { cn } from "@/lib/utils";
 import { ConnectedParticlesBackground } from "@/components/ui/connected-particles-background";
 
@@ -14,8 +12,8 @@ interface AtmosphereBackgroundProps {
 }
 
 /**
- * Local atmosphere shell. Global gradients + connected particles live in root layout.
- * Use this when a page needs an isolated atmospheric frame (e.g. auth overlays).
+ * Local atmosphere shell. Site-wide dots live in root layout.
+ * Use when a page needs an isolated atmospheric frame (e.g. auth overlays).
  */
 export function AtmosphereBackground({
   className,
@@ -25,7 +23,10 @@ export function AtmosphereBackground({
   return (
     <div className={cn("relative", className)}>
       {particles && (
-        <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden" aria-hidden>
+        <div
+          className="pointer-events-none absolute inset-0 z-0 overflow-hidden"
+          aria-hidden
+        >
           <ConnectedParticlesBackground />
         </div>
       )}
@@ -34,4 +35,4 @@ export function AtmosphereBackground({
   );
 }
 
-export { ConnectedParticlesBackground };
+export { ConnectedParticlesBackground } from "@/components/ui/connected-particles-background";

@@ -88,18 +88,18 @@ export function MoodTracker() {
       <CardHeader>
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[rgba(179,132,201,0.12)]">
-              <Brain className="h-5 w-5 text-[#b384c9]" />
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#FFE5F0]">
+              <Brain className="h-5 w-5 text-[#B74783]" />
             </div>
             <div className="space-y-1">
               <CardTitle className="text-lg md:text-xl">Mood Insights</CardTitle>
-              <p className="text-sm text-[rgba(231,218,237,0.55)]">
+              <p className="text-sm text-[#927C8B]">
                 Your emotional journey over time
               </p>
             </div>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" className="border-[rgba(216,191,227,0.18)]">
+            <Button variant="outline" size="sm" className="border-[#EADCE5]">
               Week
             </Button>
             <Button variant="ghost" size="sm">
@@ -108,7 +108,7 @@ export function MoodTracker() {
           </div>
         </div>
       </CardHeader>
-      <CardContent className="space-y-8">
+      <CardContent className="space-y-5">
         {/* Enhanced Daily Mood Chart */}
         <div className="space-y-4">
           <div className="flex h-[200px] items-end justify-between">
@@ -126,14 +126,14 @@ export function MoodTracker() {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 20 }}
-                      className="absolute -top-4 left-1/2 z-10 w-64 -translate-x-1/2 space-y-3 rounded-[16px] border border-[rgba(216,191,227,0.18)] bg-[#100b20]/95 p-4 shadow-premium backdrop-blur-sm"
+                      className="absolute -top-4 left-1/2 z-10 w-64 -translate-x-1/2 space-y-3 rounded-[16px] border border-[#EADCE5] bg-[#FFF0F6]/95 p-4 shadow-premium backdrop-blur-sm"
                     >
                       <div className="flex items-center justify-between">
                         <h4 className="font-display text-sm font-semibold text-foreground">
                           {day.day}&apos;s Activities
                         </h4>
                         <div className="flex items-center gap-1">
-                          <Target className="h-4 w-4 text-[#b384c9]" />
+                          <Target className="h-4 w-4 text-[#B74783]" />
                           <span className="text-sm font-medium">{day.value}%</span>
                         </div>
                       </div>
@@ -157,7 +157,7 @@ export function MoodTracker() {
                               </span>
                             </div>
                             <div className="flex items-center gap-2">
-                              <span className="text-xs text-[rgba(231,218,237,0.55)]">
+                              <span className="text-xs text-[#927C8B]">
                                 {activity.duration}
                               </span>
                               <div
@@ -174,15 +174,15 @@ export function MoodTracker() {
                         ))}
                       </div>
 
-                      <div className="grid grid-cols-2 gap-2 border-t border-[rgba(216,191,227,0.18)] pt-2">
+                      <div className="grid grid-cols-2 gap-2 border-t border-[#EADCE5] pt-2">
                         <div className="text-center">
-                          <p className="text-xs text-[rgba(231,218,237,0.55)]">
+                          <p className="text-xs text-[#927C8B]">
                             Energy
                           </p>
                           <Progress value={day.energy} className="mt-1 h-1" />
                         </div>
                         <div className="text-center">
-                          <p className="text-xs text-[rgba(231,218,237,0.55)]">Sleep</p>
+                          <p className="text-xs text-[#927C8B]">Sleep</p>
                           <p className="text-sm font-medium">{day.sleep}hrs</p>
                         </div>
                       </div>
@@ -195,8 +195,8 @@ export function MoodTracker() {
                     initial={{ height: 0 }}
                     animate={{ height: `${day.value}%` }}
                     transition={{ delay: index * 0.1 }}
-                    className={`absolute bottom-0 left-1/2 w-8 -translate-x-1/2 rounded-full bg-gradient-to-t from-[rgba(179,132,201,0.2)] to-[rgba(179,132,201,0.4)] transition-all group-hover:from-[rgba(179,132,201,0.3)] group-hover:to-[rgba(179,132,201,0.5)] ${
-                      selectedDay === index ? "ring-2 ring-[#b384c9]" : ""
+                    className={`absolute bottom-0 left-1/2 w-8 -translate-x-1/2 rounded-full bg-gradient-to-t from-[rgba(183,71,131,0.2)] to-[rgba(183,71,131,0.4)] transition-all group-hover:from-[rgba(183,71,131,0.3)] group-hover:to-[rgba(183,71,131,0.5)] ${
+                      selectedDay === index ? "ring-2 ring-[#B74783]" : ""
                     }`}
                   >
                     <div className="absolute -top-3 left-1/2 -translate-x-1/2">
@@ -209,8 +209,8 @@ export function MoodTracker() {
                 <span
                   className={`text-sm font-medium transition-colors ${
                     selectedDay === index
-                      ? "text-[#b384c9]"
-                      : "text-[rgba(231,218,237,0.55)]"
+                      ? "text-[#B74783]"
+                      : "text-[#927C8B]"
                   }`}
                 >
                   {day.day}
@@ -221,11 +221,11 @@ export function MoodTracker() {
         </div>
 
         {/* Insights Grid */}
-        <div className="grid grid-cols-2 gap-4 border-t border-[rgba(216,191,227,0.18)] pt-6">
+        <div className="grid grid-cols-2 gap-4 border-t border-[#EADCE5] pt-6">
           {moodData.insights.map((insight, index) => (
             <div
               key={index}
-              className="space-y-2 rounded-[16px] border border-[rgba(216,191,227,0.18)] bg-[rgba(179,132,201,0.06)] p-4"
+              className="space-y-2 rounded-[16px] border border-[#EADCE5] bg-[rgba(183,71,131,0.06)] p-4"
             >
               <div className="flex items-center gap-2">
                 {insight.trend === "up" ? (
@@ -237,7 +237,7 @@ export function MoodTracker() {
                   {insight.title}
                 </h4>
               </div>
-              <p className="text-sm leading-relaxed text-[rgba(231,218,237,0.55)]">
+              <p className="text-sm leading-relaxed text-[#927C8B]">
                 {insight.description}
               </p>
             </div>
@@ -245,27 +245,27 @@ export function MoodTracker() {
         </div>
 
         {/* Monthly Overview */}
-        <div className="border-t border-[rgba(216,191,227,0.18)] pt-6">
+        <div className="border-t border-[#EADCE5] pt-6">
           <div className="mb-4 flex items-center justify-between">
             <h4 className="flex items-center gap-2 font-display text-sm font-semibold text-foreground">
-              <Calendar className="h-4 w-4 text-[#b384c9]" />
+              <Calendar className="h-4 w-4 text-[#B74783]" />
               Monthly Overview
             </h4>
-            <p className="text-sm text-[rgba(231,218,237,0.55)]">Average mood: 77%</p>
+            <p className="text-sm text-[#927C8B]">Average mood: 77%</p>
           </div>
           <div className="grid grid-cols-4 gap-3">
             {moodData.monthly.map((week) => (
               <div
                 key={week.week}
-                className="rounded-[16px] border border-[rgba(216,191,227,0.18)] bg-white/[0.03] p-3 text-center"
+                className="rounded-[16px] border border-[#EADCE5] bg-white p-3 text-center"
               >
                 <p className="font-display text-sm font-semibold text-foreground">
                   Week {week.week}
                 </p>
-                <p className="mt-1 text-xs text-[rgba(231,218,237,0.55)]">
+                <p className="mt-1 text-xs text-[#927C8B]">
                   Avg: {week.average}%
                 </p>
-                <div className="mt-1 space-x-2 text-xs text-[rgba(231,218,237,0.55)]">
+                <div className="mt-1 space-x-2 text-xs text-[#927C8B]">
                   <span className="text-green-500">↑{week.peak}</span>
                   <span className="text-yellow-500">↓{week.low}</span>
                 </div>

@@ -125,6 +125,8 @@ export interface WellnessPlanSuggestion {
 export interface WellnessPlan {
   id: string;
   userId?: string;
+  /** Catalog slug when started from the 18-plan explorer */
+  catalogSlug?: string;
   title: string;
   primaryGoal: PrimaryGoal;
   assessment: WellnessAssessment;
@@ -144,9 +146,17 @@ export interface WellnessPlan {
   pendingSuggestion?: WellnessPlanSuggestion | null;
 }
 
+/** Legacy single-plan storage (v1) */
 export interface WellnessPlanState {
   plan: WellnessPlan | null;
   version: number;
+}
+
+/** Multi-enrollment storage (v2) */
+export interface WellnessEnrollmentStore {
+  version: 2;
+  enrollments: WellnessPlan[];
+  activeEnrollmentId: string | null;
 }
 
 export const GOAL_LABELS: Record<PrimaryGoal, string> = {

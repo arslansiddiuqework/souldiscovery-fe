@@ -41,7 +41,7 @@ export function TodaysMission({ day, onTaskClick }: TodaysMissionProps) {
         <CardHeader className="relative">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div className="space-y-1.5">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[rgba(231,218,237,0.45)]">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#927C8B]">
                 Day {day.dayNumber} · {day.theme}
               </p>
               <CardTitle className="text-lg md:text-xl">
@@ -52,10 +52,10 @@ export function TodaysMission({ day, onTaskClick }: TodaysMissionProps) {
               </CardDescription>
             </div>
             <div className="text-right">
-              <p className="font-display text-2xl font-bold text-[#f3eefa]">
+              <p className="font-display text-2xl font-bold text-[#49263D]">
                 {percent}%
               </p>
-              <p className="text-xs text-[rgba(231,218,237,0.45)]">
+              <p className="text-xs text-[#927C8B]">
                 {done} / {total} done
               </p>
             </div>
@@ -74,24 +74,24 @@ export function TodaysMission({ day, onTaskClick }: TodaysMissionProps) {
                 className={cn(
                   "flex w-full items-center gap-4 rounded-2xl border px-4 py-3.5 text-left transition-all duration-300",
                   task.completed
-                    ? "border-[rgba(216,191,227,0.12)] bg-white/[0.02] opacity-70"
-                    : "border-[rgba(216,191,227,0.18)] bg-white/[0.035] hover:border-[#b384c9]/35 hover:bg-[rgba(179,132,201,0.08)]"
+                    ? "border-[#EADCE5] bg-white/[0.02] opacity-70"
+                    : "border-[#EADCE5] bg-white hover:border-[#B74783]/35 hover:bg-[rgba(183,71,131,0.08)]"
                 )}
               >
                 <MissionCheckbox completed={task.completed} />
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[rgba(179,132,201,0.12)]">
-                  <Icon className="h-4 w-4 text-[#b384c9]" />
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#FFE5F0]">
+                  <Icon className="h-4 w-4 text-[#B74783]" />
                 </div>
                 <div className="min-w-0 flex-1">
                   <p
                     className={cn(
-                      "font-display text-sm font-semibold text-[#f3eefa]",
+                      "font-display text-sm font-semibold text-[#49263D]",
                       task.completed && "line-through opacity-70"
                     )}
                   >
                     {task.title}
                   </p>
-                  <p className="truncate text-xs text-[rgba(231,218,237,0.45)]">
+                  <p className="truncate text-xs text-[#927C8B]">
                     {task.estimatedMinutes} min · {task.description}
                   </p>
                 </div>

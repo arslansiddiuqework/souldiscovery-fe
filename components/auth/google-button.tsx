@@ -46,7 +46,7 @@ function GoogleButtonInner({
       type="button"
       variant="outline"
       size="lg"
-      className="w-full rounded-full border border-[rgba(216,191,227,0.22)] bg-white/[0.05] text-[#f3eefa] shadow-sm backdrop-blur-xl hover:border-[rgba(216,191,227,0.35)] hover:bg-white/[0.08] hover:text-[#f3eefa]"
+      className="w-full rounded-full border border-[#EADCE5] bg-[#FFF0F6] text-[#49263D] shadow-sm backdrop-blur-xl hover:border-[#EADCE5] hover:bg-[#FFF0F6] hover:text-[#49263D]"
       onClick={() => {
         setIsLoading(true);
         setTimeout(() => setIsLoading(false), 30000);

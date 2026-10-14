@@ -12,22 +12,28 @@ import {
   PlanTask,
 } from "@/lib/wellness-plan/types";
 import {
+  activateEnrollment,
   createWellnessPlan,
+  getEnrollmentForCatalogSlug,
   getWellnessPlan,
   completeWellnessTask,
   deleteWellnessPlan,
+  listWellnessEnrollments,
   refreshWeeklyReport,
   updateWellnessPlan,
   getPendingChatSuggestion,
   clearPendingChatSuggestion,
 } from "@/lib/api/wellness-plan";
 import { adaptPlanIfNeeded } from "@/lib/wellness-plan/adaptive";
-import { WellnessEmptyState } from "./empty-state";
+import { getPlanBySlug, type CatalogPlan } from "@/lib/wellness-plan/catalog";
+import { setWellnessStorageUserId } from "@/lib/wellness-plan/storage";
 import { AssessmentFlow } from "./assessment-flow";
 import { PlanDashboard } from "./plan-dashboard";
 import { TaskRunner } from "./task-runner";
+import { WellnessPlansHub } from "./hub/wellness-plans-hub";
+import { WellnessPlanDetails } from "./hub/wellness-plan-details";
 
-type View = "loading" | "empty" | "assessment" | "dashboard";
+type View = "loading" | "hub" | "detail" | "assessment" | "dashboard";
 
 export function WellnessPlanApp() {
   const { user } = useSession();
@@ -35,45 +41,134 @@ export function WellnessPlanApp() {
   const searchParams = useSearchParams();
   const [view, setView] = useState<View>("loading");
   const [plan, setPlan] = useState<WellnessPlan | null>(null);
+  const [enrollments, setEnrollments] = useState<WellnessPlan[]>([]);
+  const [selectedCatalog, setSelectedCatalog] = useState<CatalogPlan | null>(
+    null
+  );
+  const [detailEnrollment, setDetailEnrollment] =
+    useState<WellnessPlan | null>(null);
   const [generating, setGenerating] = useState(false);
   const [activeTask, setActiveTask] = useState<PlanTask | null>(null);
-  const [suggestionMsg, setSuggestionMsg] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
-    const existing = await getWellnessPlan();
+    const [existing, all] = await Promise.all([
+      getWellnessPlan(),
+      listWellnessEnrollments(),
+    ]);
+    setEnrollments(all);
     if (existing && existing.status !== "paused" && existing.weeks.length > 0) {
       setPlan(existing);
-      setView("dashboard");
     } else {
       setPlan(null);
-      setView("empty");
-      const pending = getPendingChatSuggestion();
-      if (pending?.message) setSuggestionMsg(pending.message);
     }
   }, []);
 
   useEffect(() => {
-    refresh();
-  }, [refresh]);
+    setWellnessStorageUserId(user?._id || null);
+  }, [user?._id]);
 
   useEffect(() => {
-    const action = searchParams.get("action");
-    if (action === "create" || action === "assess") {
-      setView("assessment");
-    }
-  }, [searchParams]);
+    let cancelled = false;
+    (async () => {
+      setWellnessStorageUserId(user?._id || null);
+      await refresh();
+      if (cancelled) return;
 
-  const handleCreate = () => setView("assessment");
+      const action = searchParams.get("action");
+      const planSlug = searchParams.get("plan");
+
+      if (action === "create" || action === "assess") {
+        setView("assessment");
+        return;
+      }
+
+      if (planSlug) {
+        const catalog = getPlanBySlug(planSlug);
+        if (catalog) {
+          const enrollment = await getEnrollmentForCatalogSlug(planSlug);
+          if (cancelled) return;
+          setSelectedCatalog(catalog);
+          setDetailEnrollment(enrollment);
+          setView("detail");
+          return;
+        }
+      }
+
+      // Refresh enrollments without yanking the user out of an open dashboard
+      setView((current) =>
+        current === "dashboard" || current === "assessment" ? current : "hub"
+      );
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [refresh, searchParams, user?._id]);
+
+  const openHub = () => {
+    setSelectedCatalog(null);
+    setDetailEnrollment(null);
+    setView("hub");
+    router.replace("/wellness-plan", { scroll: false });
+  };
+
+  const handleOpenPlan = async (slug: string) => {
+    const catalog = getPlanBySlug(slug);
+    if (!catalog) return;
+    const enrollment = await getEnrollmentForCatalogSlug(slug);
+    setSelectedCatalog(catalog);
+    setDetailEnrollment(enrollment);
+    setView("detail");
+    router.replace(`/wellness-plan?plan=${slug}`, { scroll: false });
+  };
+
+  const handleContinueActive = async () => {
+    if (!plan) return;
+    setView("dashboard");
+  };
+
+  const handleContinueFromDetail = async () => {
+    if (detailEnrollment) {
+      const activated = await activateEnrollment(detailEnrollment.id);
+      if (activated) {
+        setPlan(activated);
+        setView("dashboard");
+      }
+    }
+  };
+
+  const handleStartFromCatalog = async (
+    assessment: WellnessAssessment,
+    forceNew?: boolean
+  ) => {
+    if (!selectedCatalog) return;
+    setGenerating(true);
+    try {
+      await new Promise((r) => setTimeout(r, 900));
+      const created = await createWellnessPlan({
+        assessment,
+        userId: user?._id,
+        catalogSlug: selectedCatalog.slug,
+        forceNew,
+      });
+      clearPendingChatSuggestion();
+      setPlan(created);
+      setDetailEnrollment(created);
+      await refresh();
+      setView("dashboard");
+      router.replace("/wellness-plan", { scroll: false });
+    } finally {
+      setGenerating(false);
+    }
+  };
 
   const handleAssessmentComplete = async (assessment: WellnessAssessment) => {
     setGenerating(true);
     try {
-      // Brief pause for premium generation feel
       await new Promise((r) => setTimeout(r, 1400));
       const created = await createWellnessPlan(assessment, user?._id);
       clearPendingChatSuggestion();
-      setSuggestionMsg(null);
       setPlan(created);
+      await refresh();
       setView("dashboard");
       router.replace("/wellness-plan", { scroll: false });
     } finally {
@@ -102,7 +197,10 @@ export function WellnessPlanApp() {
     extras?: { journalEntry?: string; notes?: string }
   ) => {
     const next = await completeWellnessTask(taskId, extras);
-    if (next) setPlan(next);
+    if (next) {
+      setPlan(next);
+      await refresh();
+    }
   };
 
   const handleRefreshReport = async () => {
@@ -113,7 +211,8 @@ export function WellnessPlanApp() {
   const handleReset = async () => {
     await deleteWellnessPlan();
     setPlan(null);
-    setView("empty");
+    await refresh();
+    setView("hub");
   };
 
   const handleDismissSuggestion = async () => {
@@ -127,7 +226,6 @@ export function WellnessPlanApp() {
 
   const handleApplySuggestion = async () => {
     if (!plan) return;
-    // Re-run adaptive engine + clear suggestion
     let next = adaptPlanIfNeeded({
       ...plan,
       challengeLevel:
@@ -142,30 +240,57 @@ export function WellnessPlanApp() {
     setPlan(next);
   };
 
+  // Consume pending suggestion message once on hub (kept for chat deep-links)
+  useEffect(() => {
+    getPendingChatSuggestion();
+  }, []);
+
   return (
-    <div className="page-shell pb-16 text-[#f3eefa] md:pb-24">
-      <Container className="space-y-8">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="rounded-xl"
-            onClick={() => router.push("/dashboard")}
-            aria-label="Back to dashboard"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          {view !== "dashboard" && (
+    <div className="page-shell pb-10 text-[#512943] md:pb-14">
+      <Container className="max-w-[1240px] space-y-5">
+        {view === "dashboard" && (
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="rounded-xl"
+              onClick={openHub}
+              aria-label="Back to wellness plans"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
             <div>
-              <h1 className="text-2xl font-bold tracking-tight text-[#f3eefa] md:text-3xl">
-                Wellness Plan
+              <p className="text-xs font-semibold uppercase tracking-wide text-[#BE4A8B]">
+                Active plan
+              </p>
+              <h1 className="text-xl font-bold tracking-tight text-[#512943]">
+                {plan?.title || "Wellness Plan"}
               </h1>
-              <p className="mt-1 text-sm text-[rgba(231,218,237,0.55)]">
-                Your personalized AI wellness journey
+            </div>
+          </div>
+        )}
+
+        {view === "assessment" && (
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="rounded-xl"
+              onClick={openHub}
+              aria-label="Back"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <div>
+              <h1 className="text-2xl font-bold tracking-tight text-[#512943]">
+                Create a plan
+              </h1>
+              <p className="mt-1 text-sm text-[#957F94]">
+                A short check-in to personalise your schedule
               </p>
             </div>
-          )}
-        </div>
+          </div>
+        )}
 
         {view === "loading" && (
           <div className="flex min-h-[40vh] items-center justify-center">
@@ -173,17 +298,30 @@ export function WellnessPlanApp() {
           </div>
         )}
 
-        {view === "empty" && (
-          <WellnessEmptyState
-            onCreate={handleCreate}
-            suggestionMessage={suggestionMsg}
+        {view === "hub" && (
+          <WellnessPlansHub
+            activePlan={plan}
+            enrollments={enrollments}
+            onContinueActive={handleContinueActive}
+            onOpenPlan={handleOpenPlan}
+          />
+        )}
+
+        {view === "detail" && selectedCatalog && (
+          <WellnessPlanDetails
+            catalog={selectedCatalog}
+            enrollment={detailEnrollment}
+            starting={generating}
+            onBack={openHub}
+            onStart={handleStartFromCatalog}
+            onContinue={handleContinueFromDetail}
           />
         )}
 
         {view === "assessment" && (
           <AssessmentFlow
             onComplete={handleAssessmentComplete}
-            onCancel={() => setView(plan ? "dashboard" : "empty")}
+            onCancel={openHub}
             isGenerating={generating}
           />
         )}

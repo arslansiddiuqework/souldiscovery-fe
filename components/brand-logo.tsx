@@ -33,17 +33,17 @@ export function BrandLogo({
   size = 32,
   className,
   showCaption = false,
-  tone = "light",
+  tone = "dark",
   priority = false,
 }: BrandLogoProps) {
   const nameClass =
     tone === "light"
-      ? "text-[#f3eefa]"
-      : "text-[#003333]";
+      ? "text-white"
+      : "text-[#49263D]";
   const captionClass =
     tone === "light"
-      ? "text-[rgba(231,218,237,0.55)]"
-      : "text-[#004d4d]/80";
+      ? "text-white/70"
+      : "text-[#795A70]";
 
   if (variant === "full") {
     return (
@@ -60,15 +60,23 @@ export function BrandLogo({
 
   if (variant === "icon") {
     return (
-      <Image
-        src={BRAND_ICON_SRC}
-        alt={BRAND_NAME}
-        width={size}
-        height={size}
-        priority={priority}
-        className={cn("object-contain", className)}
+      <span
+        className={cn(
+          "inline-flex items-center justify-center overflow-hidden rounded-full bg-[#FFF6FA] ring-1 ring-[#EADCE5]/70",
+          className
+        )}
         style={{ width: size, height: size }}
-      />
+      >
+        <Image
+          src={BRAND_ICON_SRC}
+          alt={BRAND_NAME}
+          width={size}
+          height={size}
+          priority={priority}
+          className="object-cover"
+          style={{ width: size, height: size }}
+        />
+      </span>
     );
   }
 
@@ -82,16 +90,21 @@ export function BrandLogo({
         className
       )}
     >
-      <Image
-        src={BRAND_ICON_SRC}
-        alt=""
-        width={size}
-        height={size}
-        priority={priority}
-        className="shrink-0 object-contain"
+      <span
+        className="inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#FFF6FA] ring-1 ring-[#EADCE5]/70"
         style={{ width: size, height: size }}
         aria-hidden
-      />
+      >
+        <Image
+          src={BRAND_ICON_SRC}
+          alt=""
+          width={size}
+          height={size}
+          priority={priority}
+          className="object-cover"
+          style={{ width: size, height: size }}
+        />
+      </span>
       <span
         className={cn(
           "flex min-w-0 flex-col",

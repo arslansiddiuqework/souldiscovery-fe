@@ -79,6 +79,7 @@ import { VoiceModal } from "@/components/voice/VoiceModal";
 import { UpcomingConsultationCard } from "@/components/consultation/upcoming-consultation";
 import { MySessions } from "@/components/consultation/my-sessions";
 import { BookingFlow } from "@/components/consultation/booking-flow";
+import { SESSION_PRICE_USD } from "@/lib/consultation/types";
 
 // type definition
 type ActivityLevel = "none" | "low" | "medium" | "high";
@@ -491,8 +492,8 @@ export default function Dashboard() {
       title: "Mood Score",
       value: dailyStats.moodScore !== null ? `${dailyStats.moodScore}%` : "No data",
       icon: Brain,
-      color: "text-[#b384c9]",
-      bgColor: "bg-[rgba(179,132,201,0.12)]",
+      color: "text-[#B74783]",
+      bgColor: "bg-[#FFE5F0]",
       description: dailyStats.moodScore !== null ? "Your latest mood" : "Track your mood to see data",
     },
     {
@@ -624,7 +625,7 @@ export default function Dashboard() {
         console.error("Error logging game activity:", error);
       }
     },
-    [loadActivities]
+    [loadActivities, fetchDailyStats]
   );
 
   const handleDeleteActivity = async (activityId: string) => {
@@ -646,7 +647,7 @@ export default function Dashboard() {
       <div className="flex min-h-screen items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="h-10 w-10 animate-spin rounded-full border-2 border-primary/20 border-t-primary" />
-          <p className="text-sm text-[rgba(231,218,237,0.55)]">
+          <p className="text-sm text-[#927C8B]">
             Preparing your dashboard
           </p>
         </div>
@@ -655,10 +656,10 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="page-shell pb-16 text-white md:pb-24">
-      <Container className="space-y-10 md:space-y-14">
+    <div className="page-shell pb-10 text-[#49263D] md:pb-14">
+      <Container className="space-y-6 md:space-y-8">
         {/* Header Section */}
-        <div className="border-b border-[rgba(216,191,227,0.18)] pb-8 md:pb-10">
+        <div className="border-b border-[#EADCE5] pb-5 md:pb-6">
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
@@ -673,13 +674,13 @@ export default function Dashboard() {
                 day: "numeric",
               })}
             </span>
-            <h1 className="font-display text-3xl font-bold tracking-tight text-white md:text-4xl lg:text-[40px]">
+            <h1 className="font-display text-3xl font-bold tracking-tight text-[#49263D] md:text-4xl lg:text-[40px]">
               Welcome back,{" "}
               <span className="text-gradient-brand">
                 {user?.name || "there"}
               </span>
             </h1>
-            <p className="max-w-2xl text-base leading-relaxed text-[rgba(231,218,237,0.55)] md:text-lg">
+            <p className="max-w-2xl text-base leading-relaxed text-[#927C8B] md:text-lg">
               A calm snapshot of your wellbeing — your mood, check-ins and
               supportive activities, all in one place.
             </p>
@@ -692,22 +693,22 @@ export default function Dashboard() {
           <section className="space-y-6">
             <div className="flex flex-wrap items-end justify-between gap-4">
               <div className="space-y-1.5">
-                <h2 className="font-display text-xl font-semibold tracking-tight text-white md:text-2xl">
+                <h2 className="font-display text-xl font-semibold tracking-tight text-[#49263D] md:text-2xl">
                   Today&apos;s Overview
                 </h2>
-                <p className="text-sm text-[rgba(231,218,237,0.55)]">
+                <p className="text-sm text-[#927C8B]">
                   Your wellness metrics for {format(new Date(), "MMMM d, yyyy")}
                 </p>
               </div>
               <div className="flex items-center gap-3">
-                <p className="text-xs text-[rgba(231,218,237,0.55)]">
+                <p className="text-xs text-[#927C8B]">
                   Last updated: {format(dailyStats.lastUpdated, "h:mm a")}
                 </p>
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={fetchDailyStats}
-                  className="group h-9 w-9 rounded-xl border border-[rgba(216,191,227,0.18)] bg-white/[0.035] text-[#d8bfe3] shadow-card hover:bg-white/[0.06]"
+                  className="group h-9 w-9 rounded-xl border border-[#EADCE5] bg-white text-[#D9B8F5] shadow-card hover:bg-[#FFF0F6]"
                   title="Refresh metrics"
                 >
                   <Loader2 className="h-4 w-4 transition-transform duration-500 group-hover:rotate-180" />
@@ -715,11 +716,11 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4 md:gap-6">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4 md:gap-4">
               {wellnessStats.map((stat) => (
-                <Card key={stat.title} interactive className="glass-panel border-[rgba(216,191,227,0.18)] p-6 md:p-7">
+                <Card key={stat.title} interactive className="glass-panel border-[#EADCE5] p-6 md:p-7">
                   <div className="flex items-start justify-between gap-4">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[rgba(231,218,237,0.45)]">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#927C8B]">
                       {stat.title}
                     </p>
                     <div
@@ -731,10 +732,10 @@ export default function Dashboard() {
                       <stat.icon className={cn("h-5 w-5", stat.color)} />
                     </div>
                   </div>
-                  <p className="mt-6 font-display text-3xl font-bold tracking-tight text-white">
+                  <p className="mt-6 font-display text-3xl font-bold tracking-tight text-[#49263D]">
                     {stat.value}
                   </p>
-                  <p className="mt-1.5 text-sm text-[rgba(231,218,237,0.55)]">
+                  <p className="mt-1.5 text-sm text-[#927C8B]">
                     {stat.description}
                   </p>
                 </Card>
@@ -743,14 +744,14 @@ export default function Dashboard() {
           </section>
 
           {/* Actions + Insights Grid */}
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-3 md:gap-8">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 md:gap-5">
             {/* Quick Actions Card */}
             <Card className="relative overflow-hidden lg:col-span-2">
               <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-primary/[0.07] to-transparent" />
               <CardHeader className="relative pb-0">
                 <div className="flex items-center gap-4">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-[rgba(216,191,227,0.22)] bg-[rgba(179,132,201,0.12)] shadow-soft">
-                    <Sparkles className="h-5 w-5 text-white" />
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-[#EADCE5] bg-[#FFE5F0] shadow-soft">
+                    <Sparkles className="h-5 w-5 text-[#49263D]" />
                   </div>
                   <div className="space-y-1">
                     <CardTitle className="text-lg md:text-xl">
@@ -766,18 +767,18 @@ export default function Dashboard() {
                 <div className="grid gap-3 sm:grid-cols-2">
                   <Button
                     variant="secondary"
-                    className="group/button h-auto w-full items-center justify-start border-[rgba(216,191,227,0.18)] bg-[rgba(179,132,201,0.08)] p-4 hover:bg-[rgba(179,132,201,0.12)]"
+                    className="group/button h-auto w-full items-center justify-start border-[#EADCE5] bg-[rgba(183,71,131,0.08)] p-4 hover:bg-[#FFE5F0]"
                     onClick={handleStartTherapy}
                   >
                     <div className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[rgba(179,132,201,0.12)]">
-                        <MessageSquare className="h-4 w-4 text-[#b384c9]" />
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#FFE5F0]">
+                        <MessageSquare className="h-4 w-4 text-[#B74783]" />
                       </div>
                       <div className="text-left">
-                        <div className="font-display text-base font-semibold text-[#f3eefa]">
+                        <div className="font-display text-base font-semibold text-[#49263D]">
                           Open Up
                         </div>
-                        <div className="text-[11px] font-normal text-[rgba(231,218,237,0.55)]">
+                        <div className="text-[11px] font-normal text-[#927C8B]">
                           Share what&apos;s on your mind.
                         </div>
                       </div>
@@ -786,18 +787,18 @@ export default function Dashboard() {
 
                   <Button
                     variant="secondary"
-                    className="group/voice h-auto w-full items-center justify-start border-[rgba(216,191,227,0.18)] bg-[rgba(179,132,201,0.08)] p-4 hover:bg-[rgba(179,132,201,0.12)]"
+                    className="group/voice h-auto w-full items-center justify-start border-[#EADCE5] bg-[rgba(183,71,131,0.08)] p-4 hover:bg-[#FFE5F0]"
                     onClick={handleStartVoiceTherapy}
                   >
                     <div className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[rgba(179,132,201,0.12)]">
-                        <Mic className="h-4 w-4 text-[#b384c9]" />
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#FFE5F0]">
+                        <Mic className="h-4 w-4 text-[#B74783]" />
                       </div>
                       <div className="text-left">
-                        <div className="font-display text-base font-semibold text-[#f3eefa]">
+                        <div className="font-display text-base font-semibold text-[#49263D]">
                           Speak Freely
                         </div>
-                        <div className="text-[11px] font-normal text-[rgba(231,218,237,0.55)]">
+                        <div className="text-[11px] font-normal text-[#927C8B]">
                           Share your thoughts out loud and be heard.
                         </div>
                       </div>
@@ -808,17 +809,17 @@ export default function Dashboard() {
                 <div className="grid grid-cols-2 gap-3">
                   <Button
                     variant="outline"
-                    className="group/mood h-[124px] flex-col items-center justify-center border-[rgba(216,191,227,0.18)] px-4 py-3 text-center hover:border-primary/40"
+                    className="group/mood h-[124px] flex-col items-center justify-center border-[#EADCE5] px-4 py-3 text-center hover:border-primary/40"
                     onClick={() => setShowMoodModal(true)}
                   >
-                    <div className="mb-2.5 flex h-11 w-11 items-center justify-center rounded-2xl bg-[rgba(179,132,201,0.12)]">
-                      <Heart className="h-5 w-5 text-[#b384c9]" />
+                    <div className="mb-2.5 flex h-11 w-11 items-center justify-center rounded-2xl bg-[#FFE5F0]">
+                      <Heart className="h-5 w-5 text-[#B74783]" />
                     </div>
                     <div>
-                      <div className="font-display text-sm font-semibold text-[#f3eefa]">
+                      <div className="font-display text-sm font-semibold text-[#49263D]">
                         Track Mood
                       </div>
-                      <div className="mt-0.5 text-xs font-normal text-[rgba(231,218,237,0.55)]">
+                      <div className="mt-0.5 text-xs font-normal text-[#927C8B]">
                         How are you feeling?
                       </div>
                     </div>
@@ -826,17 +827,17 @@ export default function Dashboard() {
 
                   <Button
                     variant="outline"
-                    className="group/ai h-[124px] flex-col items-center justify-center border-[rgba(216,191,227,0.18)] px-4 py-3 text-center hover:border-primary/40"
+                    className="group/ai h-[124px] flex-col items-center justify-center border-[#EADCE5] px-4 py-3 text-center hover:border-primary/40"
                     onClick={handleAICheckIn}
                   >
-                    <div className="mb-2.5 flex h-11 w-11 items-center justify-center rounded-2xl bg-[rgba(179,132,201,0.12)]">
-                      <BrainCircuit className="h-5 w-5 text-[#b384c9]" />
+                    <div className="mb-2.5 flex h-11 w-11 items-center justify-center rounded-2xl bg-[#FFE5F0]">
+                      <BrainCircuit className="h-5 w-5 text-[#B74783]" />
                     </div>
                     <div>
-                      <div className="font-display text-sm font-semibold text-[#f3eefa]">
+                      <div className="font-display text-sm font-semibold text-[#49263D]">
                         Check-in
                       </div>
-                      <div className="mt-0.5 text-xs font-normal text-[rgba(231,218,237,0.55)]">
+                      <div className="mt-0.5 text-xs font-normal text-[#927C8B]">
                         Quick wellness check
                       </div>
                     </div>
@@ -846,69 +847,105 @@ export default function Dashboard() {
                 <Button
                   asChild
                   variant="secondary"
-                  className="group/wellness h-auto w-full items-center justify-between border-[rgba(216,191,227,0.22)] bg-[rgba(179,132,201,0.1)] p-4 hover:bg-[rgba(179,132,201,0.14)]"
+                  className="group/assessments h-auto w-full items-center justify-between border-[#EADCE5] bg-[rgba(167,139,250,0.12)] p-4 hover:bg-[rgba(167,139,250,0.18)]"
                 >
-                  <Link href="/wellness-plan">
+                  <Link href="/assessments">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[rgba(179,132,201,0.16)]">
-                        <Sparkles className="h-4 w-4 text-[#b384c9]" />
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[rgba(167,139,250,0.2)]">
+                        <BrainCircuit className="h-4 w-4 text-[#7863C6]" />
                       </div>
                       <div className="text-left">
-                        <div className="font-display text-base font-semibold text-[#f3eefa]">
-                          Create Your Wellness Plan
+                        <div className="font-display text-base font-semibold text-[#49263D]">
+                          Assessment Center
                         </div>
-                        <div className="text-[11px] font-normal text-[rgba(231,218,237,0.55)]">
-                          Personalized daily missions & AI coaching
+                        <div className="text-[11px] font-normal text-[#927C8B]">
+                          Check in with your feelings & patterns
                         </div>
                       </div>
                     </div>
-                    <ChevronRight className="h-5 w-5 text-[rgba(231,218,237,0.55)] transition-transform group-hover/wellness:translate-x-1 group-hover/wellness:text-[#b384c9]" />
-                  </Link>
-                </Button>
-
-                <Button
-                  asChild
-                  variant="secondary"
-                  className="group/progress h-auto w-full items-center justify-between border-[rgba(216,191,227,0.18)] p-4"
-                >
-                  <Link href="/progress">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[rgba(179,132,201,0.12)]">
-                        <LineChart className="h-4 w-4 text-[#b384c9]" />
-                      </div>
-                      <div className="text-left">
-                        <div className="font-display text-base font-semibold text-[#f3eefa]">
-                          Weekly Progress
-                        </div>
-                        <div className="text-[11px] font-normal text-[rgba(231,218,237,0.55)]">
-                          View your insights & trends
-                        </div>
-                      </div>
-                    </div>
-                    <ChevronRight className="h-5 w-5 text-[rgba(231,218,237,0.55)] transition-transform group-hover/progress:translate-x-1 group-hover/progress:text-[#b384c9]" />
+                    <ChevronRight className="h-5 w-5 text-[#927C8B] transition-transform group-hover/assessments:translate-x-1 group-hover/assessments:text-[#7863C6]" />
                   </Link>
                 </Button>
 
                 <Button
                   asChild
                   variant="outline"
-                  className="group/pricing h-auto w-full items-center justify-between border-[rgba(216,191,227,0.18)] p-4"
+                  className="group/history h-auto w-full items-center justify-between border-[#EADCE5] p-3"
+                >
+                  <Link href="/dashboard/assessment-history">
+                    <div className="text-left text-sm font-semibold text-[#49263D]">
+                      Assessment history
+                    </div>
+                    <ChevronRight className="h-4 w-4 text-[#927C8B]" />
+                  </Link>
+                </Button>
+
+                <Button
+                  asChild
+                  variant="secondary"
+                  className="group/wellness h-auto w-full items-center justify-between border-[#EADCE5] bg-[rgba(183,71,131,0.1)] p-4 hover:bg-[rgba(183,71,131,0.14)]"
+                >
+                  <Link href="/wellness-plan">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[rgba(183,71,131,0.16)]">
+                        <Sparkles className="h-4 w-4 text-[#B74783]" />
+                      </div>
+                      <div className="text-left">
+                        <div className="font-display text-base font-semibold text-[#49263D]">
+                          Create Your Wellness Plan
+                        </div>
+                        <div className="text-[11px] font-normal text-[#927C8B]">
+                          Personalized daily missions & AI coaching
+                        </div>
+                      </div>
+                    </div>
+                    <ChevronRight className="h-5 w-5 text-[#927C8B] transition-transform group-hover/wellness:translate-x-1 group-hover/wellness:text-[#B74783]" />
+                  </Link>
+                </Button>
+
+                <Button
+                  asChild
+                  variant="secondary"
+                  className="group/progress h-auto w-full items-center justify-between border-[#EADCE5] p-4"
+                >
+                  <Link href="/progress">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#FFE5F0]">
+                        <LineChart className="h-4 w-4 text-[#B74783]" />
+                      </div>
+                      <div className="text-left">
+                        <div className="font-display text-base font-semibold text-[#49263D]">
+                          Weekly Progress
+                        </div>
+                        <div className="text-[11px] font-normal text-[#927C8B]">
+                          View your insights & trends
+                        </div>
+                      </div>
+                    </div>
+                    <ChevronRight className="h-5 w-5 text-[#927C8B] transition-transform group-hover/progress:translate-x-1 group-hover/progress:text-[#B74783]" />
+                  </Link>
+                </Button>
+
+                <Button
+                  asChild
+                  variant="outline"
+                  className="group/pricing h-auto w-full items-center justify-between border-[#EADCE5] p-4"
                 >
                   <Link href="/pricing">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[rgba(179,132,201,0.12)]">
-                        <Heart className="h-4 w-4 text-[#b384c9]" />
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#FFE5F0]">
+                        <Heart className="h-4 w-4 text-[#B74783]" />
                       </div>
                       <div className="text-left">
-                        <div className="font-display text-base font-semibold text-[#f3eefa]">
+                        <div className="font-display text-base font-semibold text-[#49263D]">
                           Pricing & Sessions
                         </div>
-                        <div className="text-[11px] font-normal text-[rgba(231,218,237,0.55)]">
+                        <div className="text-[11px] font-normal text-[#927C8B]">
                           Free AI · $10 psychologist sessions
                         </div>
                       </div>
                     </div>
-                    <ChevronRight className="h-5 w-5 text-[rgba(231,218,237,0.55)] transition-transform group-hover/pricing:translate-x-1 group-hover/pricing:text-[#b384c9]" />
+                    <ChevronRight className="h-5 w-5 text-[#927C8B] transition-transform group-hover/pricing:translate-x-1 group-hover/pricing:text-[#B74783]" />
                   </Link>
                 </Button>
               </CardContent>
@@ -918,8 +955,8 @@ export default function Dashboard() {
             <Card>
               <CardHeader>
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[rgba(179,132,201,0.12)]">
-                    <BrainCircuit className="h-5 w-5 text-[#b384c9]" />
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#FFE5F0]">
+                    <BrainCircuit className="h-5 w-5 text-[#B74783]" />
                   </div>
                   <div className="space-y-1">
                     <CardTitle className="text-lg md:text-xl">Insights</CardTitle>
@@ -936,27 +973,27 @@ export default function Dashboard() {
                       <div
                         key={index}
                         className={cn(
-                          "space-y-2 rounded-[16px] border border-[rgba(216,191,227,0.18)] p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/20 hover:shadow-card",
+                          "space-y-2 rounded-[16px] border border-[#EADCE5] p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/20 hover:shadow-card",
                           insight.priority === "high"
-                            ? "bg-[rgba(179,132,201,0.08)]"
+                            ? "bg-[rgba(183,71,131,0.08)]"
                             : insight.priority === "medium"
-                              ? "bg-[rgba(179,132,201,0.06)]"
-                              : "bg-white/[0.035]"
+                              ? "bg-[rgba(183,71,131,0.06)]"
+                              : "bg-white"
                         )}
                       >
                         <div className="flex items-center gap-2.5">
-                          <insight.icon className="h-4 w-4 text-[#b384c9]" />
-                          <p className="font-display text-sm font-semibold text-white">
+                          <insight.icon className="h-4 w-4 text-[#B74783]" />
+                          <p className="font-display text-sm font-semibold text-[#49263D]">
                             {insight.title}
                           </p>
                         </div>
-                        <p className="text-sm leading-relaxed text-[rgba(231,218,237,0.55)]">
+                        <p className="text-sm leading-relaxed text-[#927C8B]">
                           {insight.description}
                         </p>
                       </div>
                     ))
                   ) : (
-                    <div className="py-10 text-center text-[rgba(231,218,237,0.55)]">
+                    <div className="py-10 text-center text-[#927C8B]">
                       <Activity className="mx-auto mb-3 h-8 w-8 opacity-40" />
                       <p className="text-sm leading-relaxed">
                         Complete more activities to receive personalized
@@ -970,21 +1007,20 @@ export default function Dashboard() {
           </div>
 
           {/* Professional Consultation */}
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 md:gap-8">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 md:gap-5">
             <UpcomingConsultationCard
               refreshKey={sessionsRefreshKey}
               onBook={() => setShowBookingFlow(true)}
             />
-            <Card className="flex flex-col justify-center p-6 md:p-8">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[rgba(231,218,237,0.45)]">
+            <Card className="flex flex-col justify-center p-5 md:p-6">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#927C8B]">
                 Human support
               </p>
-              <h3 className="mt-2 font-display text-xl font-bold text-[#f3eefa]">
+              <h3 className="mt-2 font-display text-xl font-bold text-[#49263D]">
                 AI stays free. Professionals when you need them.
               </h3>
-              <p className="mt-2 text-sm leading-relaxed text-[rgba(231,218,237,0.55)]">
-                Book a private 90-minute online session with a licensed
-                psychologist for ${10}.
+              <p className="mt-2 text-sm leading-relaxed text-[#927C8B]">
+                {`Book a private 90-minute online session with a licensed psychologist for $${SESSION_PRICE_USD}.`}
               </p>
               <Button
                 asChild
@@ -1001,8 +1037,8 @@ export default function Dashboard() {
             <CardHeader>
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[rgba(179,132,201,0.12)]">
-                    <Calendar className="h-5 w-5 text-[#b384c9]" />
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#FFE5F0]">
+                    <Calendar className="h-5 w-5 text-[#B74783]" />
                   </div>
                   <div className="space-y-1">
                     <CardTitle className="text-lg md:text-xl">
@@ -1017,7 +1053,7 @@ export default function Dashboard() {
                   variant="outline"
                   size="sm"
                   onClick={() => setShowActivityLogger(true)}
-                  className="border-[rgba(216,191,227,0.18)]"
+                  className="border-[#EADCE5]"
                 >
                   <Activity className="mr-2 h-4 w-4" />
                   Log Activity
@@ -1031,9 +1067,9 @@ export default function Dashboard() {
                 );
                 if (checkIns.length === 0) {
                   return (
-                    <div className="rounded-[16px] border border-dashed border-[rgba(216,191,227,0.18)] bg-white/[0.03] py-12 text-center text-[rgba(231,218,237,0.55)]">
+                    <div className="rounded-[16px] border border-dashed border-[#EADCE5] bg-white py-12 text-center text-[#927C8B]">
                       <Calendar className="mx-auto mb-3 h-8 w-8 opacity-40" />
-                      <p className="font-display text-sm font-medium text-white">
+                      <p className="font-display text-sm font-medium text-[#49263D]">
                         No check-ins today.
                       </p>
                       <p className="mx-auto mt-1.5 max-w-sm text-sm">
@@ -1048,15 +1084,15 @@ export default function Dashboard() {
                     {checkIns.map((activity: any) => (
                       <div
                         key={activity._id || activity.id}
-                        className="group flex items-center justify-between rounded-[16px] border border-[rgba(216,191,227,0.18)] bg-white/[0.03] p-4 transition-all duration-300 hover:border-primary/20 hover:bg-white/[0.05] hover:shadow-card"
+                        className="group flex items-center justify-between rounded-[16px] border border-[#EADCE5] bg-white p-4 transition-all duration-300 hover:border-primary/20 hover:bg-[#FFF0F6] hover:shadow-card"
                       >
                         <div className="flex min-w-0 items-center gap-3.5">
-                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[rgba(179,132,201,0.12)]">
-                            <Activity className="h-4 w-4 text-[#b384c9]" />
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#FFE5F0]">
+                            <Activity className="h-4 w-4 text-[#B74783]" />
                           </div>
                           <div className="min-w-0">
                             <div className="flex items-center gap-2">
-                              <p className="truncate font-display text-sm font-semibold text-white">
+                              <p className="truncate font-display text-sm font-semibold text-[#49263D]">
                                 {activity.name}
                               </p>
                               <span className="badge-soft shrink-0 capitalize">
@@ -1064,20 +1100,20 @@ export default function Dashboard() {
                               </span>
                             </div>
                             {activity.description && (
-                              <p className="mt-0.5 truncate text-xs text-[rgba(231,218,237,0.55)]">
+                              <p className="mt-0.5 truncate text-xs text-[#927C8B]">
                                 {activity.description}
                               </p>
                             )}
                             <div className="mt-1.5 flex items-center gap-2">
-                              <Clock className="h-3 w-3 text-[rgba(231,218,237,0.55)]" />
-                              <span className="text-xs text-[rgba(231,218,237,0.55)]">
+                              <Clock className="h-3 w-3 text-[#927C8B]" />
+                              <span className="text-xs text-[#927C8B]">
                                 {formatDistanceToNow(
                                   new Date(activity.timestamp),
                                   { addSuffix: true }
                                 )}
                               </span>
                               {activity.duration > 0 && (
-                                <span className="text-xs text-[rgba(231,218,237,0.55)]">
+                                <span className="text-xs text-[#927C8B]">
                                   • {activity.duration} min
                                 </span>
                               )}
@@ -1087,7 +1123,7 @@ export default function Dashboard() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-9 w-9 shrink-0 text-[rgba(231,218,237,0.55)] opacity-0 transition-opacity hover:text-destructive group-hover:opacity-100"
+                          className="h-9 w-9 shrink-0 text-[#927C8B] opacity-0 transition-opacity hover:text-destructive group-hover:opacity-100"
                           onClick={() =>
                             handleDeleteActivity(activity._id || activity.id)
                           }
@@ -1104,7 +1140,7 @@ export default function Dashboard() {
           </Card>
 
           {/* Content Grid */}
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-3 md:gap-8">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 md:gap-5">
             <div className="space-y-6 lg:col-span-2">
               <AnxietyGames onGamePlayed={handleGamePlayed} />
             </div>
@@ -1153,10 +1189,10 @@ export default function Dashboard() {
       {/* AI check-in chat */}
       {showCheckInChat && (
         <div className="fixed inset-0 z-40 bg-black/70 backdrop-blur-sm">
-          <div className="fixed inset-y-0 right-0 w-full max-w-sm border-l border-[rgba(216,191,227,0.18)] bg-[#100b20]/95 shadow-premium backdrop-blur-xl">
+          <div className="fixed inset-y-0 right-0 w-full max-w-sm border-l border-[#EADCE5] bg-[#FFF0F6]/95 shadow-premium backdrop-blur-xl">
             <div className="flex h-full flex-col">
-              <div className="flex items-center justify-between border-b border-[rgba(216,191,227,0.18)] px-5 py-4">
-                <h3 className="font-display text-base font-semibold text-white">
+              <div className="flex items-center justify-between border-b border-[#EADCE5] px-5 py-4">
+                <h3 className="font-display text-base font-semibold text-[#49263D]">
                   AI Check-in
                 </h3>
                 <Button
@@ -1200,13 +1236,13 @@ export default function Dashboard() {
       {/* Activity Modal Overlay (shared with voice mode) */}
       {stressPrompt && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-0 backdrop-blur-sm sm:p-4">
-          <div className="relative flex h-full w-full flex-col overflow-y-auto rounded-none border border-[rgba(216,191,227,0.18)] bg-[#100b20]/95 shadow-premium backdrop-blur-xl sm:h-auto sm:max-h-[90vh] sm:max-w-4xl sm:rounded-[20px]">
-            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-[rgba(216,191,227,0.18)] bg-[#0c0819]/90 p-5 backdrop-blur">
+          <div className="relative flex h-full w-full flex-col overflow-y-auto rounded-none border border-[#EADCE5] bg-[#FFF0F6]/95 shadow-premium backdrop-blur-xl sm:h-auto sm:max-h-[90vh] sm:max-w-4xl sm:rounded-[20px]">
+            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-[#EADCE5] bg-[#FFF6FA]/90 p-5 backdrop-blur">
               <div className="space-y-1 pr-4">
-                <h3 className="font-display text-lg font-semibold text-white">
+                <h3 className="font-display text-lg font-semibold text-[#49263D]">
                   {stressPrompt.activity.title}
                 </h3>
-                <p className="text-sm text-[rgba(231,218,237,0.55)]">
+                <p className="text-sm text-[#927C8B]">
                   {stressPrompt.activity.description}
                 </p>
               </div>

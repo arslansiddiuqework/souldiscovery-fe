@@ -19,14 +19,14 @@ const SelectTrigger = React.forwardRef<
   <SelectPrimitive.Trigger
     ref={ref}
     className={cn(
-      "flex h-12 w-full items-center justify-between gap-2 whitespace-nowrap rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2 text-[15px] text-white shadow-sm transition-all data-[placeholder]:text-white/35 focus:border-[rgba(179,132,201,0.7)] focus:outline-none focus:shadow-[0_0_0_3px_rgba(179,132,201,0.12)] disabled:cursor-not-allowed disabled:opacity-50 data-[state=open]:border-[rgba(179,132,201,0.7)] [&>span]:line-clamp-1 [&[data-state=open]>svg]:rotate-180",
+      "flex h-12 w-full items-center justify-between gap-2 whitespace-nowrap rounded-xl border border-[#EADCE5] bg-white px-4 py-0 text-[15px] leading-none text-[#49263D] shadow-sm transition-all data-[placeholder]:text-[#49263D]/35 focus:border-[rgba(183,71,131,0.7)] focus:outline-none focus:shadow-[0_0_0_3px_rgba(183,71,131,0.12)] disabled:cursor-not-allowed disabled:opacity-50 data-[state=open]:border-[rgba(183,71,131,0.7)] [&>span]:flex [&>span]:min-w-0 [&>span]:items-center [&>span]:truncate [&[data-state=open]>svg]:rotate-180",
       className
     )}
     {...props}
   >
     {children}
     <SelectPrimitive.Icon asChild>
-      <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200" />
+      <ChevronDown className="h-4 w-4 shrink-0 self-center text-[#927C8B] transition-transform duration-200" />
     </SelectPrimitive.Icon>
   </SelectPrimitive.Trigger>
 ))
@@ -75,7 +75,7 @@ const SelectContent = React.forwardRef<
     <SelectPrimitive.Content
       ref={ref}
       className={cn(
-        "relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-xl border border-white/10 bg-[rgba(15,12,28,0.95)] text-white shadow-[0_20px_60px_rgba(0,0,0,0.5)] backdrop-blur-xl data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
+        "relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-xl border border-[#EADCE5] bg-white text-[#49263D] shadow-[0_16px_40px_rgba(123,57,98,0.14)] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
         position === "popper" &&
           "data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1",
         className
@@ -121,7 +121,7 @@ const SelectItem = React.forwardRef<
   <SelectPrimitive.Item
     ref={ref}
     className={cn(
-      "relative flex w-full cursor-pointer select-none items-center rounded-lg py-2.5 pl-3 pr-9 text-sm text-foreground outline-none transition-colors focus:bg-primary/10 focus:text-foreground data-[state=checked]:bg-primary/10 data-[state=checked]:font-medium data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      "relative flex w-full cursor-pointer select-none items-center rounded-lg py-2.5 pl-3 pr-9 text-sm text-[#49263D] outline-none transition-colors focus:bg-[#FFF0F6] focus:text-[#49263D] data-[highlighted]:bg-[#FFF0F6] data-[highlighted]:text-[#49263D] data-[state=checked]:bg-[#FFF0F6] data-[state=checked]:font-semibold data-[state=checked]:text-[#B74783] data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       className
     )}
     {...props}

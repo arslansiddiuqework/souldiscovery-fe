@@ -55,23 +55,23 @@ export function PlanDashboard({
   const insights = generateWellnessInsights(plan);
 
   return (
-    <div className="space-y-8 md:space-y-10">
+    <div className="space-y-5 md:space-y-6">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="flex flex-wrap items-end justify-between gap-4 border-b border-[rgba(216,191,227,0.18)] pb-8"
+        className="flex flex-wrap items-end justify-between gap-4 border-b border-[#EADCE5] pb-8"
       >
         <div className="space-y-3">
           <span className="badge-soft">
             <Sparkles className="h-3.5 w-3.5" />
             Wellness Plan · {plan.challengeLevel} mode
           </span>
-          <h1 className="font-display text-3xl font-bold tracking-tight text-[#f3eefa] md:text-4xl">
+          <h1 className="font-display text-3xl font-bold tracking-tight text-[#49263D] md:text-4xl">
             {plan.title}
           </h1>
-          <p className="max-w-xl text-sm text-[rgba(231,218,237,0.55)] md:text-base">
+          <p className="max-w-xl text-sm text-[#927C8B] md:text-base">
             {plan.durationDays}-day personalized journey ·{" "}
             {week?.title || "In progress"}
           </p>
@@ -80,7 +80,7 @@ export function PlanDashboard({
           <Button
             variant="ghost"
             size="sm"
-            className="text-[rgba(231,218,237,0.5)]"
+            className="text-[#927C8B]"
             onClick={onReset}
           >
             Start new plan
@@ -89,15 +89,15 @@ export function PlanDashboard({
       </motion.div>
 
       {plan.pendingSuggestion && (
-        <Card className="border-[#b384c9]/30 bg-[rgba(179,132,201,0.1)]">
+        <Card className="border-[#B74783]/30 bg-[rgba(183,71,131,0.1)]">
           <CardContent className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex gap-3">
-              <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-[#b384c9]" />
+              <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-[#B74783]" />
               <div>
-                <p className="font-display text-sm font-semibold text-[#f3eefa]">
+                <p className="font-display text-sm font-semibold text-[#49263D]">
                   Plan adaptation suggested
                 </p>
-                <p className="mt-1 text-sm text-[rgba(231,218,237,0.65)]">
+                <p className="mt-1 text-sm text-[#795A70]">
                   {plan.pendingSuggestion.message}
                 </p>
               </div>
@@ -122,7 +122,7 @@ export function PlanDashboard({
       <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4 md:gap-6">
         <Card interactive className="flex flex-col items-center justify-center p-6">
           <ProgressRing value={percent} label="Progress" />
-          <p className="mt-3 text-sm text-[rgba(231,218,237,0.55)]">
+          <p className="mt-3 text-sm text-[#927C8B]">
             Overall Progress
           </p>
         </Card>
@@ -153,15 +153,15 @@ export function PlanDashboard({
       <TodaysMission day={today} onTaskClick={onTaskClick} />
 
       {/* Roadmap + Insights */}
-      <div className="grid gap-6 lg:grid-cols-3 md:gap-8">
+      <div className="grid gap-4 lg:grid-cols-3 md:gap-5">
         <div className="lg:col-span-2">
           <PlanRoadmap plan={plan} onTaskClick={onTaskClick} />
         </div>
         <Card>
           <CardHeader>
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[rgba(179,132,201,0.12)]">
-                <BrainCircuit className="h-5 w-5 text-[#b384c9]" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#FFE5F0]">
+                <BrainCircuit className="h-5 w-5 text-[#B74783]" />
               </div>
               <div>
                 <CardTitle className="text-lg">Plan Insights</CardTitle>
@@ -173,12 +173,12 @@ export function PlanDashboard({
             {insights.map((insight) => (
               <div
                 key={insight.title}
-                className="rounded-[16px] border border-[rgba(216,191,227,0.16)] bg-white/[0.03] p-4"
+                className="rounded-[16px] border border-[#EADCE5] bg-white p-4"
               >
-                <p className="font-display text-sm font-semibold text-[#f3eefa]">
+                <p className="font-display text-sm font-semibold text-[#49263D]">
                   {insight.title}
                 </p>
-                <p className="mt-1 text-sm leading-relaxed text-[rgba(231,218,237,0.55)]">
+                <p className="mt-1 text-sm leading-relaxed text-[#927C8B]">
                   {insight.description}
                 </p>
               </div>
@@ -218,22 +218,22 @@ function StatCard({
   return (
     <Card interactive className="p-6 md:p-7">
       <div className="flex items-start justify-between gap-4">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[rgba(231,218,237,0.45)]">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#927C8B]">
           {title}
         </p>
-        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[rgba(179,132,201,0.12)]">
-          <Icon className="h-5 w-5 text-[#b384c9]" />
+        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#FFE5F0]">
+          <Icon className="h-5 w-5 text-[#B74783]" />
         </div>
       </div>
-      <p className="mt-6 font-display text-3xl font-bold tracking-tight text-white">
+      <p className="mt-6 font-display text-3xl font-bold tracking-tight text-[#49263D]">
         {value}
         {suffix && (
-          <span className="ml-1 text-lg font-semibold text-[rgba(231,218,237,0.45)]">
+          <span className="ml-1 text-lg font-semibold text-[#927C8B]">
             {suffix}
           </span>
         )}
       </p>
-      <p className="mt-1.5 text-sm text-[rgba(231,218,237,0.55)]">
+      <p className="mt-1.5 text-sm text-[#927C8B]">
         {description}
       </p>
     </Card>

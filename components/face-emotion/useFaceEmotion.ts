@@ -49,7 +49,7 @@ export function useFaceEmotion() {
     setIsInitializing(false);
     setIsStable(false);
     setError(null);
-  }, []);
+  }, [setIsStable]);
 
   const processFrame = useCallback(async () => {
     if (!videoRef.current) return;
@@ -79,7 +79,7 @@ export function useFaceEmotion() {
     // Throttle to ~20 FPS
     await new Promise(r => setTimeout(r, 50)); 
     animationFrameRef.current = requestAnimationFrame(processFrame);
-  }, []);
+  }, [setIsStable]);
 
   const startCamera = useCallback(async () => {
     try {
@@ -123,7 +123,7 @@ export function useFaceEmotion() {
       setError(err.message || "Failed to start camera");
       setIsInitializing(false);
     }
-  }, [processFrame]);
+  }, [processFrame, setIsStable]);
 
   const retry = useCallback(() => {
     stopCamera();

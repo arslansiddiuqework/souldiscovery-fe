@@ -26,6 +26,7 @@ import {
   ArrowUp,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { AvatarImage } from "@/components/ui/avatar-image";
 import { motion, AnimatePresence } from "framer-motion";
 import ReactMarkdown from "react-markdown";
 import {
@@ -110,13 +111,13 @@ const MARKDOWN_BASE =
   "[&_blockquote]:my-3 [&_blockquote]:border-l-2 [&_blockquote]:pl-3 [&_blockquote]:italic [&_hr]:my-4";
 
 const MARKDOWN_ASSISTANT =
-  "text-white [&_a]:text-[#d8bfe3] [&_code]:bg-[#b384c9]/15 [&_code]:text-[#d8bfe3] " +
-  "[&_pre]:bg-white/[0.035] [&_blockquote]:border-[#b384c9]/30 [&_blockquote]:text-[rgba(231,218,237,0.55)] " +
-  "[&_hr]:border-[rgba(216,191,227,0.18)]";
+  "text-[#49263D] [&_a]:text-[#D9B8F5] [&_code]:bg-[#B74783]/15 [&_code]:text-[#D9B8F5] " +
+  "[&_pre]:bg-white [&_blockquote]:border-[#B74783]/30 [&_blockquote]:text-[#927C8B] " +
+  "[&_hr]:border-[#EADCE5]";
 
 const MARKDOWN_USER =
-  "text-white [&_a]:text-white [&_code]:bg-white/20 [&_code]:text-white " +
-  "[&_pre]:bg-black/20 [&_blockquote]:border-white/40 [&_blockquote]:text-white/85 [&_hr]:border-white/25";
+  "text-[#49263D] [&_a]:text-[#49263D] [&_code]:bg-white/20 [&_code]:text-[#49263D] " +
+  "[&_pre]:bg-black/20 [&_blockquote]:border-[#EADCE5] [&_blockquote]:text-[#49263D]/85 [&_hr]:border-[#EADCE5]";
 
 const glowAnimation = {
   initial: { opacity: 0.5, scale: 1 },
@@ -521,33 +522,33 @@ export default function TherapyPage() {
 
   if (!mounted || isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[radial-gradient(ellipse_at_top,_rgba(179,132,201,0.12),_transparent_55%)] px-6">
+      <div className="flex min-h-screen items-center justify-center bg-[radial-gradient(ellipse_at_top,_rgba(183,71,131,0.12),_transparent_55%)] px-6">
         <div className="flex flex-col items-center gap-6">
           <div className="relative flex h-[72px] w-[72px] items-center justify-center">
             <motion.span
-              className="absolute inset-0 rounded-full bg-[#b384c9]/20 blur-2xl"
+              className="absolute inset-0 rounded-full bg-[#B74783]/20 blur-2xl"
               initial="initial"
               animate="animate"
               variants={glowAnimation}
             />
-            <span className="absolute inset-0 rounded-full border border-[#b384c9]/15" />
-            <span className="absolute inset-0 animate-spin rounded-full border-2 border-transparent border-t-[#b384c9]" />
-            <div className="relative flex h-11 w-11 items-center justify-center rounded-2xl border border-[rgba(216,191,227,0.22)] bg-[rgba(179,132,201,0.12)] shadow-soft">
-              <Sparkles className="h-5 w-5 text-white" />
+            <span className="absolute inset-0 rounded-full border border-[#B74783]/15" />
+            <span className="absolute inset-0 animate-spin rounded-full border-2 border-transparent border-t-[#B74783]" />
+            <div className="relative flex h-11 w-11 items-center justify-center rounded-2xl border border-[#EADCE5] bg-[#FFE5F0] shadow-soft">
+              <Sparkles className="h-5 w-5 text-[#49263D]" />
             </div>
           </div>
           <div className="space-y-2 text-center">
-            <p className="font-display text-lg font-semibold tracking-tight text-white">
+            <p className="font-display text-lg font-semibold tracking-tight text-[#49263D]">
               Preparing your session
             </p>
-            <p className="text-sm text-[rgba(231,218,237,0.55)]">
+            <p className="text-sm text-[#927C8B]">
               Setting up a calm, private space…
             </p>
             <div className="mx-auto mt-3 flex items-center justify-center gap-1.5">
               {[0, 1, 2].map((i) => (
                 <motion.span
                   key={i}
-                  className="h-1.5 w-1.5 rounded-full bg-[#b384c9]"
+                  className="h-1.5 w-1.5 rounded-full bg-[#B74783]"
                   animate={{ opacity: [0.3, 1, 0.3], scale: [0.85, 1, 0.85] }}
                   transition={{ duration: 1.1, repeat: Infinity, delay: i * 0.18 }}
                 />
@@ -750,18 +751,18 @@ export default function TherapyPage() {
         {/* Sidebar with chat history */}
         <aside
           className={cn(
-            "fixed inset-y-0 left-0 z-40 flex w-[86%] max-w-[340px] flex-col border-r border-[rgba(216,191,227,0.18)] bg-[#080812]/95 pt-[72px] backdrop-blur-xl transition-transform duration-300 ease-out",
-            "lg:relative lg:z-auto lg:w-[300px] lg:max-w-none lg:shrink-0 lg:translate-x-0 lg:rounded-card lg:border lg:border-[rgba(216,191,227,0.18)] lg:bg-white/[0.035] lg:pt-0 lg:shadow-premium",
+            "fixed inset-y-0 left-0 z-40 flex w-[86%] max-w-[340px] flex-col border-r border-[#EADCE5] bg-[#080812]/95 pt-[72px] backdrop-blur-xl transition-transform duration-300 ease-out",
+            "lg:relative lg:z-auto lg:w-[300px] lg:max-w-none lg:shrink-0 lg:translate-x-0 lg:rounded-card lg:border lg:border-[#EADCE5] lg:bg-white lg:pt-0 lg:shadow-premium",
             isSidebarOpen ? "translate-x-0 shadow-premium" : "-translate-x-full"
           )}
         >
-          <div className="shrink-0 border-b border-[rgba(216,191,227,0.18)] p-4">
+          <div className="shrink-0 border-b border-[#EADCE5] p-4">
             <div className="mb-4 flex items-start justify-between gap-2">
               <div className="min-w-0">
-                <h2 className="font-display text-[15px] font-bold tracking-tight text-white">
+                <h2 className="font-display text-[15px] font-bold tracking-tight text-[#49263D]">
                   Conversations
                 </h2>
-                <p className="mt-0.5 text-xs text-[rgba(231,218,237,0.55)]">
+                <p className="mt-0.5 text-xs text-[#927C8B]">
                   {sessions.length}{" "}
                   {sessions.length === 1 ? "session" : "sessions"}
                 </p>
@@ -771,7 +772,7 @@ export default function TherapyPage() {
                   variant="ghost"
                   size="icon"
                   onClick={handleNewSession}
-                  className="h-9 w-9 rounded-xl text-[#b384c9] hover:bg-[#b384c9]/10 hover:text-[#b384c9]"
+                  className="h-9 w-9 rounded-xl text-[#B74783] hover:bg-[#B74783]/10 hover:text-[#B74783]"
                   disabled={isLoading}
                   title="New session"
                 >
@@ -785,7 +786,7 @@ export default function TherapyPage() {
                   variant="ghost"
                   size="icon"
                   onClick={() => setIsSidebarOpen(false)}
-                  className="h-9 w-9 rounded-xl text-white/70 lg:hidden"
+                  className="h-9 w-9 rounded-xl text-[#49263D]/70 lg:hidden"
                   title="Close sidebar"
                 >
                   <X className="h-5 w-5" />
@@ -811,13 +812,13 @@ export default function TherapyPage() {
             <div className="h-full space-y-1 overflow-y-auto pr-1">
               {sessions.length === 0 && (
                 <div className="flex h-full flex-col items-center justify-center gap-3 px-6 text-center">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#b384c9]/10 text-[#b384c9]">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#B74783]/10 text-[#B74783]">
                     <MessageSquare className="h-5 w-5" />
                   </div>
-                  <p className="font-display text-sm font-semibold text-white">
+                  <p className="font-display text-sm font-semibold text-[#49263D]">
                     No conversations yet
                   </p>
-                  <p className="text-xs leading-relaxed text-[rgba(231,218,237,0.55)]">
+                  <p className="text-xs leading-relaxed text-[#927C8B]">
                     Start a new chat and it will appear here.
                   </p>
                 </div>
@@ -828,8 +829,8 @@ export default function TherapyPage() {
                   className={cn(
                     "group relative cursor-pointer overflow-hidden rounded-xl px-3 py-2.5 text-sm transition-all duration-200",
                     session.sessionId === activeSessionId
-                      ? "bg-[#b384c9]/15 shadow-sm ring-1 ring-[#b384c9]/25"
-                      : "hover:bg-white/[0.035]"
+                      ? "bg-[#B74783]/15 shadow-sm ring-1 ring-[#B74783]/25"
+                      : "hover:bg-white"
                   )}
                   onClick={() => handleSessionSelect(session.sessionId)}
                 >
@@ -839,16 +840,16 @@ export default function TherapyPage() {
                         className={cn(
                           "h-3.5 w-3.5 shrink-0",
                           session.sessionId === activeSessionId
-                            ? "text-[#b384c9]"
-                            : "text-[rgba(231,218,237,0.35)]"
+                            ? "text-[#B74783]"
+                            : "text-[#795A70]"
                         )}
                       />
                       <span
                         className={cn(
                           "truncate text-[13px] font-semibold",
                           session.sessionId === activeSessionId
-                            ? "text-[#b384c9]"
-                            : "text-white"
+                            ? "text-[#B74783]"
+                            : "text-[#49263D]"
                         )}
                       >
                         {session.title || (session.messages && session.messages[0] ? session.messages[0].content.slice(0, 30) : "New Chat")}
@@ -864,7 +865,7 @@ export default function TherapyPage() {
                       <Trash2 className="h-3.5 w-3.5" />
                     </Button>
                   </div>
-                  <p className="line-clamp-1 break-words pl-[22px] text-[11px] leading-relaxed text-[rgba(231,218,237,0.55)]">
+                  <p className="line-clamp-1 break-words pl-[22px] text-[11px] leading-relaxed text-[#927C8B]">
                     {session.messages[session.messages.length - 1]?.content ||
                       "No messages yet"}
                   </p>
@@ -885,37 +886,37 @@ export default function TherapyPage() {
         </aside>
 
         {/* Main chat area */}
-        <div className="relative flex min-w-0 flex-1 flex-col overflow-hidden border-y border-[rgba(216,191,227,0.18)] bg-white/[0.03] lg:rounded-card lg:border lg:border-[rgba(216,191,227,0.18)] lg:shadow-premium">
+        <div className="relative flex min-w-0 flex-1 flex-col overflow-hidden border-y border-[#EADCE5] bg-white lg:rounded-card lg:border lg:border-[#EADCE5] lg:shadow-premium">
           {/* Soft ambient wash behind the thread */}
           <div
             aria-hidden
-            className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(179,132,201,0.08),_transparent_50%)]"
+            className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(183,71,131,0.08),_transparent_50%)]"
           />
 
           {/* Chat header */}
-          <div className="relative z-10 flex shrink-0 items-center justify-between gap-3 border-b border-[rgba(216,191,227,0.18)] bg-[#0c0819]/60 px-3 py-3.5 backdrop-blur-xl sm:px-5">
+          <div className="relative z-10 flex shrink-0 items-center justify-between gap-3 border-b border-[#EADCE5] bg-[#FFF6FA]/60 px-3 py-3.5 backdrop-blur-xl sm:px-5">
             <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-9 w-9 shrink-0 rounded-xl text-white lg:hidden"
+                className="h-9 w-9 shrink-0 rounded-xl text-[#49263D] lg:hidden"
                 onClick={() => setIsSidebarOpen(true)}
                 title="Open chat sessions"
               >
                 <Menu className="h-5 w-5" />
               </Button>
               <div className="relative shrink-0">
-                <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-[rgba(216,191,227,0.22)] bg-[rgba(179,132,201,0.12)] shadow-soft">
-                  <Bot className="h-5 w-5 text-white" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-[#EADCE5] bg-[#FFE5F0] shadow-soft">
+                  <Bot className="h-5 w-5 text-[#49263D]" />
                 </div>
                 <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-[#080812] bg-success" />
               </div>
               <div className="min-w-0">
-                <h2 className="truncate font-display text-[15px] font-bold tracking-tight text-white sm:text-base">
+                <h2 className="truncate font-display text-[15px] font-bold tracking-tight text-[#49263D] sm:text-base">
                   {currentTitle}
                 </h2>
-                <p className="mt-0.5 flex items-center gap-1.5 text-xs text-[rgba(231,218,237,0.55)]">
-                  <span className="font-medium text-[#b384c9]">Online</span>
+                <p className="mt-0.5 flex items-center gap-1.5 text-xs text-[#927C8B]">
+                  <span className="font-medium text-[#B74783]">Online</span>
                   <span className="text-border">·</span>
                   <span>{messages.length} messages</span>
                 </p>
@@ -939,7 +940,7 @@ export default function TherapyPage() {
                 onClick={() => setIsAutoMoodEnabled(!isAutoMoodEnabled)}
                 className={cn(
                   "h-9 gap-1.5 rounded-full px-3 text-xs",
-                  !isAutoMoodEnabled && "border-[rgba(216,191,227,0.18)] bg-white/[0.035] hover:bg-[#b384c9]/10 hover:text-[#d8bfe3]"
+                  !isAutoMoodEnabled && "border-[#EADCE5] bg-white hover:bg-[#B74783]/10 hover:text-[#D9B8F5]"
                 )}
                 title="Automatically detect mood in background"
               >
@@ -961,24 +962,24 @@ export default function TherapyPage() {
                 <div className="flex flex-col items-center text-center">
                   <div className="relative mb-7 flex h-[88px] w-[88px] items-center justify-center">
                     <motion.div
-                      className="absolute inset-0 rounded-full bg-[#b384c9]/20 blur-2xl"
+                      className="absolute inset-0 rounded-full bg-[#B74783]/20 blur-2xl"
                       initial="initial"
                       animate="animate"
                       variants={glowAnimation}
                     />
-                    <div className="relative flex h-[68px] w-[68px] items-center justify-center rounded-[22px] border border-[rgba(216,191,227,0.22)] bg-[rgba(179,132,201,0.12)] shadow-premium">
-                      <Sparkles className="h-7 w-7 text-white" />
+                    <div className="relative flex h-[68px] w-[68px] items-center justify-center rounded-[22px] border border-[#EADCE5] bg-[#FFE5F0] shadow-premium">
+                      <Sparkles className="h-7 w-7 text-[#49263D]" />
                     </div>
                   </div>
                   <span className="badge-soft mb-4">
                     <Sparkles className="h-3 w-3" />
                     AI Therapist
                   </span>
-                  <h1 className="font-display text-[28px] font-bold tracking-tight text-white sm:text-[34px]">
+                  <h1 className="font-display text-[28px] font-bold tracking-tight text-[#49263D] sm:text-[34px]">
                     How can I{" "}
                     <span className="text-gradient-brand">help</span> today?
                   </h1>
-                  <p className="mt-3 max-w-md text-[15px] leading-relaxed text-[rgba(231,218,237,0.55)]">
+                  <p className="mt-3 max-w-md text-[15px] leading-relaxed text-[#927C8B]">
                     Share what&apos;s on your mind, or pick a prompt to begin.
                   </p>
                 </div>
@@ -994,17 +995,17 @@ export default function TherapyPage() {
                     >
                       <button
                         type="button"
-                        className="group flex h-auto w-full items-start justify-start gap-3 rounded-2xl border border-[rgba(216,191,227,0.18)] bg-white/[0.035] p-4 text-left shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:border-[#b384c9]/30 hover:bg-white/[0.06] hover:shadow-premium"
+                        className="group flex h-auto w-full items-start justify-start gap-3 rounded-2xl border border-[#EADCE5] bg-white p-4 text-left shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:border-[#B74783]/30 hover:bg-[#FFF0F6] hover:shadow-premium"
                         onClick={() => handleSuggestedQuestion(q.text)}
                       >
-                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#b384c9]/10 text-[#b384c9] transition-all duration-300 group-hover:bg-white group-hover:text-[#1c1033] group-hover:shadow-soft">
+                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#B74783]/10 text-[#B74783] transition-all duration-300 group-hover:bg-white group-hover:text-[#49263D] group-hover:shadow-soft">
                           <q.icon className="h-4 w-4" />
                         </span>
                         <span className="flex min-w-0 flex-col gap-1 pt-0.5">
-                          <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#b384c9]">
+                          <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#B74783]">
                             {q.label}
                           </span>
-                          <span className="whitespace-normal text-[14px] font-medium leading-snug text-white">
+                          <span className="whitespace-normal text-[14px] font-medium leading-snug text-[#49263D]">
                             {q.text}
                           </span>
                         </span>
@@ -1046,17 +1047,17 @@ export default function TherapyPage() {
                           {/* Avatar */}
                           <div className="mt-0.5 h-9 w-9 shrink-0">
                             {isAssistant ? (
-                              <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-[#b384c9]/10 ring-2 ring-[#b384c9]/15 shadow-soft">
+                              <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-[#B74783]/10 ring-2 ring-[#B74783]/15 shadow-soft">
                                 {avatarSrc ? (
-                                  <img src={avatarSrc} alt={displayName} className="h-full w-full object-cover" />
+                                  <AvatarImage src={avatarSrc} alt={displayName} width={36} height={36} className="h-full w-full object-cover" />
                                 ) : (
-                                  <Bot className="h-4 w-4 text-[#b384c9]" />
+                                  <Bot className="h-4 w-4 text-[#B74783]" />
                                 )}
                               </div>
                             ) : (
-                              <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-white text-[#1c1033] shadow-soft ring-2 ring-[rgba(179,132,201,0.25)]">
+                              <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-white text-[#49263D] shadow-soft ring-2 ring-[rgba(183,71,131,0.25)]">
                                 {avatarSrc ? (
-                                  <img src={avatarSrc} alt={displayName} className="h-full w-full object-cover" />
+                                  <AvatarImage src={avatarSrc} alt={displayName} width={36} height={36} className="h-full w-full object-cover" />
                                 ) : (
                                   <UserIcon className="h-4 w-4" />
                                 )}
@@ -1070,8 +1071,8 @@ export default function TherapyPage() {
                               className={cn(
                                 "min-w-0 break-words px-4 py-3.5",
                                 isAssistant
-                                  ? "rounded-[20px] rounded-tl-md border border-[rgba(216,191,227,0.18)] bg-[rgba(255,255,255,0.04)] text-white shadow-card"
-                                  : "rounded-[20px] rounded-tr-md border border-[#b384c9]/25 bg-[rgba(179,132,201,0.15)] text-white shadow-premium"
+                                  ? "rounded-[20px] rounded-tl-md border border-[#EADCE5] bg-[rgba(255,255,255,0.04)] text-[#49263D] shadow-card"
+                                  : "rounded-[20px] rounded-tr-md border border-[#B74783]/25 bg-[rgba(183,71,131,0.15)] text-[#49263D] shadow-premium"
                               )}
                             >
                               <div
@@ -1085,15 +1086,15 @@ export default function TherapyPage() {
 
                               {/* Emotion Suggestion UI */}
                               {isAssistant && msg.metadata?.emotionMeta?.suggestedActivity && (
-                                <div className="mt-4 rounded-xl border border-[#b384c9]/25 bg-[#b384c9]/10 p-3.5">
-                                   <p className="mb-2.5 flex items-center gap-2 text-xs font-semibold text-[#b384c9]">
+                                <div className="mt-4 rounded-xl border border-[#B74783]/25 bg-[#B74783]/10 p-3.5">
+                                   <p className="mb-2.5 flex items-center gap-2 text-xs font-semibold text-[#B74783]">
                                       <Sparkles className="h-3.5 w-3.5" />
                                       Try a calming exercise?
                                    </p>
                                    <Button 
                                       variant="outline" 
                                       size="sm" 
-                                      className="h-9 w-full rounded-xl border-[#b384c9]/30 bg-white/[0.035] text-xs font-semibold text-[#d8bfe3] hover:bg-[#b384c9]/15 hover:text-[#d8bfe3]"
+                                      className="h-9 w-full rounded-xl border-[#B74783]/30 bg-white text-xs font-semibold text-[#D9B8F5] hover:bg-[#B74783]/15 hover:text-[#D9B8F5]"
                                       onClick={() => handleActivityTrigger(msg.metadata?.emotionMeta?.suggestedActivity as any, msg.metadata?.emotionMeta?.emotion)}
                                    >
                                       Start {
@@ -1120,19 +1121,19 @@ export default function TherapyPage() {
                                   );
                                   if (!hint) return null;
                                   return (
-                                    <div className="mt-3 rounded-xl border border-[#b384c9]/25 bg-[#b384c9]/10 p-3.5">
-                                      <p className="mb-2.5 flex items-center gap-2 text-xs font-semibold text-[#b384c9]">
+                                    <div className="mt-3 rounded-xl border border-[#B74783]/25 bg-[#B74783]/10 p-3.5">
+                                      <p className="mb-2.5 flex items-center gap-2 text-xs font-semibold text-[#B74783]">
                                         <Brain className="h-3.5 w-3.5" />
                                         Wellness Plan
                                       </p>
-                                      <p className="mb-3 text-xs leading-relaxed text-[rgba(231,218,237,0.7)]">
+                                      <p className="mb-3 text-xs leading-relaxed text-[#795A70]">
                                         {hint.message}
                                       </p>
                                       <Button
                                         asChild
                                         variant="outline"
                                         size="sm"
-                                        className="h-9 w-full rounded-xl border-[#b384c9]/30 bg-white/[0.035] text-xs font-semibold text-[#d8bfe3] hover:bg-[#b384c9]/15 hover:text-[#d8bfe3]"
+                                        className="h-9 w-full rounded-xl border-[#B74783]/30 bg-white text-xs font-semibold text-[#D9B8F5] hover:bg-[#B74783]/15 hover:text-[#D9B8F5]"
                                       >
                                         <Link href="/wellness-plan">
                                           {hint.action === "create"
@@ -1180,24 +1181,26 @@ export default function TherapyPage() {
                     animate={{ opacity: 1, y: 0 }}
                     className="mb-4 flex items-start gap-3"
                   >
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#b384c9]/10 ring-2 ring-[#b384c9]/15 shadow-soft">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#B74783]/10 ring-2 ring-[#B74783]/15 shadow-soft">
                       {user?.aiAvatar ? (
-                        <img
+                        <AvatarImage
                           src={user.aiAvatar}
                           alt="AI"
+                          width={36}
+                          height={36}
                           className="h-full w-full object-cover"
                         />
                       ) : (
-                        <Bot className="h-4 w-4 text-[#b384c9]" />
+                        <Bot className="h-4 w-4 text-[#B74783]" />
                       )}
                     </div>
-                    <div className="rounded-[20px] rounded-tl-md border border-[rgba(216,191,227,0.18)] bg-[rgba(255,255,255,0.04)] px-4 py-3.5 shadow-card">
+                    <div className="rounded-[20px] rounded-tl-md border border-[#EADCE5] bg-[rgba(255,255,255,0.04)] px-4 py-3.5 shadow-card">
                       <div className="flex items-center gap-3">
                         <div className="flex items-center gap-1">
                           {[0, 1, 2].map((i) => (
                             <motion.span
                               key={i}
-                              className="h-2 w-2 rounded-full bg-[#b384c9]"
+                              className="h-2 w-2 rounded-full bg-[#B74783]"
                               animate={{ y: [0, -4, 0], opacity: [0.4, 1, 0.4] }}
                               transition={{
                                 duration: 0.9,
@@ -1208,7 +1211,7 @@ export default function TherapyPage() {
                             />
                           ))}
                         </div>
-                        <p className="text-xs font-medium text-[rgba(231,218,237,0.55)]">
+                        <p className="text-xs font-medium text-[#927C8B]">
                           {user?.aiName || "Maya"} is{" "}
                           {isThinking ? "thinking" : "replying"}…
                         </p>
@@ -1222,15 +1225,15 @@ export default function TherapyPage() {
           )}
 
           {/* Input area — ChatGPT/Claude-style composer */}
-          <div className="relative z-10 shrink-0 border-t border-[rgba(216,191,227,0.18)] bg-gradient-to-t from-[#0c0819] via-[#0c0819]/90 to-transparent px-3 pb-4 pt-3 backdrop-blur-xl sm:px-5 sm:pb-5">
+          <div className="relative z-10 shrink-0 border-t border-[#EADCE5] bg-gradient-to-t from-[#FFF6FA] via-[#FFF6FA]/90 to-transparent px-3 pb-4 pt-3 backdrop-blur-xl sm:px-5 sm:pb-5">
             <form
               onSubmit={handleSubmit}
               className="relative mx-auto max-w-3xl"
             >
               <div
                 className={cn(
-                  "group relative flex items-end gap-2 rounded-[22px] border border-[rgba(216,191,227,0.18)] bg-white/[0.05] p-2 pl-4 shadow-premium backdrop-blur-xl transition-all duration-200",
-                  "focus-within:border-[#b384c9]/50 focus-within:ring-4 focus-within:ring-[#b384c9]/15",
+                  "group relative flex items-end gap-2 rounded-[22px] border border-[#EADCE5] bg-[#FFF0F6] p-2 pl-4 shadow-premium backdrop-blur-xl transition-all duration-200",
+                  "focus-within:border-[#B74783]/50 focus-within:ring-4 focus-within:ring-[#B74783]/15",
                   (isTyping || isChatPaused || isSessionLocked) && "opacity-60"
                 )}
               >
@@ -1245,8 +1248,8 @@ export default function TherapyPage() {
                       : "Message Soul Discovery…"
                   }
                   className={cn(
-                    "max-h-[180px] min-h-[44px] flex-1 resize-none bg-transparent py-2.5 text-[15px] leading-relaxed text-white",
-                    "placeholder:text-[rgba(231,218,237,0.35)] focus:outline-none",
+                    "max-h-[180px] min-h-[44px] flex-1 resize-none bg-transparent py-2.5 text-[15px] leading-relaxed text-[#49263D]",
+                    "placeholder:text-[#927C8B] focus:outline-none",
                     (isTyping || isChatPaused || isSessionLocked) &&
                       "cursor-not-allowed"
                   )}
@@ -1265,8 +1268,8 @@ export default function TherapyPage() {
                   className={cn(
                     "mb-0.5 h-10 w-10 shrink-0 rounded-xl shadow-soft transition-all duration-200",
                     message.trim() && !isTyping && !isChatPaused && !isSessionLocked
-                      ? "bg-white text-[#1c1033] shadow-[rgba(255,255,255,0.7)_0px_1px_0px_0px_inset,rgba(179,132,201,0.35)_0px_10px_30px_0px] hover:brightness-105"
-                      : "bg-[#b384c9]/15 text-[#b384c9]/50 hover:bg-[#b384c9]/20",
+                      ? "bg-white text-[#49263D] shadow-[rgba(255,255,255,0.7)_0px_1px_0px_0px_inset,rgba(183,71,131,0.35)_0px_10px_30px_0px] hover:brightness-105"
+                      : "bg-[#B74783]/15 text-[#B74783]/50 hover:bg-[#B74783]/20",
                     (isTyping || isChatPaused || isSessionLocked || !message.trim()) &&
                       "cursor-not-allowed"
                   )}
@@ -1284,12 +1287,12 @@ export default function TherapyPage() {
                 </Button>
               </div>
             </form>
-            <p className="mt-2.5 text-center text-[11px] text-[rgba(231,218,237,0.55)]">
-              <kbd className="rounded-md border border-[rgba(216,191,227,0.18)] bg-white/[0.06] px-1.5 py-0.5 font-sans text-[10px] text-white/60">
+            <p className="mt-2.5 text-center text-[11px] text-[#927C8B]">
+              <kbd className="rounded-md border border-[#EADCE5] bg-[#FFF0F6] px-1.5 py-0.5 font-sans text-[10px] text-[#49263D]/60">
                 Enter
               </kbd>{" "}
               to send ·{" "}
-              <kbd className="rounded-md border border-[rgba(216,191,227,0.18)] bg-white/[0.06] px-1.5 py-0.5 font-sans text-[10px] text-white/60">
+              <kbd className="rounded-md border border-[#EADCE5] bg-[#FFF0F6] px-1.5 py-0.5 font-sans text-[10px] text-[#49263D]/60">
                 Shift + Enter
               </kbd>{" "}
               for a new line
@@ -1301,13 +1304,13 @@ export default function TherapyPage() {
       {/* Interactive Activity Modal Overlay */}
       {stressPrompt && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
-          <div className="relative flex max-h-[90vh] w-full max-w-4xl flex-col overflow-y-auto rounded-card border border-[rgba(216,191,227,0.18)] bg-[#100b20]/95 shadow-premium backdrop-blur-xl">
-            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-[rgba(216,191,227,0.18)] bg-[#0c0819]/80 p-4 backdrop-blur sm:p-5">
+          <div className="relative flex max-h-[90vh] w-full max-w-4xl flex-col overflow-y-auto rounded-card border border-[#EADCE5] bg-[#FFF0F6]/95 shadow-premium backdrop-blur-xl">
+            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-[#EADCE5] bg-[#FFF6FA]/80 p-4 backdrop-blur sm:p-5">
               <div>
-                <h3 className="font-display text-lg font-semibold text-white">
+                <h3 className="font-display text-lg font-semibold text-[#49263D]">
                   {stressPrompt.activity.title}
                 </h3>
-                <p className="text-sm text-[rgba(231,218,237,0.55)]">
+                <p className="text-sm text-[#927C8B]">
                   {stressPrompt.activity.description}
                 </p>
               </div>

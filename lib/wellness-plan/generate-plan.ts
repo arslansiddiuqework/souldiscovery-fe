@@ -348,10 +348,26 @@ export function getDefaultAchievements(): Achievement[] {
   ];
 }
 
+export interface GeneratePlanOptions {
+  userId?: string;
+  catalogSlug?: string;
+  title?: string;
+  durationDays?: number;
+  /** Prefer these activity titles when building early days */
+  outlineTitles?: string[];
+  /** Catalog outline with types — preferred over outlineTitles alone */
+  outline?: { title: string; type: TaskType }[];
+}
+
 export function generateWellnessPlan(
   assessment: WellnessAssessment,
-  userId?: string
+  userIdOrOptions?: string | GeneratePlanOptions
 ): WellnessPlan {
+  const options: GeneratePlanOptions =
+    typeof userIdOrOptions === "string" || userIdOrOptions === undefined
+      ? { userId: userIdOrOptions }
+      : userIdOrOptions;
+
   const start = todayISO();
   const budget = minutesForDailyTime(assessment.dailyTime);
   const goalLabel =
@@ -359,10 +375,44 @@ export function generateWellnessPlan(
       ? assessment.customGoal
       : GOAL_LABELS[assessment.primaryGoal];
 
-  const weeks = [
-    buildWeek(1, start, assessment, budget),
-    buildWeek(2, start, assessment, budget),
-  ];
+  const durationDays = options.durationDays ?? 14;
+  const weekCount = Math.max(1, Math.ceil(durationDays / 7));
+  const weeks = Array.from({ length: weekCount }, (_, i) =>
+    buildWeek(i + 1, start, assessment, budget)
+  );
+
+  // Cap days to durationDays; map catalog outline onto the primary daily task
+  const outlineItems =
+    options.outline?.length
+      ? options.outline
+      : options.outlineTitles?.map((title) => ({
+          title,
+          type: "journal" as TaskType,
+        }));
+
+  let dayIndex = 0;
+  for (const week of weeks) {
+    week.days = week.days.filter((d) => d.dayNumber <= durationDays);
+    for (const day of week.days) {
+      if (outlineItems?.length) {
+        const item = outlineItems[dayIndex % outlineItems.length];
+        if (day.tasks[1] && item) {
+          const meta = taskMeta(
+            item.type,
+            assessment.primaryGoal,
+            day.tasks[1].estimatedMinutes
+          );
+          day.tasks[1] = {
+            ...day.tasks[1],
+            type: item.type,
+            title: item.title,
+            description: meta.description,
+          };
+        }
+      }
+      dayIndex += 1;
+    }
+  }
 
   const achievements = getDefaultAchievements().map((a) =>
     a.id === "first_plan"
@@ -371,14 +421,16 @@ export function generateWellnessPlan(
   );
 
   const now = new Date().toISOString();
+  const title = options.title || `${goalLabel} Plan`;
 
   return {
     id: uid("plan"),
-    userId,
-    title: `${goalLabel} Plan`,
+    userId: options.userId,
+    catalogSlug: options.catalogSlug,
+    title,
     primaryGoal: assessment.primaryGoal,
     assessment,
-    durationDays: 14,
+    durationDays,
     weeks,
     challengeLevel:
       assessment.stressLevel >= 8 || assessment.dailyTime === "5_minutes"

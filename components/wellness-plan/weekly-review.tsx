@@ -92,7 +92,7 @@ export function WeeklyReview({ reports, onGenerate }: WeeklyReviewProps) {
       <Card className="relative overflow-hidden">
         <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-primary/[0.08] to-transparent" />
         <CardHeader className="relative">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[rgba(231,218,237,0.45)]">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#927C8B]">
             Week {latest.weekNumber}
           </p>
           <CardTitle className="text-lg md:text-xl">Weekly Wellness Report</CardTitle>
@@ -109,27 +109,27 @@ export function WeeklyReview({ reports, onGenerate }: WeeklyReviewProps) {
             {metrics.map((m) => (
               <div
                 key={m.label}
-                className="rounded-2xl border border-[rgba(216,191,227,0.14)] bg-white/[0.03] p-4"
+                className="rounded-2xl border border-[#EADCE5] bg-white p-4"
               >
                 <div className="mb-2 flex items-center gap-2">
-                  <m.icon className="h-3.5 w-3.5 text-[#b384c9]" />
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-[rgba(231,218,237,0.45)]">
+                  <m.icon className="h-3.5 w-3.5 text-[#B74783]" />
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-[#927C8B]">
                     {m.label}
                   </p>
                 </div>
-                <p className="font-display text-base font-semibold text-[#f3eefa]">
+                <p className="font-display text-base font-semibold text-[#49263D]">
                   {m.value}
                 </p>
               </div>
             ))}
           </div>
 
-          <div className="rounded-2xl border border-[#b384c9]/20 bg-[#b384c9]/10 p-5">
-            <p className="mb-2 flex items-center gap-2 text-xs font-semibold text-[#b384c9]">
+          <div className="rounded-2xl border border-[#B74783]/20 bg-[#B74783]/10 p-5">
+            <p className="mb-2 flex items-center gap-2 text-xs font-semibold text-[#B74783]">
               <Sparkles className="h-3.5 w-3.5" />
               AI Summary
             </p>
-            <p className="text-sm leading-relaxed text-[rgba(231,218,237,0.8)]">
+            <p className="text-sm leading-relaxed text-[#795A70]">
               {latest.aiSummary}
             </p>
           </div>
@@ -139,7 +139,7 @@ export function WeeklyReview({ reports, onGenerate }: WeeklyReviewProps) {
               {latest.insights.map((insight) => (
                 <li
                   key={insight}
-                  className="rounded-xl border border-[rgba(216,191,227,0.12)] bg-white/[0.02] px-4 py-3 text-sm text-[rgba(231,218,237,0.65)]"
+                  className="rounded-xl border border-[#EADCE5] bg-white/[0.02] px-4 py-3 text-sm text-[#795A70]"
                 >
                   {insight}
                 </li>

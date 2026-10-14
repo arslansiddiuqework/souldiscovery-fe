@@ -29,7 +29,7 @@ export function FaceEmotionModal({ isOpen, onClose, onConfirm }: FaceEmotionModa
     } else {
       stopCamera();
     }
-  }, [isOpen]);
+  }, [isOpen, startCamera, stopCamera]);
 
   const handleConfirm = () => {
     if (liveScore !== null && liveMood) {

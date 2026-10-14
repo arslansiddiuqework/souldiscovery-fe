@@ -2,8 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Quicksand } from "next/font/google";
 
 import "./globals.css";
-import { Footer } from "@/components/footer";
-import { Navbar } from "@/components/navbar";
+import { AppChrome } from "@/components/app-chrome";
 import { Toaster } from "@/components/ui/toaster";
 import { Providers } from "@/components/providers";
 import { GoogleOAuthProvider } from "@react-oauth/google";
@@ -11,6 +10,7 @@ import { ConnectedParticlesBackground } from "@/components/ui/connected-particle
 import {
   BRAND_CAPTION,
   BRAND_DESCRIPTION,
+  BRAND_ASSET_VERSION,
   BRAND_ICON_SRC,
   BRAND_LOGO_SRC,
   BRAND_NAME,
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     title: BRAND_NAME,
     capable: true,
-    statusBarStyle: "black-translucent",
+    statusBarStyle: "default",
   },
   openGraph: {
     type: "website",
@@ -61,17 +61,31 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: "/favicon.ico?v=3", sizes: "any" },
-      { url: "/icon.png?v=3", type: "image/png", sizes: "512x512" },
-      { url: `${BRAND_ICON_SRC}?v=3`, type: "image/png", sizes: "900x900" },
+      { url: `/favicon.ico?v=${BRAND_ASSET_VERSION}`, sizes: "48x48" },
+      {
+        url: `/favicon-16x16.png?v=${BRAND_ASSET_VERSION}`,
+        type: "image/png",
+        sizes: "16x16",
+      },
+      {
+        url: `/favicon-32x32.png?v=${BRAND_ASSET_VERSION}`,
+        type: "image/png",
+        sizes: "32x32",
+      },
     ],
-    apple: [{ url: "/apple-icon.png?v=3", sizes: "180x180", type: "image/png" }],
-    shortcut: "/favicon.ico?v=3",
+    apple: [
+      {
+        url: `/apple-icon.png?v=${BRAND_ASSET_VERSION}`,
+        sizes: "180x180",
+        type: "image/png",
+      },
+    ],
+    shortcut: `/favicon-32x32.png?v=${BRAND_ASSET_VERSION}`,
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0a0614",
+  themeColor: "#FBF9FF",
 };
 
 export default function RootLayout({
@@ -83,21 +97,18 @@ export default function RootLayout({
 
   const app = (
     <Providers>
-      <div className="space-bg" aria-hidden>
-        <div className="space-stars" />
+      <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden" aria-hidden>
         <ConnectedParticlesBackground />
       </div>
       <div className="relative z-10">
-        <Navbar />
-        <main className="min-h-screen">{children}</main>
-        <Footer />
+        <AppChrome>{children}</AppChrome>
         <Toaster />
       </div>
     </Providers>
   );
 
   return (
-    <html lang="en" className="dark" suppressHydrationWarning>
+    <html lang="en" className="light" suppressHydrationWarning>
       <body className={`${quicksand.variable} font-sans antialiased`}>
         {googleClientId ? (
           <GoogleOAuthProvider clientId={googleClientId}>{app}</GoogleOAuthProvider>

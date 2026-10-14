@@ -188,7 +188,12 @@ export function suggestionFromEmotion(
   action: "create" | "adapt" | "review";
   message: string;
 } | null {
-  const e = emotion.toLowerCase();
+  const safeEmotion = String(emotion || "").slice(0, 64);
+  const e = safeEmotion.toLowerCase();
+  const safeIntensity =
+    typeof intensity === "number" && Number.isFinite(intensity)
+      ? Math.min(1, Math.max(0, intensity))
+      : 0;
   const stressful =
     e.includes("stress") ||
     e.includes("anxiety") ||
@@ -196,12 +201,12 @@ export function suggestionFromEmotion(
     e === "low" ||
     e.includes("overwhelm");
 
-  if (!stressful && intensity < 0.6) return null;
+  if (!stressful && safeIntensity < 0.6) return null;
 
   if (!hasPlan) {
     return {
       reason: "elevated_distress",
-      emotion,
+      emotion: safeEmotion,
       action: "create",
       message:
         "We noticed elevated stress signals. Creating a personalized wellness plan can help you rebuild calm with small daily steps.",
@@ -210,7 +215,7 @@ export function suggestionFromEmotion(
 
   return {
     reason: "elevated_distress",
-    emotion,
+    emotion: safeEmotion,
     action: "adapt",
     message:
       "We recommend updating your wellness plan based on what came up in this conversation.",
@@ -237,27 +242,41 @@ export function completeTaskInPlan(
   extras?: { journalEntry?: string; notes?: string }
 ): WellnessPlan {
   const now = new Date().toISOString();
+  let found = false;
+  let alreadyComplete = false;
+
   let updated: WellnessPlan = {
     ...plan,
     weeks: plan.weeks.map((week) => ({
       ...week,
       days: week.days.map((day) => ({
         ...day,
-        tasks: day.tasks.map((task) =>
-          task.id === taskId
-            ? {
-                ...task,
-                completed: true,
-                completedAt: now,
-                journalEntry: extras?.journalEntry ?? task.journalEntry,
-                notes: extras?.notes ?? task.notes,
-              }
-            : task
-        ),
+        tasks: day.tasks.map((task) => {
+          if (task.id !== taskId) return task;
+          found = true;
+          if (task.completed) {
+            alreadyComplete = true;
+            // Idempotent: keep original completedAt; allow note merge only
+            return {
+              ...task,
+              journalEntry: extras?.journalEntry ?? task.journalEntry,
+              notes: extras?.notes ?? task.notes,
+            };
+          }
+          return {
+            ...task,
+            completed: true,
+            completedAt: now,
+            journalEntry: extras?.journalEntry ?? task.journalEntry,
+            notes: extras?.notes ?? task.notes,
+          };
+        }),
       })),
     })),
-    updatedAt: now,
+    updatedAt: alreadyComplete ? plan.updatedAt : now,
   };
+
+  if (!found) return plan;
 
   updated = markDayCompletionFlags(updated);
   updated = adaptPlanIfNeeded(updated);

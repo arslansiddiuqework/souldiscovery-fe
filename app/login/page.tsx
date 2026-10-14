@@ -63,17 +63,17 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="relative flex min-h-screen w-full items-center justify-center py-24">
+    <div className="relative flex min-h-screen w-full items-center justify-center px-4 pt-28 pb-12 md:pt-32 md:pb-16">
       <Container className="relative z-10 flex w-full flex-col items-center justify-center">
-        <Card className="glass-panel-light w-full max-w-md rounded-[22px] border-[rgba(216,191,227,0.22)] p-8 md:p-10">
+        <Card className="glass-panel-light w-full max-w-md rounded-[22px] border-[#EADCE5] p-6 md:p-8">
           <div className="mb-8 text-center">
             <div className="mx-auto mb-5 flex justify-center">
               <BrandLogo variant="stacked" size={64} priority />
             </div>
-            <h1 className="text-3xl font-bold tracking-tight text-[#f3eefa] md:text-4xl">
+            <h1 className="text-3xl font-bold tracking-tight text-[#49263D] md:text-4xl">
               Welcome back
             </h1>
-            <p className="mt-2 text-base text-[rgba(231,218,237,0.55)]">
+            <p className="mt-2 text-base text-[#927C8B]">
               Sign in to continue your wellness journey
             </p>
           </div>
@@ -81,11 +81,11 @@ export default function LoginPage() {
           <form className="space-y-5" onSubmit={handleSubmit}>
             <div className="space-y-4">
               <div>
-                <label htmlFor="email" className="mb-2 block text-sm font-semibold text-[#f3eefa]">
+                <label htmlFor="email" className="mb-2 block text-sm font-semibold text-[#49263D]">
                   Email
                 </label>
                 <div className="relative">
-                  <Mail className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[rgba(231,218,237,0.4)]" />
+                  <Mail className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#927C8B]" />
                   <Input
                     id="email"
                     type="email"
@@ -98,11 +98,11 @@ export default function LoginPage() {
                 </div>
               </div>
               <div>
-                <label htmlFor="password" className="mb-2 block text-sm font-semibold text-[#f3eefa]">
+                <label htmlFor="password" className="mb-2 block text-sm font-semibold text-[#49263D]">
                   Password
                 </label>
                 <div className="relative">
-                  <Lock className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[rgba(231,218,237,0.4)]" />
+                  <Lock className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#927C8B]" />
                   <Input
                     id="password"
                     type={showPassword ? "text" : "password"}
@@ -115,7 +115,7 @@ export default function LoginPage() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-[rgba(231,218,237,0.4)] transition-colors hover:text-[#d8bfe3]"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-[#927C8B] transition-colors hover:text-[#D9B8F5]"
                     aria-label={showPassword ? "Hide password" : "Show password"}
                   >
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -139,10 +139,10 @@ export default function LoginPage() {
             <div className="mt-6 flex w-full flex-col items-center justify-center gap-4">
               <div className="relative w-full">
                 <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t border-[rgba(216,191,227,0.18)]" />
+                  <span className="w-full border-t border-[#EADCE5]" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase tracking-wide">
-                  <span className="bg-[rgba(16,11,32,0.72)] px-3 text-[rgba(231,218,237,0.45)]">Or continue with</span>
+                  <span className="bg-white px-3 text-[#927C8B]">Or continue with</span>
                 </div>
               </div>
               <div className="w-full pt-1">
@@ -155,14 +155,14 @@ export default function LoginPage() {
             </div>
           ) : null}
 
-          <div className="mt-8 border-t border-[rgba(216,191,227,0.18)] pt-6">
+          <div className="mt-8 border-t border-[#EADCE5] pt-6">
             <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-sm">
-              <span className="text-[rgba(231,218,237,0.55)]">Don&apos;t have an account?</span>
-              <Link href="/signup" className="font-semibold text-[#d8bfe3] hover:underline">
+              <span className="text-[#927C8B]">Don&apos;t have an account?</span>
+              <Link href="/signup" className="font-semibold text-[#D9B8F5] hover:underline">
                 Sign up
               </Link>
-              <span className="text-[rgba(231,218,237,0.35)]">·</span>
-              <Link href="/forgot-password" className="font-medium text-[#d8bfe3] hover:underline">
+              <span className="text-[#795A70]">·</span>
+              <Link href="/forgot-password" className="font-medium text-[#D9B8F5] hover:underline">
                 Forgot password?
               </Link>
             </div>

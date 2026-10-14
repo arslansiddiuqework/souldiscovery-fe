@@ -14,14 +14,29 @@ const publicRoutes = [
   "/about",
   "/features",
   "/pricing",
+  "/faq",
+  "/contact",
+  "/help",
+  "/privacy",
+  "/terms",
+  "/cookies",
 ];
+
+const publicPrefixes = ["/assessments"];
+
+function isPublicPath(pathname: string) {
+  if (publicRoutes.includes(pathname)) return true;
+  return publicPrefixes.some(
+    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
+  );
+}
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, loading } = useSession();
   const router = useRouter();
   const pathname = usePathname();
   const [isReady, setIsReady] = useState(false);
-  const isPublicRoute = publicRoutes.includes(pathname);
+  const isPublicRoute = isPublicPath(pathname);
 
   useEffect(() => {
     if (loading) return;
@@ -43,7 +58,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   if (loading || !isReady) {
     return (
       <div className="flex min-h-screen w-full items-center justify-center">
-        <Loader2 className="h-10 w-10 animate-spin text-[#b384c9]" />
+        <Loader2 className="h-10 w-10 animate-spin text-[#B74783]" />
       </div>
     );
   }

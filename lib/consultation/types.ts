@@ -54,7 +54,7 @@ export const TIME_SLOTS = [
 
 export const DEFAULT_PSYCHOLOGIST: PsychologistProfile = {
   id: "psych_dr_elena",
-  name: "Dr. Elena Vargas",
+  name: "Dr. Faya Arslan",
   title: "Licensed Clinical Psychologist",
   specializations: [
     "Anxiety & Stress",
@@ -65,6 +65,6 @@ export const DEFAULT_PSYCHOLOGIST: PsychologistProfile = {
   yearsExperience: 12,
   languages: ["English", "Spanish"],
   about:
-    "Dr. Vargas provides warm, evidence-based online therapy focused on helping you navigate anxiety, stress, and emotional patterns with clarity and compassion. Sessions are private, paced to your needs, and designed to complement your Soul Discovery wellness journey.",
+    "Dr. Faya Arslan provides warm, evidence-based online therapy focused on helping you navigate anxiety, stress, and emotional patterns with clarity and compassion. Sessions are private, paced to your needs, and designed to complement your Soul Discovery wellness journey.",
   photoUrl: null,
 };

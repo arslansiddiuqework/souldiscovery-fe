@@ -147,12 +147,12 @@ export function BookingFlow({
         if (!v) handleClose();
       }}
     >
-      <DialogContent className="max-h-[92vh] overflow-y-auto border-[rgba(216,191,227,0.22)] bg-[rgba(16,11,32,0.97)] text-[#f3eefa] sm:max-w-xl">
+      <DialogContent className="max-h-[92vh] overflow-y-auto border-[#EADCE5] bg-white text-[#49263D] sm:max-w-xl">
         <DialogHeader>
           <DialogTitle className="font-display text-xl md:text-2xl">
             {done ? "Session Scheduled" : "Schedule Consultation"}
           </DialogTitle>
-          <DialogDescription className="text-[rgba(231,218,237,0.55)]">
+          <DialogDescription className="text-[#927C8B]">
             {done
               ? "Your psychologist session is reserved. Payment gateway coming soon."
               : `90-minute online session · $${SESSION_PRICE_USD}`}
@@ -161,11 +161,11 @@ export function BookingFlow({
 
         {!done && (
           <div className="space-y-2">
-            <div className="flex items-center justify-between text-xs font-semibold text-[rgba(231,218,237,0.45)]">
+            <div className="flex items-center justify-between text-xs font-semibold text-[#927C8B]">
               <span>
                 Step {step + 1} of {STEPS.length} · {STEPS[step]}
               </span>
-              <span className="text-[#b384c9]">{Math.round(progress)}%</span>
+              <span className="text-[#B74783]">{Math.round(progress)}%</span>
             </div>
             <Progress value={progress} className="h-1.5" />
           </div>
@@ -179,19 +179,19 @@ export function BookingFlow({
               animate={{ opacity: 1, y: 0 }}
               className="space-y-5 py-4 text-center"
             >
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[rgba(179,132,201,0.18)]">
-                <Check className="h-7 w-7 text-[#b384c9]" />
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[rgba(183,71,131,0.18)]">
+                <Check className="h-7 w-7 text-[#B74783]" />
               </div>
               <div className="space-y-2">
-                <p className="font-display text-lg font-semibold text-[#f3eefa]">
+                <p className="font-display text-lg font-semibold text-[#49263D]">
                   You&apos;re booked
                 </p>
-                <p className="text-sm text-[rgba(231,218,237,0.55)]">
+                <p className="text-sm text-[#927C8B]">
                   {selectedDate &&
                     format(selectedDate, "EEEE, MMMM d, yyyy")}{" "}
                   at {selectedTime}
                 </p>
-                <p className="rounded-2xl border border-[#b384c9]/25 bg-[#b384c9]/10 px-4 py-3 text-xs text-[#d8bfe3]">
+                <p className="rounded-2xl border border-[#B74783]/25 bg-[#B74783]/10 px-4 py-3 text-xs text-[#D9B8F5]">
                   Payment via Stripe is coming soon. Your session is saved to
                   your dashboard as Scheduled.
                 </p>
@@ -230,7 +230,7 @@ export function BookingFlow({
                       <ArrowRight className="h-4 w-4" />
                     </Button>
                   </div>
-                  <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-semibold uppercase tracking-wider text-[rgba(231,218,237,0.4)]">
+                  <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-semibold uppercase tracking-wider text-[#927C8B]">
                     {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((d) => (
                       <div key={d} className="py-1">
                         {d}
@@ -255,9 +255,9 @@ export function BookingFlow({
                               "cursor-not-allowed opacity-25",
                             !disabled &&
                               !selected &&
-                              "hover:bg-white/[0.06] text-[rgba(231,218,237,0.85)]",
+                              "hover:bg-[#FFF0F6] text-[#795A70]",
                             selected &&
-                              "bg-[#b384c9] font-semibold text-[#1c1033]"
+                              "bg-[#B74783] font-semibold text-[#49263D]"
                           )}
                         >
                           {format(day, "d")}
@@ -270,7 +270,7 @@ export function BookingFlow({
 
               {step === 1 && (
                 <div className="space-y-3">
-                  <p className="text-sm text-[rgba(231,218,237,0.55)]">
+                  <p className="text-sm text-[#927C8B]">
                     Available slots for{" "}
                     {selectedDate
                       ? format(selectedDate, "MMMM d, yyyy")
@@ -285,8 +285,8 @@ export function BookingFlow({
                         className={cn(
                           "rounded-2xl border px-3 py-3 text-sm font-semibold transition",
                           selectedTime === slot
-                            ? "border-[#b384c9]/45 bg-[rgba(179,132,201,0.16)] text-[#f3eefa]"
-                            : "border-[rgba(216,191,227,0.16)] bg-white/[0.03] text-[rgba(231,218,237,0.75)] hover:border-[rgba(216,191,227,0.28)]"
+                            ? "border-[#B74783]/45 bg-[rgba(183,71,131,0.16)] text-[#49263D]"
+                            : "border-[#EADCE5] bg-white text-[#795A70] hover:border-[#EADCE5]"
                         )}
                       >
                         {slot}
@@ -305,7 +305,7 @@ export function BookingFlow({
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       placeholder="Your full name"
-                      className="h-11 rounded-2xl border-[rgba(216,191,227,0.22)] bg-white/[0.04]"
+                      className="h-11 rounded-2xl border-[#EADCE5] bg-white"
                     />
                   </div>
                   <div className="space-y-2">
@@ -316,7 +316,7 @@ export function BookingFlow({
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="you@example.com"
-                      className="h-11 rounded-2xl border-[rgba(216,191,227,0.22)] bg-white/[0.04]"
+                      className="h-11 rounded-2xl border-[#EADCE5] bg-white"
                     />
                   </div>
                   <div className="space-y-2">
@@ -326,7 +326,7 @@ export function BookingFlow({
                       value={reason}
                       onChange={(e) => setReason(e.target.value)}
                       placeholder="What would you like support with?"
-                      className="h-11 rounded-2xl border-[rgba(216,191,227,0.22)] bg-white/[0.04]"
+                      className="h-11 rounded-2xl border-[#EADCE5] bg-white"
                     />
                   </div>
                   <div className="space-y-2">
@@ -337,19 +337,19 @@ export function BookingFlow({
                       onChange={(e) => setNotes(e.target.value)}
                       rows={3}
                       placeholder="Anything helpful for your psychologist to know…"
-                      className="w-full resize-none rounded-2xl border border-[rgba(216,191,227,0.22)] bg-white/[0.04] px-3 py-2.5 text-sm text-[#f3eefa] outline-none placeholder:text-[rgba(231,218,237,0.35)] focus:border-[#b384c9]/40"
+                      className="w-full resize-none rounded-2xl border border-[#EADCE5] bg-white px-3 py-2.5 text-sm text-[#49263D] outline-none placeholder:text-[#927C8B] focus:border-[#B74783]/40"
                     />
                   </div>
                 </div>
               )}
 
               {step === 3 && (
-                <div className="space-y-3 rounded-[20px] border border-[rgba(216,191,227,0.18)] bg-white/[0.03] p-5">
-                  <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.08em] text-[rgba(231,218,237,0.45)]">
-                    <Sparkles className="h-3.5 w-3.5 text-[#b384c9]" />
+                <div className="space-y-3 rounded-[20px] border border-[#EADCE5] bg-white p-5">
+                  <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.08em] text-[#927C8B]">
+                    <Sparkles className="h-3.5 w-3.5 text-[#B74783]" />
                     Booking Summary
                   </p>
-                  <h3 className="font-display text-xl font-bold text-[#f3eefa]">
+                  <h3 className="font-display text-xl font-bold text-[#49263D]">
                     Psychologist Session
                   </h3>
                   <SummaryRow
@@ -382,20 +382,20 @@ export function BookingFlow({
 
               {step === 4 && (
                 <div className="space-y-5 py-2 text-center">
-                  <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-[rgba(216,191,227,0.22)] bg-[rgba(179,132,201,0.12)]">
-                    <CreditCard className="h-6 w-6 text-[#b384c9]" />
+                  <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-[#EADCE5] bg-[#FFE5F0]">
+                    <CreditCard className="h-6 w-6 text-[#B74783]" />
                   </div>
                   <div className="space-y-2">
-                    <h3 className="font-display text-xl font-bold text-[#f3eefa]">
+                    <h3 className="font-display text-xl font-bold text-[#49263D]">
                       Coming Soon
                     </h3>
-                    <p className="text-sm leading-relaxed text-[rgba(231,218,237,0.55)]">
+                    <p className="text-sm leading-relaxed text-[#927C8B]">
                       Stripe Integration / Payment Gateway Integration is being
                       prepared. Confirm to reserve your session — payment will
                       be collected when the gateway goes live.
                     </p>
                   </div>
-                  <div className="rounded-2xl border border-[#b384c9]/25 bg-[#b384c9]/10 px-4 py-3 text-left text-xs text-[#d8bfe3]">
+                  <div className="rounded-2xl border border-[#B74783]/25 bg-[#B74783]/10 px-4 py-3 text-left text-xs text-[#D9B8F5]">
                     Amount due: <strong>${SESSION_PRICE_USD}</strong> · Structured
                     for future Stripe Checkout
                   </div>
@@ -406,11 +406,11 @@ export function BookingFlow({
         </AnimatePresence>
 
         {!done && (
-          <div className="flex items-center justify-between gap-3 border-t border-white/8 pt-4">
+          <div className="flex items-center justify-between gap-3 border-t border-[#EADCE5] pt-4">
             <Button
               variant="ghost"
               onClick={() => (step === 0 ? handleClose() : setStep((s) => s - 1))}
-              className="gap-2 text-[rgba(231,218,237,0.7)]"
+              className="gap-2 text-[#795A70]"
             >
               <ArrowLeft className="h-4 w-4" />
               {step === 0 ? "Cancel" : "Back"}
@@ -455,12 +455,12 @@ function SummaryRow({
   value: string;
 }) {
   return (
-    <div className="flex items-center justify-between gap-3 border-t border-white/5 pt-3 text-sm">
-      <span className="flex items-center gap-2 text-[rgba(231,218,237,0.5)]">
-        <Icon className="h-3.5 w-3.5 text-[#b384c9]" />
+    <div className="flex items-center justify-between gap-3 border-t border-[#EADCE5] pt-3 text-sm">
+      <span className="flex items-center gap-2 text-[#927C8B]">
+        <Icon className="h-3.5 w-3.5 text-[#B74783]" />
         {label}
       </span>
-      <span className="font-semibold text-[#f3eefa]">{value}</span>
+      <span className="font-semibold text-[#49263D]">{value}</span>
     </div>
   );
 }

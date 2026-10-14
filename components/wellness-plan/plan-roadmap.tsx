@@ -36,26 +36,26 @@ export function PlanRoadmap({ plan, onTaskClick }: PlanRoadmapProps) {
           return (
             <div
               key={week.id}
-              className="overflow-hidden rounded-[20px] border border-[rgba(216,191,227,0.16)] bg-white/[0.02]"
+              className="overflow-hidden rounded-[20px] border border-[#EADCE5] bg-white/[0.02]"
             >
               <button
                 type="button"
                 onClick={() =>
                   setOpenWeek(isOpen ? -1 : week.weekNumber)
                 }
-                className="flex w-full items-center justify-between gap-3 px-5 py-4 text-left transition hover:bg-white/[0.03]"
+                className="flex w-full items-center justify-between gap-3 px-5 py-4 text-left transition hover:bg-white"
               >
                 <div>
-                  <p className="font-display text-base font-semibold text-[#f3eefa]">
+                  <p className="font-display text-base font-semibold text-[#49263D]">
                     {week.title}
                   </p>
-                  <p className="mt-0.5 text-xs text-[rgba(231,218,237,0.5)]">
+                  <p className="mt-0.5 text-xs text-[#927C8B]">
                     {week.focus} · {weekDone}/{week.days.length} days complete
                   </p>
                 </div>
                 <ChevronDown
                   className={cn(
-                    "h-5 w-5 text-[rgba(231,218,237,0.55)] transition-transform",
+                    "h-5 w-5 text-[#927C8B] transition-transform",
                     isOpen && "rotate-180"
                   )}
                 />
@@ -70,8 +70,8 @@ export function PlanRoadmap({ plan, onTaskClick }: PlanRoadmapProps) {
                     transition={{ duration: 0.28 }}
                     className="overflow-hidden"
                   >
-                    <div className="relative space-y-0 border-t border-white/5 px-5 pb-5 pt-2">
-                      <div className="absolute bottom-5 left-[29px] top-2 w-px bg-gradient-to-b from-[#b384c9]/40 via-[#b384c9]/15 to-transparent" />
+                    <div className="relative space-y-0 border-t border-[#EADCE5] px-5 pb-5 pt-2">
+                      <div className="absolute bottom-5 left-[29px] top-2 w-px bg-gradient-to-b from-[#B74783]/40 via-[#B74783]/15 to-transparent" />
                       {week.days.map((day) => {
                         const isCurrent = day.dayNumber === currentDay;
                         const dayProgress =
@@ -85,10 +85,10 @@ export function PlanRoadmap({ plan, onTaskClick }: PlanRoadmapProps) {
                               className={cn(
                                 "absolute left-4 top-6 flex h-5 w-5 items-center justify-center rounded-full border",
                                 day.completed
-                                  ? "border-[#b384c9] bg-[#b384c9] text-[#1c1033]"
+                                  ? "border-[#B74783] bg-[#B74783] text-[#49263D]"
                                   : isCurrent
-                                    ? "border-[#b384c9] bg-[rgba(179,132,201,0.2)]"
-                                    : "border-[rgba(216,191,227,0.25)] bg-[rgba(16,11,32,0.9)]"
+                                    ? "border-[#B74783] bg-[rgba(183,71,131,0.2)]"
+                                    : "border-[#EADCE5] bg-white"
                               )}
                             >
                               {day.completed && <Check className="h-3 w-3" />}
@@ -97,21 +97,21 @@ export function PlanRoadmap({ plan, onTaskClick }: PlanRoadmapProps) {
                               className={cn(
                                 "rounded-2xl border p-4 transition",
                                 isCurrent
-                                  ? "border-[#b384c9]/35 bg-[rgba(179,132,201,0.08)]"
-                                  : "border-[rgba(216,191,227,0.12)] bg-white/[0.02]"
+                                  ? "border-[#B74783]/35 bg-[rgba(183,71,131,0.08)]"
+                                  : "border-[#EADCE5] bg-white/[0.02]"
                               )}
                             >
                               <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
                                 <div>
-                                  <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[rgba(231,218,237,0.4)]">
+                                  <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#927C8B]">
                                     Day {day.dayNumber}
                                     {isCurrent ? " · Today" : ""}
                                   </p>
-                                  <p className="font-display text-sm font-semibold text-[#f3eefa]">
+                                  <p className="font-display text-sm font-semibold text-[#49263D]">
                                     {day.theme}
                                   </p>
                                 </div>
-                                <span className="text-xs text-[rgba(231,218,237,0.45)]">
+                                <span className="text-xs text-[#927C8B]">
                                   {Math.round(dayProgress * 100)}%
                                 </span>
                               </div>
@@ -127,21 +127,21 @@ export function PlanRoadmap({ plan, onTaskClick }: PlanRoadmapProps) {
                                       className={cn(
                                         "flex w-full items-center gap-3 rounded-xl px-2 py-2 text-left transition",
                                         isCurrent && !task.completed
-                                          ? "hover:bg-white/[0.04]"
+                                          ? "hover:bg-white"
                                           : "cursor-default"
                                       )}
                                     >
                                       <MissionCheckbox completed={task.completed} />
-                                      <Icon className="h-3.5 w-3.5 shrink-0 text-[#b384c9]" />
+                                      <Icon className="h-3.5 w-3.5 shrink-0 text-[#B74783]" />
                                       <span
                                         className={cn(
-                                          "flex-1 text-sm text-[rgba(231,218,237,0.75)]",
+                                          "flex-1 text-sm text-[#795A70]",
                                           task.completed && "line-through opacity-60"
                                         )}
                                       >
                                         {task.title}
                                       </span>
-                                      <span className="text-[11px] text-[rgba(231,218,237,0.4)]">
+                                      <span className="text-[11px] text-[#927C8B]">
                                         {task.estimatedMinutes}m
                                       </span>
                                     </button>

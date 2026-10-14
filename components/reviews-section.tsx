@@ -1,22 +1,22 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { Sparkles, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { homepageReviews, type Review } from "@/lib/data/reviews";
 
-function StarRating({ rating }: { rating: number }) {
+function StarRating({ rating, size = "sm" }: { rating: number; size?: "sm" | "md" }) {
+  const dim = size === "md" ? "h-4 w-4" : "h-3.5 w-3.5";
   return (
     <div className="flex items-center gap-0.5" aria-label={`${rating} out of 5 stars`}>
       {Array.from({ length: 5 }).map((_, i) => (
         <Star
           key={i}
           className={cn(
-            "h-3.5 w-3.5",
+            dim,
             i < rating
-              ? "fill-[#d8bfe3] text-[#d8bfe3]"
-              : "fill-transparent text-[rgba(216,191,227,0.25)]"
+              ? "fill-[#B74783] text-[#B74783]"
+              : "fill-transparent text-[#DFC7D6]"
           )}
           strokeWidth={1.5}
         />
@@ -29,30 +29,29 @@ function ReviewCard({ review }: { review: Review }) {
   return (
     <article
       className={cn(
-        "group flex h-full flex-col rounded-[22px] border border-[rgba(216,191,227,0.16)]",
-        "bg-[rgba(16,11,32,0.55)] p-6 shadow-[0_20px_60px_rgba(6,3,16,0.35)] backdrop-blur-xl",
-        "transition-all duration-300 hover:-translate-y-[3px] hover:border-[rgba(216,191,227,0.28)] hover:bg-[rgba(16,11,32,0.7)]",
-        "md:p-7"
+        "flex h-full flex-col rounded-[20px] border border-[#EADCE5]",
+        "bg-white p-5 shadow-[0_8px_28px_rgba(123,57,98,0.07)]",
+        "transition-shadow duration-300 hover:shadow-[0_12px_32px_rgba(123,57,98,0.11)]"
       )}
     >
       <StarRating rating={review.rating} />
-      <blockquote className="mt-4 flex-1 text-[15px] font-medium leading-[1.7] text-[rgba(243,238,250,0.88)] md:text-[16px]">
+      <blockquote className="mt-3 flex-1 text-[13px] font-medium leading-[1.65] text-[#49263D] sm:text-[14px]">
         “{review.text}”
       </blockquote>
-      <footer className="mt-6 flex items-center gap-3 border-t border-white/[0.06] pt-5">
+      <footer className="mt-4 flex items-center gap-3 border-t border-[#EFE3EA] pt-4">
         <div
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/10 text-sm font-bold text-[#f3eefa]"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold text-[#B74783]"
           style={{ background: review.accent }}
           aria-hidden
         >
           {review.initial}
         </div>
         <div className="min-w-0">
-          <p className="truncate text-[14px] font-bold tracking-[-0.01em] text-[#f3eefa]">
+          <p className="truncate text-[14px] font-bold tracking-[-0.01em] text-[#49263D]">
             {review.name}
           </p>
           {review.role && (
-            <p className="truncate text-[12px] font-medium text-[rgba(231,218,237,0.5)]">
+            <p className="truncate text-[12px] font-medium text-[#927C8B]">
               {review.role}
             </p>
           )}
@@ -63,140 +62,83 @@ function ReviewCard({ review }: { review: Review }) {
 }
 
 /**
- * Spatium-inspired testimonials — Soul Discovery original copy.
- * Uses the global connected-dots atmosphere (no local particle canvas).
+ * Homepage testimonials — horizontal split: copy left, reviews right.
  */
 export function ReviewsSection({
   reviews = homepageReviews,
 }: {
   reviews?: Review[];
 }) {
-  const scrollerRef = useRef<HTMLDivElement>(null);
-  const [active, setActive] = useState(0);
-
-  const syncActive = useCallback(() => {
-    const el = scrollerRef.current;
-    if (!el || window.matchMedia("(min-width: 640px)").matches) return;
-    const card = el.querySelector<HTMLElement>("[data-review-card]");
-    if (!card) return;
-    const gap = 16;
-    const width = card.offsetWidth + gap;
-    const index = Math.round(el.scrollLeft / Math.max(width, 1));
-    setActive(Math.max(0, Math.min(reviews.length - 1, index)));
-  }, [reviews.length]);
-
-  useEffect(() => {
-    const el = scrollerRef.current;
-    if (!el) return;
-    el.addEventListener("scroll", syncActive, { passive: true });
-    window.addEventListener("resize", syncActive, { passive: true });
-    return () => {
-      el.removeEventListener("scroll", syncActive);
-      window.removeEventListener("resize", syncActive);
-    };
-  }, [syncActive]);
-
-  const scrollTo = (index: number) => {
-    const el = scrollerRef.current;
-    if (!el) return;
-    const card = el.querySelector<HTMLElement>("[data-review-card]");
-    if (!card) return;
-    const gap = 16;
-    el.scrollTo({ left: index * (card.offsetWidth + gap), behavior: "smooth" });
-  };
-
   return (
-    <section id="reviews" className="relative section-padding px-4" aria-labelledby="reviews-heading">
+    <section
+      id="reviews"
+      className="relative section-padding px-4"
+      aria-labelledby="reviews-heading"
+    >
       <div className="container-app">
-        <motion.div
-          initial={{ opacity: 0, y: 18 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.55, ease: "easeOut" }}
-          className="mx-auto mb-12 max-w-[640px] text-center md:mb-16"
-        >
-          <span className="badge-glass mx-auto mb-6">
-            <Sparkles className="h-3.5 w-3.5 text-[#d8bfe3]" />
-            Loved by people finding their balance
-          </span>
-
-          <h2
-            id="reviews-heading"
-            className="font-bold text-[#f3eefa]"
-            style={{
-              fontSize: "clamp(1.75rem, 4vw, 2.75rem)",
-              letterSpacing: "-0.03em",
-              lineHeight: 1.15,
-            }}
+        <div className="grid items-start gap-10 lg:grid-cols-[minmax(260px,0.9fr)_minmax(0,1.4fr)] lg:gap-12 xl:gap-16">
+          {/* Left: headline + trust */}
+          <motion.div
+            initial={{ opacity: 0, y: 18 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.55, ease: "easeOut" }}
+            className="text-center lg:sticky lg:top-28 lg:text-left"
+            data-particles-mask
           >
-            Real experiences.{" "}
-            <span className="text-gradient-brand">Real change.</span>
-          </h2>
+            <span className="badge-glass mx-auto mb-4 lg:mx-0">
+              <Sparkles className="h-3.5 w-3.5 text-[#B74783]" />
+              Loved by people finding their balance
+            </span>
 
-          <p className="mx-auto mt-4 max-w-[48ch] text-[17px] leading-[1.7] text-[rgba(231,218,237,0.62)]">
-            Discover clarity. Find balance. Grow with confidence. From mindfulness
-            and stress relief to quiet self-reflection — Soul Discovery helps people
-            build calmer daily habits with gentle, guided support.
-          </p>
-
-          {/* Neutral trust summary — no invented ratings or user counts */}
-          <div className="mx-auto mt-9 inline-flex items-center gap-4 rounded-full border border-[rgba(216,191,227,0.18)] bg-[rgba(16,11,32,0.55)] px-5 py-3 backdrop-blur-xl md:px-6 md:py-3.5">
-            <StarRating rating={5} />
-            <div className="h-5 w-px bg-white/10" aria-hidden />
-            <p className="text-[13px] font-semibold tracking-[-0.01em] text-[rgba(231,218,237,0.82)] md:text-[14px]">
-              Trusted by Soul Discovery users
-            </p>
-          </div>
-        </motion.div>
-
-        <div
-          ref={scrollerRef}
-          className={cn(
-            "-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-1",
-            "[-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
-            "sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-5 sm:overflow-visible sm:px-0 sm:pb-0 sm:snap-none",
-            "lg:grid-cols-3"
-          )}
-        >
-          {reviews.map((review, index) => (
-            <motion.div
-              key={review.id}
-              data-review-card
-              initial={{ opacity: 0, y: 18 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-40px" }}
-              transition={{ duration: 0.45, delay: Math.min(index * 0.06, 0.3), ease: "easeOut" }}
-              className={cn(
-                "w-[min(100%,340px)] shrink-0 snap-center sm:w-auto sm:shrink",
-                index >= 3 && "lg:translate-y-4"
-              )}
+            <h2
+              id="reviews-heading"
+              className="font-bold text-[#49263D]"
+              style={{
+                fontSize: "clamp(1.75rem, 3.4vw, 2.65rem)",
+                letterSpacing: "-0.03em",
+                lineHeight: 1.15,
+              }}
             >
-              <ReviewCard review={review} />
-            </motion.div>
-          ))}
-        </div>
+              Real experiences.{" "}
+              <span className="text-gradient-brand">Real change.</span>
+            </h2>
 
-        <div
-          className="mt-6 flex items-center justify-center gap-2 sm:hidden"
-          role="tablist"
-          aria-label="Review slides"
-        >
-          {reviews.map((review, index) => (
-            <button
-              key={review.id}
-              type="button"
-              role="tab"
-              aria-selected={active === index}
-              aria-label={`Show review ${index + 1}`}
-              onClick={() => scrollTo(index)}
-              className={cn(
-                "h-1.5 rounded-full transition-all duration-300",
-                active === index
-                  ? "w-6 bg-[#d8bfe3]"
-                  : "w-1.5 bg-[rgba(216,191,227,0.28)] hover:bg-[rgba(216,191,227,0.45)]"
-              )}
-            />
-          ))}
+            <p className="mx-auto mt-4 max-w-[40ch] text-[15px] leading-[1.7] text-[#795A70] lg:mx-0 md:text-[16px]">
+              Discover clarity. Find balance. Grow with confidence. From mindfulness
+              and stress relief to quiet self-reflection — Soul Discovery helps people
+              build calmer daily habits with gentle, guided support.
+            </p>
+
+            <div className="mx-auto mt-7 inline-flex items-center gap-3 rounded-full border border-[#EADCE5] bg-white px-4 py-2.5 lg:mx-0 md:gap-4 md:px-5 md:py-3">
+              <StarRating rating={5} size="md" />
+              <div className="h-5 w-px bg-[#EADCE5]" aria-hidden />
+              <p className="text-[12px] font-semibold tracking-[-0.01em] text-[#49263D] md:text-[13px]">
+                Trusted by Soul Discovery users
+              </p>
+            </div>
+          </motion.div>
+
+          {/* Right: review cards */}
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-4">
+            {reviews.map((review, index) => (
+              <motion.div
+                key={review.id}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-40px" }}
+                transition={{
+                  duration: 0.45,
+                  delay: Math.min(index * 0.05, 0.25),
+                  ease: "easeOut",
+                }}
+                className="h-full"
+                data-particles-mask
+              >
+                <ReviewCard review={review} />
+              </motion.div>
+            ))}
+          </div>
         </div>
       </div>
     </section>

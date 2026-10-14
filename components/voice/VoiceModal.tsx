@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import {
@@ -49,13 +49,13 @@ const VoiceAura = ({ state, activityActive }: { state: string; activityActive: b
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: [0.8, 1.25, 0.8], opacity: [0, 0.45, 0] }}
               transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute inset-0 rounded-full bg-[#b384c9]/25"
+              className="absolute inset-0 rounded-full bg-[#B74783]/25"
             />
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: [0.9, 1.55, 0.9], opacity: [0, 0.25, 0] }}
               transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-              className="absolute inset-0 rounded-full bg-[#b384c9]/15"
+              className="absolute inset-0 rounded-full bg-[#B74783]/15"
             />
           </>
         )}
@@ -69,27 +69,27 @@ const VoiceAura = ({ state, activityActive }: { state: string; activityActive: b
         className={cn(
           "relative z-10 flex h-24 w-24 items-center justify-center rounded-full border-4 shadow-premium transition-all duration-500 md:h-32 md:w-32",
           activityActive
-            ? "border-[rgba(216,191,227,0.18)] bg-white/[0.035]"
+            ? "border-[#EADCE5] bg-white"
             : isListening
-              ? "bg-white border-[rgba(216,191,227,0.35)] text-[#1c1033] shadow-[rgba(179,132,201,0.35)_0px_10px_30px_0px]"
+              ? "bg-white border-[#EADCE5] text-[#49263D] shadow-[rgba(183,71,131,0.35)_0px_10px_30px_0px]"
               : isSpeaking
-                ? "border-[#b384c9]/20 bg-[#b384c9]/15"
+                ? "border-[#B74783]/20 bg-[#B74783]/15"
                 : isProcessing
-                  ? "animate-pulse border-[#b384c9]/25 bg-[#b384c9]/80"
-                  : "border-[rgba(216,191,227,0.18)] bg-white/[0.06]"
+                  ? "animate-pulse border-[#B74783]/25 bg-[#B74783]/80"
+                  : "border-[#EADCE5] bg-[#FFF0F6]"
         )}
       >
         <AnimatePresence mode="wait">
           {isProcessing ? (
-            <Loader2 key="proc" className="h-8 w-8 animate-spin text-white md:h-10 md:w-10" />
+            <Loader2 key="proc" className="h-8 w-8 animate-spin text-[#49263D] md:h-10 md:w-10" />
           ) : isSpeaking ? (
-            <Volume2 key="speak" className="h-8 w-8 text-[#b384c9] md:h-10 md:w-10" />
+            <Volume2 key="speak" className="h-8 w-8 text-[#B74783] md:h-10 md:w-10" />
           ) : (
             <Mic
               key="mic"
               className={cn(
                 "h-8 w-8 md:h-10 md:w-10",
-                isListening ? "text-white" : "text-[rgba(231,218,237,0.45)]"
+                isListening ? "text-[#49263D]" : "text-[#927C8B]"
               )}
             />
           )}
@@ -123,6 +123,8 @@ export function VoiceModal({
 }: VoiceModalProps) {
   const { user } = useSession();
   const voice = useVoiceAgent(user?.aiVoice);
+  const voiceRef = useRef(voice);
+  voiceRef.current = voice;
   const conversationModeRef = useRef(false);
   const autoResumeTimerRef = useRef<NodeJS.Timeout | null>(null);
   const lastTranscriptRef = useRef("");
@@ -181,8 +183,8 @@ export function VoiceModal({
     if (activityActive) {
       // Activity modal opened — pause everything
       wasConversationModeBeforeActivity.current = conversationModeRef.current;
-      voice.stopListening();
-      voice.stopSpeaking();
+      voiceRef.current.stopListening();
+      voiceRef.current.stopSpeaking();
       if (autoResumeTimerRef.current) {
         clearTimeout(autoResumeTimerRef.current);
         autoResumeTimerRef.current = null;
@@ -197,9 +199,9 @@ export function VoiceModal({
             conversationModeRef.current &&
             !activityActive &&
             !isStreaming &&
-            voice.state !== "error"
+            voiceRef.current.state !== "error"
           ) {
-            voice.startListening();
+            voiceRef.current.startListening();
           }
         }, 500); // 500ms delay for DOM stabilization and focus restoration
       }
@@ -207,7 +209,7 @@ export function VoiceModal({
   }, [activityActive, open, isStreaming, voice.state]);
 
   // ─── Send Message ─────────────────────────────────────────────────────
-  const sendMessage = async (userMessage: string) => {
+  const sendMessage = useCallback(async (userMessage: string) => {
     const messageText = userMessage.trim();
     if (!messageText || isStreaming) return;
 
@@ -341,7 +343,15 @@ export function VoiceModal({
     } finally {
       setIsStreaming(false);
     }
-  };
+  }, [
+    activityActive,
+    currentSessionId,
+    isStreaming,
+    onActivityTrigger,
+    onMessageSent,
+    open,
+    voice,
+  ]);
 
   // ─── Handlers ─────────────────────────────────────────────────────────
   const handleMicClick = () => {
@@ -461,14 +471,14 @@ export function VoiceModal({
       lastTranscriptRef.current = currentTranscript;
       sendMessage(currentTranscript);
     }
-  }, [voice.transcript, voice.isFinal, isStreaming, open, activityActive]);
+  }, [voice, isStreaming, open, activityActive, sendMessage]);
 
   // ─── Cleanup on unmount ───────────────────────────────────────────────
   useEffect(() => {
     return () => {
       conversationModeRef.current = false;
       if (autoResumeTimerRef.current) clearTimeout(autoResumeTimerRef.current);
-      voice.resetVoiceSession();
+      voiceRef.current.resetVoiceSession();
     };
   }, []);
 
@@ -478,7 +488,7 @@ export function VoiceModal({
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="rounded-card sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle className="font-display text-white">Voice Not Supported</DialogTitle>
+            <DialogTitle className="font-display text-[#49263D]">Voice Not Supported</DialogTitle>
             <DialogDescription>
               Your browser doesn&apos;t support voice conversations
             </DialogDescription>
@@ -509,7 +519,7 @@ export function VoiceModal({
     >
       <DialogContent
         className={cn(
-          "flex h-[95vh] w-full flex-col overflow-hidden rounded-none border-[rgba(216,191,227,0.18)] bg-[#100b20]/95 p-0 shadow-premium transition-all duration-300 sm:max-w-[850px] sm:w-[95vw] sm:rounded-card md:h-[600px]",
+          "flex h-[95vh] w-full flex-col overflow-hidden rounded-none border-[#EADCE5] bg-[#FFF0F6]/95 p-0 shadow-premium transition-all duration-300 sm:max-w-[850px] sm:w-[95vw] sm:rounded-card md:h-[600px]",
           activityActive ? "pointer-events-none scale-[0.98] opacity-50" : ""
         )}
         overlayClassName={cn(activityActive && "pointer-events-none")}
@@ -517,14 +527,14 @@ export function VoiceModal({
         onEscapeKeyDown={(e) => { if (activityActive) e.preventDefault(); }}
       >
           {/* Header */}
-          <div className="flex shrink-0 items-center justify-between border-b border-[rgba(216,191,227,0.18)] bg-[#0c0819]/70 p-4 backdrop-blur-xl md:p-5">
+          <div className="flex shrink-0 items-center justify-between border-b border-[#EADCE5] bg-[#FFF6FA]/70 p-4 backdrop-blur-xl md:p-5">
             <div className="flex items-center gap-3">
               <BrandLogo variant="icon" size={44} />
               <div className="flex flex-col gap-0.5">
-                <span className="font-display text-lg font-semibold leading-none text-white">
+                <span className="font-display text-lg font-semibold leading-none text-[#49263D]">
                   {BRAND_NAME}
                 </span>
-                <span className="text-[11px] text-[rgba(231,218,237,0.55)]">
+                <span className="text-[11px] text-[#927C8B]">
                   Voice companion
                 </span>
               </div>
@@ -537,7 +547,7 @@ export function VoiceModal({
 
           <div className="flex flex-1 flex-col overflow-hidden md:flex-row">
             {/* Main Interaction Side */}
-            <div className="flex h-[45%] flex-[1.1] shrink-0 flex-col items-center justify-between overflow-hidden border-b border-[rgba(216,191,227,0.18)] p-4 md:h-full md:shrink md:border-b-0 md:border-r md:p-8">
+            <div className="flex h-[45%] flex-[1.1] shrink-0 flex-col items-center justify-between overflow-hidden border-b border-[#EADCE5] p-4 md:h-full md:shrink md:border-b-0 md:border-r md:p-8">
               <div className="flex flex-1 items-center justify-center">
                 <button
                   onPointerDown={() => warmUpSpeechSynthesis(true)}
@@ -558,10 +568,10 @@ export function VoiceModal({
                       animate={{ opacity: 1, y: 0 }}
                       className="space-y-1.5 py-2"
                     >
-                      <p className="sticky top-0 bg-[#0c0819]/80 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#b384c9] backdrop-blur-sm">
+                      <p className="sticky top-0 bg-[#FFF6FA]/80 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#B74783] backdrop-blur-sm">
                         Soul Discovery speaking
                       </p>
-                      <p className="text-base font-medium leading-snug text-white md:text-lg">
+                      <p className="text-base font-medium leading-snug text-[#49263D] md:text-lg">
                         {aiResponse || "Processing…"}
                       </p>
                     </motion.div>
@@ -572,19 +582,19 @@ export function VoiceModal({
                       animate={{ opacity: 1, scale: 1 }}
                       className="space-y-1.5 py-2"
                     >
-                      <p className="sticky top-0 bg-[#0c0819]/80 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[rgba(231,218,237,0.55)] backdrop-blur-sm">
+                      <p className="sticky top-0 bg-[#FFF6FA]/80 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#927C8B] backdrop-blur-sm">
                         You said
                       </p>
-                      <p className="text-base font-medium italic leading-snug text-white md:text-lg">
+                      <p className="text-base font-medium italic leading-snug text-[#49263D] md:text-lg">
                         &ldquo;{voice.transcript}&rdquo;
                       </p>
                     </motion.div>
                   ) : (
-                    <motion.div key="idle" className="py-8 text-[rgba(231,218,237,0.55)]">
+                    <motion.div key="idle" className="py-8 text-[#927C8B]">
                       {activityActive ? (
                         <p className="text-base font-medium opacity-60">Activity in progress…</p>
                       ) : isConversationMode ? (
-                        <p className="flex items-center justify-center gap-2 text-base font-medium text-[#b384c9]">
+                        <p className="flex items-center justify-center gap-2 text-base font-medium text-[#B74783]">
                           <Zap className="h-4 w-4 fill-current" />
                           Hands-free active
                         </p>
@@ -599,9 +609,9 @@ export function VoiceModal({
 
             {/* History Side */}
             <div className="flex h-[55%] flex-1 flex-col overflow-hidden bg-white/[0.02] md:h-full">
-              <div className="flex shrink-0 items-center gap-2 border-b border-[rgba(216,191,227,0.18)] bg-white/[0.035] p-4">
-                <History className="h-4 w-4 text-[#b384c9]" />
-                <h3 className="font-display text-[12px] font-bold tracking-[0.12em] text-white">
+              <div className="flex shrink-0 items-center gap-2 border-b border-[#EADCE5] bg-white p-4">
+                <History className="h-4 w-4 text-[#B74783]" />
+                <h3 className="font-display text-[12px] font-bold tracking-[0.12em] text-[#49263D]">
                   Conversation
                 </h3>
               </div>
@@ -619,8 +629,8 @@ export function VoiceModal({
                         className={cn(
                           "max-w-[85%] px-3.5 py-2.5 text-sm leading-relaxed shadow-card",
                           msg.role === "user"
-                            ? "rounded-[16px] rounded-tr-md border border-[#b384c9]/25 bg-[rgba(179,132,201,0.15)] text-white"
-                            : "rounded-[16px] rounded-tl-md border border-[rgba(216,191,227,0.18)] bg-[rgba(255,255,255,0.04)] text-white"
+                            ? "rounded-[16px] rounded-tr-md border border-[#B74783]/25 bg-[rgba(183,71,131,0.15)] text-[#49263D]"
+                            : "rounded-[16px] rounded-tl-md border border-[#EADCE5] bg-[rgba(255,255,255,0.04)] text-[#49263D]"
                         )}
                       >
                         {msg.text}
@@ -629,13 +639,13 @@ export function VoiceModal({
                   ))
                 ) : (
                   <div className="flex h-full flex-col items-center justify-center space-y-3 p-8 text-center">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#b384c9]/10 text-[#b384c9]">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#B74783]/10 text-[#B74783]">
                       <MessageSquarePlus className="h-5 w-5" />
                     </div>
-                    <p className="font-display text-sm font-semibold text-white">
+                    <p className="font-display text-sm font-semibold text-[#49263D]">
                       No history yet
                     </p>
-                    <p className="text-xs text-[rgba(231,218,237,0.55)]">
+                    <p className="text-xs text-[#927C8B]">
                       Your voice exchange will appear here.
                     </p>
                   </div>
@@ -645,7 +655,7 @@ export function VoiceModal({
           </div>
 
           {/* Bottom Control Bar */}
-          <div className="shrink-0 border-t border-[rgba(216,191,227,0.18)] bg-[#0c0819]/70 p-4 backdrop-blur-xl md:p-5">
+          <div className="shrink-0 border-t border-[#EADCE5] bg-[#FFF6FA]/70 p-4 backdrop-blur-xl md:p-5">
             <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4">
               <Button
                 variant={isConversationMode ? "default" : "outline"}
@@ -654,7 +664,7 @@ export function VoiceModal({
                   "rounded-full px-4 text-xs transition-all md:h-11 md:px-8 md:text-sm",
                   isConversationMode
                     ? "shadow-soft"
-                    : "border-[rgba(216,191,227,0.18)] hover:border-[#b384c9]/30 hover:bg-[#b384c9]/10 hover:text-[#d8bfe3]"
+                    : "border-[#EADCE5] hover:border-[#B74783]/30 hover:bg-[#B74783]/10 hover:text-[#D9B8F5]"
                 )}
                 onClick={handleToggleConversationMode}
                 onPointerDown={() => warmUpSpeechSynthesis(true)}
@@ -683,7 +693,7 @@ export function VoiceModal({
                 onClick={handleNewChat}
                 onPointerDown={() => warmUpSpeechSynthesis(true)}
                 disabled={isCreatingNewChat || activityActive}
-                className="rounded-full border-[rgba(216,191,227,0.18)] px-4 text-xs hover:border-[#b384c9]/30 hover:bg-[#b384c9]/10 hover:text-[#d8bfe3] md:h-11 md:px-8 md:text-sm"
+                className="rounded-full border-[#EADCE5] px-4 text-xs hover:border-[#B74783]/30 hover:bg-[#B74783]/10 hover:text-[#D9B8F5] md:h-11 md:px-8 md:text-sm"
               >
                 {isCreatingNewChat ? (
                   <Loader2 className="mr-1.5 h-3 w-3 animate-spin md:mr-2 md:h-4 md:w-4" />

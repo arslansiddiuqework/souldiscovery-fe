@@ -67,8 +67,8 @@ const games = [
     title: "Gentle Rain",
     description: "Drift into calm with the soothing sound of rainfall",
     icon: CloudRain,
-    color: "text-[#b384c9]",
-    bgColor: "bg-[rgba(179,132,201,0.12)]",
+    color: "text-[#B74783]",
+    bgColor: "bg-[#FFE5F0]",
     duration: "5 mins",
   },
   {
@@ -131,8 +131,8 @@ export const AnxietyGames = ({ onGamePlayed }: AnxietyGamesProps) => {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[rgba(179,132,201,0.12)]">
-              <Gamepad2 className="h-5 w-5 text-[#b384c9]" />
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#FFE5F0]">
+              <Gamepad2 className="h-5 w-5 text-[#B74783]" />
             </div>
             <div className="space-y-1">
               <CardTitle className="text-lg md:text-xl">
@@ -155,8 +155,8 @@ export const AnxietyGames = ({ onGamePlayed }: AnxietyGamesProps) => {
                 <button
                   type="button"
                   className={cn(
-                    "w-full rounded-[16px] border border-[rgba(216,191,227,0.18)] bg-white/[0.035] p-4 text-left shadow-card transition-all duration-300 hover:border-[rgba(179,132,201,0.25)] hover:shadow-card-hover",
-                    selectedGame === game.id && "border-[rgba(179,132,201,0.4)] ring-2 ring-[rgba(179,132,201,0.2)]"
+                    "w-full rounded-[16px] border border-[#EADCE5] bg-white p-4 text-left shadow-card transition-all duration-300 hover:border-[rgba(183,71,131,0.25)] hover:shadow-card-hover",
+                    selectedGame === game.id && "border-[rgba(183,71,131,0.4)] ring-2 ring-[rgba(183,71,131,0.2)]"
                   )}
                   onClick={() => handleGameStart(game.id)}
                 >
@@ -171,15 +171,15 @@ export const AnxietyGames = ({ onGamePlayed }: AnxietyGamesProps) => {
                       <game.icon className="h-6 w-6" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <h4 className="font-display text-sm font-semibold text-white md:text-base">
+                      <h4 className="font-display text-sm font-semibold text-[#49263D] md:text-base">
                         {game.title}
                       </h4>
-                      <p className="mt-1 text-sm leading-relaxed text-[rgba(231,218,237,0.55)]">
+                      <p className="mt-1 text-sm leading-relaxed text-[#927C8B]">
                         {game.description}
                       </p>
                       <div className="mt-3 flex items-center gap-2">
-                        <Music2 className="h-3.5 w-3.5 text-[rgba(231,218,237,0.45)]" />
-                        <span className="text-xs text-[rgba(231,218,237,0.45)]">
+                        <Music2 className="h-3.5 w-3.5 text-[#927C8B]" />
+                        <span className="text-xs text-[#927C8B]">
                           {game.duration}
                         </span>
                       </div>

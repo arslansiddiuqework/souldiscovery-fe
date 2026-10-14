@@ -97,21 +97,21 @@ export function MoodForm({ onSuccess, initialMoodScore = 50 }: MoodFormProps) {
     <div className="space-y-7 py-2">
       {/* Emotion display */}
       <div className="space-y-3 text-center">
-        <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-[20px] bg-[rgba(179,132,201,0.12)] shadow-card">
+        <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-[20px] bg-[#FFE5F0] shadow-card">
           <div className="text-4xl leading-none">{currentEmotion.label}</div>
         </div>
         <div className="space-y-1">
-          <p className="font-display text-lg font-semibold text-white">
+          <p className="font-display text-lg font-semibold text-[#49263D]">
             {currentEmotion.description}
           </p>
-          <p className="text-sm text-[rgba(231,218,237,0.55)]">
+          <p className="text-sm text-[#927C8B]">
             Score: {moodScore}%
           </p>
         </div>
       </div>
 
       {/* Emotion slider */}
-      <div className="space-y-5 rounded-[16px] border border-[rgba(216,191,227,0.18)] bg-white/[0.035] p-5">
+      <div className="space-y-5 rounded-[16px] border border-[#EADCE5] bg-white p-5">
         <div className="flex justify-between px-1">
           {emotions.map((em) => (
             <div

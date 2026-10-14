@@ -117,11 +117,11 @@ export function ActivityLogger({
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-2">
-            <Label className="text-sm font-medium text-white">
+            <Label className="text-sm font-medium text-[#49263D]">
               Activity Type
             </Label>
             <Select value={type} onValueChange={setType}>
-              <SelectTrigger className="h-12 rounded-xl border-[rgba(216,191,227,0.18)]">
+              <SelectTrigger className="h-12 rounded-xl border-[#EADCE5]">
                 <SelectValue placeholder="Select activity type" />
               </SelectTrigger>
               <SelectContent>
@@ -135,17 +135,17 @@ export function ActivityLogger({
           </div>
 
           <div className="space-y-2">
-            <Label className="text-sm font-medium text-white">Name</Label>
+            <Label className="text-sm font-medium text-[#49263D]">Name</Label>
             <Input
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Morning Meditation, Evening Walk, etc."
-              className="h-12 rounded-xl border-[rgba(216,191,227,0.18)]"
+              className="h-12 rounded-xl border-[#EADCE5]"
             />
           </div>
 
           <div className="space-y-2">
-            <Label className="text-sm font-medium text-white">
+            <Label className="text-sm font-medium text-[#49263D]">
               Duration (minutes)
             </Label>
             <Input
@@ -153,19 +153,19 @@ export function ActivityLogger({
               value={duration}
               onChange={(e) => setDuration(e.target.value)}
               placeholder="15"
-              className="h-12 rounded-xl border-[rgba(216,191,227,0.18)]"
+              className="h-12 rounded-xl border-[#EADCE5]"
             />
           </div>
 
           <div className="space-y-2">
-            <Label className="text-sm font-medium text-white">
+            <Label className="text-sm font-medium text-[#49263D]">
               Description (optional)
             </Label>
             <Input
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="How did it go?"
-              className="h-12 rounded-xl border-[rgba(216,191,227,0.18)]"
+              className="h-12 rounded-xl border-[#EADCE5]"
             />
           </div>
 

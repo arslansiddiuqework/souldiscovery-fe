@@ -3,14 +3,11 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import {
   Brain,
   Heart,
   Shield,
-  MessageCircle,
   Sparkles,
-  LineChart,
   Waves,
   Check,
   ArrowRight,
@@ -19,8 +16,9 @@ import {
   Lock,
   MessageSquareHeart,
   Loader2,
+  FileText,
 } from "lucide-react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion } from "framer-motion";
 import { Slider } from "@/components/ui/slider";
 import { useState, useEffect } from "react";
 import {
@@ -31,14 +29,12 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import React from "react";
-import { Ripple } from "@/components/ui/ripple";
 import { useSession } from "@/lib/contexts/session-context";
 import { getMoodHistory, trackMood } from "@/lib/api/mood";
 import { useToast } from "@/components/ui/use-toast";
 import { VoiceModal } from "@/components/voice/VoiceModal";
 import { createChatSession } from "@/lib/api/chat";
 import { BreathingGame } from "@/components/games/breathing-game";
-import { BRAND_CAPTION, BRAND_NAME } from "@/lib/branding";
 import { ZenGarden } from "@/components/games/zen-garden";
 import { ForestGame } from "@/components/games/forest-game";
 import { OceanWaves } from "@/components/games/ocean-waves";
@@ -49,11 +45,36 @@ import { ReviewsSection } from "@/components/reviews-section";
 export default function Home() {
   const router = useRouter();
   const emotions = [
-    { value: 0, label: "😔 Down", color: "from-blue-500/50" },
-    { value: 25, label: "😊 Content", color: "from-green-500/50" },
-    { value: 50, label: "😌 Peaceful", color: "from-[rgba(179,132,201,0.5)]" },
-    { value: 75, label: "🤗 Happy", color: "from-yellow-500/50" },
-    { value: 100, label: "✨ Excited", color: "from-pink-500/50" },
+    {
+      value: 0,
+      label: "Down",
+      emoji: "😔",
+      ring: "bg-[#EDF2FF] ring-[#B8C9F0]",
+    },
+    {
+      value: 25,
+      label: "Content",
+      emoji: "😊",
+      ring: "bg-[#EAF6F2] ring-[#A8D9C8]",
+    },
+    {
+      value: 50,
+      label: "Peaceful",
+      emoji: "😌",
+      ring: "bg-[#FFF1E9] ring-[#F0C9AE]",
+    },
+    {
+      value: 75,
+      label: "Happy",
+      emoji: "🤗",
+      ring: "bg-[#FFF0F6] ring-[#F0B8D4]",
+    },
+    {
+      value: 100,
+      label: "Excited",
+      emoji: "✨",
+      ring: "bg-[#F2ECFF] ring-[#D0C0F0]",
+    },
   ];
 
   const [emotion, setEmotion] = useState(50);
@@ -216,199 +237,250 @@ export default function Home() {
     });
   };
 
-  const currentEmotion =
-    emotions.find((em) => Math.abs(emotion - em.value) < 15) || emotions[2];
-
   const features = [
     {
       icon: HeartPulse,
       title: "24/7 Support",
-      description: "Always here to listen and support you, any time of day",
-      color: "from-rose-500/20",
-      delay: 0.2,
+      description: "Always here to listen and support you, any time of day.",
+      iconClass: "bg-[#FFF0F6] text-[#B74783]",
+      delay: 0.15,
     },
     {
       icon: Lightbulb,
       title: "Smart Insights",
-      description: "Personalized guidance powered by emotional intelligence",
-      color: "from-amber-500/20",
-      delay: 0.4,
+      description: "Personalized guidance powered by emotional intelligence.",
+      iconClass: "bg-[#EAF6F2] text-[#3D9B84]",
+      delay: 0.25,
     },
     {
       icon: Lock,
       title: "Private & Secure",
-      description: "Your conversations are always confidential and encrypted",
-      color: "from-emerald-500/20",
-      delay: 0.6,
+      description: "Your conversations are always confidential and encrypted.",
+      iconClass: "bg-[#EDF2FF] text-[#5B7CDA]",
+      delay: 0.35,
     },
     {
-      icon: MessageSquareHeart,
+      icon: FileText,
       title: "Evidence-Based",
-      description: "Therapeutic techniques backed by clinical research",
-      color: "from-blue-500/20",
-      delay: 0.8,
+      description: "Therapeutic techniques backed by clinical research.",
+      iconClass: "bg-[#F2ECFF] text-[#8B6BC7]",
+      delay: 0.45,
     },
   ];
 
   return (
     <div className="relative flex min-h-screen flex-col">
-      {/* Spatium-composition hero */}
-      <section className="relative flex min-h-[100svh] flex-col items-center justify-center px-4 pb-20 pt-28 md:pt-32">
-        <motion.div
-          initial={{ opacity: 0, y: 18 }}
-          animate={{ opacity: mounted ? 1 : 0, y: mounted ? 0 : 18 }}
-          transition={{ duration: 0.7, ease: "easeOut" }}
-          className="relative mx-auto w-full max-w-[820px] text-center"
-        >
-          <h1
-            className="mx-auto max-w-[18ch] font-bold text-[#f3eefa]"
-            style={{
-              fontSize: "clamp(2.6rem, 7vw, 4.75rem)",
-              lineHeight: 1.05,
-              letterSpacing: "-0.03em",
-            }}
-          >
-            {BRAND_NAME}
-          </h1>
-
-          <p className="mx-auto mt-6 max-w-[36ch] text-[17px] font-medium leading-[1.7] text-[rgba(231,218,237,0.7)] md:text-[18px]">
-            {BRAND_CAPTION}
-          </p>
-
-          <div className="relative mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <div
-              aria-hidden
-              className="pointer-events-none absolute left-1/2 top-1/2 h-24 w-[280px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[rgba(179,132,201,0.35)] blur-[48px]"
-            />
-            <Button size="lg" onClick={() => setShowDialog(true)} className="btn-spatium-lg relative z-10 min-w-[220px]">
-              Begin Your Journey
-              <ArrowRight className="h-4 w-4" />
-            </Button>
-            <Button asChild size="lg" variant="glass" className="relative z-10 min-w-[180px]">
-              <Link href="/features">Explore Features</Link>
-            </Button>
-          </div>
-        </motion.div>
-
-        {/* Mood glass panel — Soul Discovery content, Spatium surface language */}
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: mounted ? 1 : 0, y: mounted ? 0 : 24 }}
-          transition={{ delay: 0.2, duration: 0.7 }}
-          className="glass-panel relative z-10 mt-16 w-full max-w-[640px] rounded-[28px] px-5 py-8 sm:px-8"
-        >
-          <p className="mb-5 text-center text-sm font-semibold text-[rgba(231,218,237,0.65)]">
-            How are you feeling right now?
-          </p>
-          <div className="mb-5 flex items-center justify-between px-1">
-            {emotions.map((em) => (
-              <button
-                key={em.value}
-                type="button"
-                className={`transition-all duration-400 ${
-                  Math.abs(emotion - em.value) < 15
-                    ? "scale-110 opacity-100"
-                    : "scale-100 opacity-40"
-                }`}
-                onClick={() => setEmotion(em.value)}
-              >
-                <div className="text-2xl">{em.label.split(" ")[0]}</div>
-                <div className="mt-1 text-[11px] font-semibold text-[rgba(231,218,237,0.55)]">
-                  {em.label.split(" ")[1]}
-                </div>
-              </button>
-            ))}
-          </div>
-          <Slider
-            value={[emotion]}
-            onValueChange={(value) => {
-              setEmotion(value[0]);
-              setMoodSource("slider");
-            }}
-            min={0}
-            max={100}
-            step={1}
-            className="px-1 py-3"
-          />
-          {isAuthenticated && (
-            <div className="mt-5 flex flex-col items-center justify-center gap-3 sm:flex-row">
-              <FaceEmotionLauncher
-                onMoodConfirmed={(score, mood) => {
-                  setEmotion(score);
-                  setMoodSource("camera");
-                  setCategoricalMood(mood);
-                }}
-              />
-              <Button variant="glass" size="sm" onClick={handleSaveMood} disabled={isSavingMood}>
-                {isSavingMood ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Saving...
-                  </>
-                ) : moodSaved ? (
-                  <>
-                    <Check className="mr-2 h-4 w-4 text-[#4ADE80]" />
-                    Mood Saved
-                  </>
-                ) : (
-                  <>
-                    <Heart className="mr-2 h-4 w-4" />
-                    Save Mood
-                  </>
-                )}
-              </Button>
-            </div>
-          )}
-        </motion.div>
-      </section>
-
-      {/* Features — Spatium-like section rhythm */}
-      <section id="features" className="relative section-padding px-4">
-        <div className="container-app">
-          <div className="mx-auto mb-14 max-w-[620px] text-center md:mb-16">
-            <h2
-              className="font-bold text-[#f3eefa]"
-              style={{
-                fontSize: "clamp(1.75rem, 4vw, 2.75rem)",
-                letterSpacing: "-0.03em",
-                lineHeight: 1.15,
-              }}
+      {/* Hero — top: clarity ‖ mood · bottom: support full-width horizontal */}
+      <section className="relative px-4 pb-12 pt-24 md:pb-16 md:pt-28">
+        <div className="mx-auto flex w-full max-w-[1080px] flex-col gap-10 md:gap-12">
+          {/* Top row: Discover clarity ‖ Mood */}
+          <div className="grid items-center gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:gap-12 xl:gap-14">
+            <motion.div
+              initial={{ opacity: 0, y: 18 }}
+              animate={{ opacity: mounted ? 1 : 0, y: mounted ? 0 : 18 }}
+              transition={{ duration: 0.65, ease: "easeOut" }}
+              className="relative text-center lg:text-left"
+              data-particles-mask
             >
-              Support that stays with you
-            </h2>
-            <p className="mx-auto mt-4 max-w-[46ch] text-[17px] leading-[1.7] text-[rgba(231,218,237,0.62)]">
-              Thoughtful tools for reflection, conversation, and calm — designed to feel
-              quiet, not clinical.
-            </p>
+              <h1
+                className="font-bold tracking-[-0.03em]"
+                style={{
+                  fontSize: "clamp(1.85rem, 3.4vw, 2.75rem)",
+                  lineHeight: 1.12,
+                }}
+              >
+                <span className="text-[#49263D]">Discover clarity.</span>{" "}
+                <span className="text-[#9A6F8E]">
+                  Find balance. Grow with confidence.
+                </span>
+              </h1>
+              <p className="mx-auto mt-4 max-w-[36ch] text-[15px] leading-relaxed text-[#795A70] lg:mx-0 md:text-[16px]">
+                Thoughtful tools for reflection, conversation, and calm —
+                designed to feel quiet, not clinical.
+              </p>
+              <div className="relative mt-7 flex flex-col items-center gap-3 sm:flex-row sm:justify-center lg:justify-start">
+                <Button
+                  size="lg"
+                  onClick={() => setShowDialog(true)}
+                  className="h-12 min-w-[200px] rounded-full bg-[#B74783] px-6 text-white shadow-[0_10px_28px_rgba(183,71,131,0.28)] hover:bg-[#A63F79]"
+                >
+                  Begin Your Journey
+                  <ArrowRight className="ml-1.5 h-4 w-4" />
+                </Button>
+                <Button
+                  asChild
+                  size="lg"
+                  variant="outline"
+                  className="h-12 min-w-[180px] rounded-full border-[#D9B0C8] bg-white/80 text-[#7B3962] hover:bg-[#FFF0F6]"
+                >
+                  <Link href="/features">
+                    Explore Features
+                    <ArrowRight className="ml-1.5 h-4 w-4" />
+                  </Link>
+                </Button>
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 22 }}
+              animate={{ opacity: mounted ? 1 : 0, y: mounted ? 0 : 22 }}
+              transition={{ delay: 0.12, duration: 0.65 }}
+              className="relative z-10 w-full"
+              data-particles-mask
+            >
+              <div className="flex w-full flex-col justify-center rounded-[28px] border border-[#EADCE5] bg-white px-5 py-7 shadow-[0_16px_48px_rgba(123,57,98,0.1)] sm:px-7 sm:py-8">
+                <p className="mb-6 text-center text-[15px] font-bold tracking-[-0.01em] text-[#49263D]">
+                  How are you feeling right now?
+                </p>
+                <div
+                  role="radiogroup"
+                  aria-label="Current mood"
+                  className="mb-4 flex items-end justify-between gap-1 px-0.5"
+                >
+                  {emotions.map((em) => {
+                    const active = Math.abs(emotion - em.value) < 15;
+                    return (
+                      <button
+                        key={em.value}
+                        type="button"
+                        role="radio"
+                        aria-checked={active}
+                        aria-label={em.label}
+                        onClick={() => {
+                          setEmotion(em.value);
+                          setMoodSource("slider");
+                          setCategoricalMood(em.label);
+                        }}
+                        className="flex flex-1 flex-col items-center gap-1.5 transition"
+                      >
+                        <span
+                          className={`flex items-center justify-center rounded-full transition-all duration-300 ${
+                            active
+                              ? `h-14 w-14 scale-105 ring-2 ${em.ring} shadow-[0_8px_20px_rgba(183,71,131,0.18)]`
+                              : "h-11 w-11 bg-[#FCF8FC] opacity-55 hover:opacity-80"
+                          }`}
+                        >
+                          <span className={active ? "text-2xl" : "text-xl"}>
+                            {em.emoji}
+                          </span>
+                        </span>
+                        <span
+                          className={`text-[11px] font-semibold ${
+                            active ? "text-[#49263D]" : "text-[#957F94]"
+                          }`}
+                        >
+                          {em.label}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+                <Slider
+                  value={[emotion]}
+                  onValueChange={(value) => {
+                    setEmotion(value[0]);
+                    setMoodSource("slider");
+                    const nearest =
+                      emotions.find(
+                        (em) => Math.abs(value[0] - em.value) < 15
+                      ) || emotions[2];
+                    setCategoricalMood(nearest.label);
+                  }}
+                  min={0}
+                  max={100}
+                  step={1}
+                  className="px-1 py-3"
+                />
+                <div className="mt-5 flex flex-col items-stretch justify-center gap-2.5 sm:flex-row sm:items-center sm:justify-center">
+                  <FaceEmotionLauncher
+                    variant="outline"
+                    className="h-10 rounded-full border-[#EADCE5] bg-white text-[#49263D] hover:bg-[#FFF0F6]"
+                    onMoodConfirmed={(score, mood) => {
+                      setEmotion(score);
+                      setMoodSource("camera");
+                      setCategoricalMood(mood);
+                    }}
+                  />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleSaveMood}
+                    disabled={isSavingMood}
+                    className="h-10 rounded-full border-[#EADCE5] bg-white text-[#49263D] hover:bg-[#FFF0F6]"
+                  >
+                    {isSavingMood ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Saving…
+                      </>
+                    ) : moodSaved ? (
+                      <>
+                        <Check className="mr-2 h-4 w-4 text-[#3D9B84]" />
+                        Mood Saved
+                      </>
+                    ) : (
+                      <>
+                        <Heart className="mr-2 h-4 w-4 text-[#B74783]" />
+                        Save Mood
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </motion.div>
           </div>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 md:gap-5">
-            {features.map((feature, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 16 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: feature.delay * 0.4, duration: 0.45 }}
-                viewport={{ once: true }}
+          {/* Bottom: Support full width, features in a horizontal row */}
+          <motion.div
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: mounted ? 1 : 0, y: mounted ? 0 : 18 }}
+            transition={{ delay: 0.18, duration: 0.65 }}
+            className="relative border-t border-[#EADCE5] pt-10"
+            data-particles-mask
+            id="features"
+          >
+            <div className="mb-6 text-center lg:text-left">
+              <h2
+                className="font-bold tracking-[-0.03em] text-[#49263D]"
+                style={{
+                  fontSize: "clamp(1.35rem, 2.2vw, 1.7rem)",
+                  lineHeight: 1.2,
+                }}
               >
-                <Card interactive className="h-full min-h-[190px]">
-                  <CardHeader className="pb-3">
-                    <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-2xl border border-[rgba(216,191,227,0.18)] bg-white/[0.04]">
-                      <feature.icon className="h-5 w-5 text-[#d8bfe3]" />
-                    </div>
-                    <h3 className="text-[17px] font-bold tracking-[-0.02em] text-[#f3eefa]">
-                      {feature.title}
-                    </h3>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm leading-relaxed text-[rgba(231,218,237,0.55)]">
-                      {feature.description}
-                    </p>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
+                Support that stays with you
+              </h2>
+              <p className="mx-auto mt-2 max-w-[48ch] text-sm leading-relaxed text-[#795A70] lg:mx-0">
+                Powerful tools for reflection, conversation, and calm — designed
+                to feel quiet, not clinical.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              {features.map((feature) => (
+                <motion.div
+                  key={feature.title}
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{
+                    opacity: mounted ? 1 : 0,
+                    y: mounted ? 0 : 12,
+                  }}
+                  transition={{ delay: feature.delay, duration: 0.45 }}
+                  className="rounded-[18px] border border-[#EEDCE9] bg-white p-4 shadow-[0_6px_20px_rgba(123,57,98,0.05)]"
+                >
+                  <span
+                    className={`mb-2.5 flex h-9 w-9 items-center justify-center rounded-full ${feature.iconClass}`}
+                  >
+                    <feature.icon className="h-4 w-4" strokeWidth={2} />
+                  </span>
+                  <h3 className="text-[14px] font-bold tracking-[-0.01em] text-[#49263D]">
+                    {feature.title}
+                  </h3>
+                  <p className="mt-1 text-[12px] leading-relaxed text-[#957F94]">
+                    {feature.description}
+                  </p>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
         </div>
       </section>
 
@@ -501,12 +573,12 @@ export default function Home() {
 
       {/* Activity Modal Overlay (shared with voice mode) */}
       {stressPrompt && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#0c0819]/75 p-4 backdrop-blur-md">
-          <div className="relative flex max-h-[90vh] w-full max-w-4xl flex-col overflow-y-auto rounded-[22px] border border-white/10 bg-[rgba(15,12,28,0.95)] shadow-[0_30px_100px_rgba(0,0,0,0.55)] backdrop-blur-3xl">
-            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-white/8 bg-[rgba(15,12,28,0.95)] p-5 backdrop-blur">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#FFF6FA]/75 p-4 backdrop-blur-md">
+          <div className="relative flex max-h-[90vh] w-full max-w-4xl flex-col overflow-y-auto rounded-[22px] border border-[#EADCE5] bg-[rgba(15,12,28,0.95)] shadow-[0_30px_100px_rgba(0,0,0,0.55)] backdrop-blur-3xl">
+            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-[#EADCE5] bg-[rgba(15,12,28,0.95)] p-5 backdrop-blur">
               <div>
-                <h3 className="font-display text-lg font-semibold text-white">{stressPrompt.activity.title}</h3>
-                <p className="text-sm text-white/50">{stressPrompt.activity.description}</p>
+                <h3 className="font-display text-lg font-semibold text-[#49263D]">{stressPrompt.activity.title}</h3>
+                <p className="text-sm text-[#49263D]/50">{stressPrompt.activity.description}</p>
               </div>
               <Button 
                 variant="ghost" 

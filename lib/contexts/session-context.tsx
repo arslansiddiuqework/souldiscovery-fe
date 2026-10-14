@@ -56,9 +56,25 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
         const userData = data.user;
         const { password, ...safeUserData } = userData;
         setUser(safeUserData);
+        try {
+          const { setWellnessStorageUserId } = await import(
+            "@/lib/wellness-plan/storage"
+          );
+          setWellnessStorageUserId(safeUserData._id || null);
+        } catch {
+          /* wellness storage optional at boot */
+        }
       } else {
         setUser(null);
         localStorage.removeItem("token");
+        try {
+          const { setWellnessStorageUserId } = await import(
+            "@/lib/wellness-plan/storage"
+          );
+          setWellnessStorageUserId(null);
+        } catch {
+          /* ignore */
+        }
       }
     } catch (error) {
       console.error("SessionContext: Error checking session:", error);
@@ -88,6 +104,14 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     } finally {
       localStorage.removeItem("token");
       setUser(null);
+      try {
+        const { setWellnessStorageUserId } = await import(
+          "@/lib/wellness-plan/storage"
+        );
+        setWellnessStorageUserId(null);
+      } catch {
+        /* ignore */
+      }
       router.push("/");
     }
   };

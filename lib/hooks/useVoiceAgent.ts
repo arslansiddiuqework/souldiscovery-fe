@@ -91,6 +91,13 @@ export function useVoiceAgent(preferredVoiceUri?: string): UseVoiceAgentReturn {
     return recognitionRef.current;
   }, [createRecognitionInstance]);
 
+  const isSupported = useCallback(() => {
+    if (typeof window === "undefined") return false;
+    const SpeechRecognition =
+      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    return !!SpeechRecognition;
+  }, []);
+
   const startListening = useCallback(() => {
     const recognition = getRecognition();
     if (!recognition || !isSupported()) return;
@@ -99,7 +106,7 @@ export function useVoiceAgent(preferredVoiceUri?: string): UseVoiceAgentReturn {
     } catch (e) {
       // Already listening or other error - ignore
     }
-  }, [getRecognition]);
+  }, [getRecognition, isSupported]);
 
   const stopListening = useCallback(() => {
     if (!recognitionRef.current) return;
@@ -127,13 +134,6 @@ export function useVoiceAgent(preferredVoiceUri?: string): UseVoiceAgentReturn {
   }, [stopListening, stopSpeaking]);
 
   const getTranscript = useCallback(() => transcript.trim(), [transcript]);
-
-  const isSupported = useCallback(() => {
-    if (typeof window === "undefined") return false;
-    const SpeechRecognition =
-      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    return !!SpeechRecognition;
-  }, []);
 
   const canSpeak = useCallback(() => {
     if (typeof window === "undefined") return false;

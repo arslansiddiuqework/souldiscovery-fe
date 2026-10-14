@@ -18,24 +18,24 @@ export function WellnessEmptyState({ onCreate, suggestionMessage }: EmptyStatePr
       transition={{ duration: 0.45, ease: "easeOut" }}
     >
       <Card className="relative overflow-hidden">
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-[rgba(179,132,201,0.14)] via-transparent to-[rgba(179,132,201,0.04)]" />
-        <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-[rgba(179,132,201,0.12)] blur-3xl" />
-        <CardContent className="relative space-y-8 p-8 md:p-12">
-          <div className="inline-flex items-center gap-2 rounded-full border border-[rgba(216,191,227,0.22)] bg-white/[0.04] px-3 py-1.5 text-xs font-semibold text-[#d8bfe3]">
-            <Sparkles className="h-3.5 w-3.5 text-[#b384c9]" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-[rgba(183,71,131,0.14)] via-transparent to-[rgba(183,71,131,0.04)]" />
+        <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-[#FFE5F0] blur-3xl" />
+        <CardContent className="relative space-y-5 p-6 md:p-8">
+          <div className="inline-flex items-center gap-2 rounded-full border border-[#EADCE5] bg-white px-3 py-1.5 text-xs font-semibold text-[#D9B8F5]">
+            <Sparkles className="h-3.5 w-3.5 text-[#B74783]" />
             AI Wellness Coach
           </div>
 
           <div className="max-w-xl space-y-4">
-            <h2 className="font-display text-3xl font-bold tracking-tight text-[#f3eefa] md:text-4xl">
+            <h2 className="font-display text-3xl font-bold tracking-tight text-[#49263D] md:text-4xl">
               Create Your Personalized Wellness Plan
             </h2>
-            <p className="text-base leading-relaxed text-[rgba(231,218,237,0.55)] md:text-lg">
+            <p className="text-base leading-relaxed text-[#927C8B] md:text-lg">
               Answer a few questions and let Soul Discovery create a wellness journey
               tailored to your goals, energy, and preferred practices.
             </p>
             {suggestionMessage && (
-              <p className="rounded-2xl border border-[#b384c9]/25 bg-[#b384c9]/10 px-4 py-3 text-sm leading-relaxed text-[#d8bfe3]">
+              <p className="rounded-2xl border border-[#B74783]/25 bg-[#B74783]/10 px-4 py-3 text-sm leading-relaxed text-[#D9B8F5]">
                 {suggestionMessage}
               </p>
             )}
@@ -49,7 +49,7 @@ export function WellnessEmptyState({ onCreate, suggestionMessage }: EmptyStatePr
             ].map((item) => (
               <li
                 key={item}
-                className="rounded-2xl border border-[rgba(216,191,227,0.16)] bg-white/[0.03] px-4 py-3 text-sm text-[rgba(231,218,237,0.75)]"
+                className="rounded-2xl border border-[#EADCE5] bg-white px-4 py-3 text-sm text-[#795A70]"
               >
                 {item}
               </li>

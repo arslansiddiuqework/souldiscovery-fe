@@ -83,13 +83,13 @@ export function EditContactModal({ initialData, onEdit, onClose }: Props) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-foreground/40 backdrop-blur-sm">
-      <div className="relative w-full max-w-md rounded-2xl p-6 shadow-[var(--shadow-card-hover)] animate-in fade-in zoom-in-95 duration-200 bg-[#100b20]/95 text-white border border-[rgba(216,191,227,0.18)] backdrop-blur-xl">
+      <div className="relative w-full max-w-md rounded-2xl p-6 shadow-[var(--shadow-card-hover)] animate-in fade-in zoom-in-95 duration-200 bg-[#FFF0F6]/95 text-[#49263D] border border-[#EADCE5] backdrop-blur-xl">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 rounded-full hover:bg-white/[0.06] transition-colors"
+          className="absolute top-4 right-4 p-2 rounded-full hover:bg-[#FFF0F6] transition-colors"
           aria-label="Close"
         >
-          <X className="w-4 h-4 text-[rgba(231,218,237,0.55)]" />
+          <X className="w-4 h-4 text-[#927C8B]" />
         </button>
 
         <h2 className="text-xl font-bold mb-6 tracking-tight">Edit Emergency Contact</h2>
@@ -102,36 +102,36 @@ export function EditContactModal({ initialData, onEdit, onClose }: Props) {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1.5 text-[rgba(231,218,237,0.55)]">Full Name</label>
+            <label className="block text-sm font-medium mb-1.5 text-[#927C8B]">Full Name</label>
             <div className="relative">
-              <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[rgba(231,218,237,0.55)]/60" />
+              <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#927C8B]/60" />
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Jane Doe"
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[rgba(216,191,227,0.18)] bg-white/[0.035] text-white focus:outline-none focus:ring-2 focus:ring-[#b384c9]/30 focus:border-[rgba(179,132,201,0.55)] transition-shadow"
+                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[#EADCE5] bg-white text-[#49263D] focus:outline-none focus:ring-2 focus:ring-[#B74783]/30 focus:border-[rgba(183,71,131,0.55)] transition-shadow"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1.5 text-[rgba(231,218,237,0.55)]">Relationship</label>
+            <label className="block text-sm font-medium mb-1.5 text-[#927C8B]">Relationship</label>
             <div className="relative">
-              <Heart className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[rgba(231,218,237,0.55)]/60" />
+              <Heart className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#927C8B]/60" />
               <input
                 type="text"
                 value={relationship}
                 onChange={(e) => setRelationship(e.target.value)}
                 placeholder="Spouse, Parent, Therapist..."
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[rgba(216,191,227,0.18)] bg-white/[0.035] text-white focus:outline-none focus:ring-2 focus:ring-[#b384c9]/30 focus:border-[rgba(179,132,201,0.55)] transition-shadow"
+                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[#EADCE5] bg-white text-[#49263D] focus:outline-none focus:ring-2 focus:ring-[#B74783]/30 focus:border-[rgba(183,71,131,0.55)] transition-shadow"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1.5 text-[rgba(231,218,237,0.55)]">Preferred Emergency Method</label>
-            <div className="flex p-1 rounded-xl bg-white/[0.06] border border-[rgba(216,191,227,0.18)]">
+            <label className="block text-sm font-medium mb-1.5 text-[#927C8B]">Preferred Emergency Method</label>
+            <div className="flex p-1 rounded-xl bg-[#FFF0F6] border border-[#EADCE5]">
               {(["phone", "whatsapp", "both"] as const).map((method) => (
                 <button
                   key={method}
@@ -139,8 +139,8 @@ export function EditContactModal({ initialData, onEdit, onClose }: Props) {
                   onClick={() => setPreferredContactMethod(method)}
                   className={`flex-1 py-1.5 text-sm font-medium rounded-lg transition-all ${
                     preferredContactMethod === method
-                      ? "bg-white/[0.08] text-[#d8bfe3] shadow-sm"
-                      : "text-[rgba(231,218,237,0.55)] hover:text-white"
+                      ? "bg-[#FFF0F6] text-[#D9B8F5] shadow-sm"
+                      : "text-[#927C8B] hover:text-[#49263D]"
                   }`}
                 >
                   {method === "phone" ? "Phone Call" : method === "whatsapp" ? "WhatsApp" : "Both"}
@@ -151,8 +151,8 @@ export function EditContactModal({ initialData, onEdit, onClose }: Props) {
 
           {(preferredContactMethod === "phone" || preferredContactMethod === "both") && (
             <div>
-              <label className="block text-sm font-medium mb-1.5 text-[rgba(231,218,237,0.55)]">Phone Number (Voice Calls)</label>
-              <div className="w-full px-4 py-2.5 rounded-xl border border-[rgba(216,191,227,0.18)] bg-white/[0.035] focus-within:ring-2 focus-within:ring-[#b384c9]/30 focus-within:border-[rgba(179,132,201,0.55)] transition-shadow phone-input-wrapper">
+              <label className="block text-sm font-medium mb-1.5 text-[#927C8B]">Phone Number (Voice Calls)</label>
+              <div className="w-full px-4 py-2.5 rounded-xl border border-[#EADCE5] bg-white focus-within:ring-2 focus-within:ring-[#B74783]/30 focus-within:border-[rgba(183,71,131,0.55)] transition-shadow phone-input-wrapper">
                 <PhoneInput
                   placeholder="Enter phone number"
                   value={phone}
@@ -167,8 +167,8 @@ export function EditContactModal({ initialData, onEdit, onClose }: Props) {
 
           {(preferredContactMethod === "whatsapp" || preferredContactMethod === "both") && (
             <div>
-              <label className="block text-sm font-medium mb-1.5 text-[rgba(231,218,237,0.55)]">WhatsApp Number</label>
-              <div className="w-full px-4 py-2.5 rounded-xl border border-[rgba(216,191,227,0.18)] bg-white/[0.035] focus-within:ring-2 focus-within:ring-[#b384c9]/30 focus-within:border-[rgba(179,132,201,0.55)] transition-shadow phone-input-wrapper">
+              <label className="block text-sm font-medium mb-1.5 text-[#927C8B]">WhatsApp Number</label>
+              <div className="w-full px-4 py-2.5 rounded-xl border border-[#EADCE5] bg-white focus-within:ring-2 focus-within:ring-[#B74783]/30 focus-within:border-[rgba(183,71,131,0.55)] transition-shadow phone-input-wrapper">
                 <PhoneInput
                   placeholder="Enter WhatsApp number"
                   value={whatsappNumber}
@@ -206,14 +206,14 @@ export function EditContactModal({ initialData, onEdit, onClose }: Props) {
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-2.5 rounded-xl font-medium border border-[rgba(216,191,227,0.18)] hover:bg-white/[0.06] transition-colors"
+              className="flex-1 py-2.5 rounded-xl font-medium border border-[#EADCE5] hover:bg-[#FFF0F6] transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 py-2.5 rounded-xl font-medium bg-white text-[#1c1033] shadow-[rgba(255,255,255,0.7)_0px_1px_0px_0px_inset,rgba(179,132,201,0.35)_0px_10px_30px_0px] hover:brightness-105 transition-all disabled:opacity-50"
+              className="flex-1 py-2.5 rounded-xl font-medium bg-white text-[#49263D] shadow-[rgba(255,255,255,0.7)_0px_1px_0px_0px_inset,rgba(183,71,131,0.35)_0px_10px_30px_0px] hover:brightness-105 transition-all disabled:opacity-50"
             >
               {loading ? "Saving..." : "Save Changes"}
             </button>

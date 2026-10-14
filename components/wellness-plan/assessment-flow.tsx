@@ -147,14 +147,14 @@ export function AssessmentFlow({
       <Card className="relative overflow-hidden">
         <CardContent className="flex flex-col items-center justify-center gap-5 py-24 text-center">
           <div className="relative">
-            <div className="absolute inset-0 animate-pulse rounded-full bg-[#b384c9]/20 blur-xl" />
-            <Loader2 className="relative h-10 w-10 animate-spin text-[#b384c9]" />
+            <div className="absolute inset-0 animate-pulse rounded-full bg-[#B74783]/20 blur-xl" />
+            <Loader2 className="relative h-10 w-10 animate-spin text-[#B74783]" />
           </div>
           <div className="space-y-2">
-            <h3 className="font-display text-xl font-semibold text-[#f3eefa]">
+            <h3 className="font-display text-xl font-semibold text-[#49263D]">
               Crafting your wellness plan
             </h3>
-            <p className="max-w-sm text-sm text-[rgba(231,218,237,0.55)]">
+            <p className="max-w-sm text-sm text-[#927C8B]">
               Soul Discovery is shaping daily missions around your goals, time, and
               preferred practices…
             </p>
@@ -167,14 +167,14 @@ export function AssessmentFlow({
   return (
     <Card className="relative overflow-hidden">
       <div className="pointer-events-none absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-primary/[0.08] to-transparent" />
-      <CardContent className="relative space-y-8 p-6 md:p-10">
+      <CardContent className="relative space-y-5 p-5 md:p-7">
         <div className="space-y-3">
           <div className="flex items-center justify-between gap-3">
-            <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.08em] text-[rgba(231,218,237,0.45)]">
-              <Sparkles className="h-3.5 w-3.5 text-[#b384c9]" />
+            <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.08em] text-[#927C8B]">
+              <Sparkles className="h-3.5 w-3.5 text-[#B74783]" />
               Assessment · Step {step + 1} of {TOTAL_STEPS}
             </span>
-            <span className="text-xs font-semibold text-[#b384c9]">
+            <span className="text-xs font-semibold text-[#B74783]">
               {Math.round(progress)}%
             </span>
           </div>
@@ -210,7 +210,7 @@ export function AssessmentFlow({
                     value={customGoal}
                     onChange={(e) => setCustomGoal(e.target.value)}
                     placeholder="Describe your custom goal…"
-                    className="h-12 rounded-2xl border-[rgba(216,191,227,0.22)] bg-white/[0.04]"
+                    className="h-12 rounded-2xl border-[#EADCE5] bg-white"
                   />
                 )}
               </>
@@ -221,15 +221,15 @@ export function AssessmentFlow({
                 <QuestionTitle>
                   How would you rate your current stress level?
                 </QuestionTitle>
-                <div className="space-y-8 px-2 pt-4">
+                <div className="space-y-5 px-2 pt-4">
                   <div className="flex items-end justify-between">
-                    <span className="text-sm text-[rgba(231,218,237,0.45)]">
+                    <span className="text-sm text-[#927C8B]">
                       Calm
                     </span>
-                    <span className="font-display text-5xl font-bold text-[#f3eefa]">
+                    <span className="font-display text-5xl font-bold text-[#49263D]">
                       {stressLevel}
                     </span>
-                    <span className="text-sm text-[rgba(231,218,237,0.45)]">
+                    <span className="text-sm text-[#927C8B]">
                       Intense
                     </span>
                   </div>
@@ -240,7 +240,7 @@ export function AssessmentFlow({
                     step={1}
                     onValueChange={(v) => setStressLevel(v[0] ?? 5)}
                   />
-                  <div className="flex justify-between text-xs text-[rgba(231,218,237,0.4)]">
+                  <div className="flex justify-between text-xs text-[#927C8B]">
                     <span>1</span>
                     <span>10</span>
                   </div>
@@ -289,7 +289,7 @@ export function AssessmentFlow({
                 <QuestionTitle>
                   Which activities do you enjoy?
                 </QuestionTitle>
-                <p className="text-sm text-[rgba(231,218,237,0.45)]">
+                <p className="text-sm text-[#927C8B]">
                   Select all that resonate — we&apos;ll weave them into your days.
                 </p>
                 <div className="grid gap-3 sm:grid-cols-2">
@@ -326,11 +326,11 @@ export function AssessmentFlow({
           </motion.div>
         </AnimatePresence>
 
-        <div className="flex items-center justify-between gap-3 border-t border-white/8 pt-6">
+        <div className="flex items-center justify-between gap-3 border-t border-[#EADCE5] pt-6">
           <Button
             variant="ghost"
             onClick={back}
-            className="gap-2 text-[rgba(231,218,237,0.7)]"
+            className="gap-2 text-[#795A70]"
           >
             <ArrowLeft className="h-4 w-4" />
             {step === 0 ? "Cancel" : "Back"}
@@ -355,7 +355,7 @@ export function AssessmentFlow({
 
 function QuestionTitle({ children }: { children: React.ReactNode }) {
   return (
-    <h2 className="font-display text-2xl font-bold tracking-tight text-[#f3eefa] md:text-3xl">
+    <h2 className="font-display text-2xl font-bold tracking-tight text-[#49263D] md:text-3xl">
       {children}
     </h2>
   );
@@ -379,19 +379,19 @@ function OptionCard({
       className={cn(
         "group flex items-center justify-between gap-3 rounded-2xl border px-4 py-4 text-left transition-all duration-300",
         selected
-          ? "border-[#b384c9]/45 bg-[rgba(179,132,201,0.14)] shadow-[0_0_0_1px_rgba(179,132,201,0.2)]"
-          : "border-[rgba(216,191,227,0.16)] bg-white/[0.03] hover:border-[rgba(216,191,227,0.28)] hover:bg-white/[0.05]"
+          ? "border-[#B74783]/45 bg-[rgba(183,71,131,0.14)] shadow-[0_0_0_1px_rgba(183,71,131,0.2)]"
+          : "border-[#EADCE5] bg-white hover:border-[#EADCE5] hover:bg-[#FFF0F6]"
       )}
     >
-      <span className="font-display text-sm font-semibold text-[#f3eefa] md:text-base">
+      <span className="font-display text-sm font-semibold text-[#49263D] md:text-base">
         {label}
       </span>
       <span
         className={cn(
           "flex h-6 w-6 shrink-0 items-center justify-center rounded-full border transition",
           selected
-            ? "border-[#b384c9] bg-[#b384c9] text-[#1c1033]"
-            : "border-[rgba(216,191,227,0.25)] text-transparent",
+            ? "border-[#B74783] bg-[#B74783] text-[#49263D]"
+            : "border-[#EADCE5] text-transparent",
           multi && !selected && "rounded-md"
         )}
       >
