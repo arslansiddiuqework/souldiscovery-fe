@@ -15,15 +15,21 @@ function hideGlobalChrome(pathname: string | null) {
   return false;
 }
 
+/** Footer is home-only; all other routes stay chrome-light for viewport layouts. */
+function showFooter(pathname: string | null) {
+  return pathname === "/" || pathname === "";
+}
+
 export function AppChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const focused = hideGlobalChrome(pathname);
+  const footerVisible = !focused && showFooter(pathname);
 
   return (
     <>
       {!focused && <Navbar />}
       <main className="min-h-screen">{children}</main>
-      {!focused && <Footer />}
+      {footerVisible && <Footer />}
     </>
   );
 }

@@ -7,6 +7,7 @@ import {
   ArrowUpRight,
   CheckCircle2,
   Compass,
+  History,
   Loader2,
   Search,
   Sparkles,
@@ -92,7 +93,16 @@ export default function AssessmentCenterPage() {
                 Understand yourself a little better.
               </h1>
             </div>
-            <NeedSupportNow crisis={crisis} compact className="shrink-0" />
+            <div className="flex shrink-0 items-center gap-2">
+              <Link
+                href="/dashboard/assessment-history"
+                className="inline-flex h-9 items-center gap-1.5 rounded-full border border-[#EADCE5] bg-white px-3 text-xs font-bold text-[#49263D] shadow-sm"
+              >
+                <History className="h-3.5 w-3.5 text-[#7863C6]" />
+                History
+              </Link>
+              <NeedSupportNow crisis={crisis} compact className="shrink-0" />
+            </div>
           </div>
 
           <div className="min-h-[calc(100dvh-9.5rem)] overflow-hidden rounded-[28px] border border-[#EADCE5] bg-white/90 shadow-[0_16px_48px_rgba(123,57,98,0.08)] backdrop-blur lg:min-h-[calc(100dvh-10.5rem)]">
@@ -135,6 +145,13 @@ export default function AssessmentCenterPage() {
                       Starting point
                     </Link>
                   )}
+                  <Link
+                    href="/dashboard/assessment-history"
+                    className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-full border border-[#EADCE5] bg-white px-4 text-sm font-bold text-[#49263D] transition hover:bg-[#F0EAFE]"
+                  >
+                    <History className="h-4 w-4 text-[#7863C6]" />
+                    History
+                  </Link>
                 </div>
 
                 {featured && (

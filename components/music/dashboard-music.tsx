@@ -6,7 +6,7 @@ import { SpotifyCard } from "./spotify-card";
 import { Loader2, Music } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
-export function DashboardMusic() {
+export function DashboardMusic({ compact = false }: { compact?: boolean }) {
   const [playlists, setPlaylists] = useState<SpotifyPlaylist[]>([]);
   const [loading, setLoading] = useState(false);
   const [query, setQuery] = useState("");
@@ -29,6 +29,41 @@ export function DashboardMusic() {
 
     fetchMusic();
   }, []);
+
+  if (compact) {
+    return (
+      <div className="flex h-full flex-col overflow-hidden rounded-[20px] border border-[#EADCE5]/90 bg-white/88 p-3.5 shadow-[0_8px_28px_rgba(123,57,98,0.06)] backdrop-blur-sm">
+        <div className="mb-2 flex items-center gap-2">
+          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#1DB954]/15">
+            <Music className="h-4 w-4 text-[#1DB954]" />
+          </div>
+          <div className="min-w-0">
+            <p className="font-display text-sm font-semibold text-[#49263D]">
+              Music for you
+            </p>
+            <p className="truncate text-[11px] text-[#927C8B]">
+              {query ? `Mood: ${query}` : "Curated for your mood"}
+            </p>
+          </div>
+        </div>
+        <div className="min-h-0 flex-1 overflow-hidden">
+          {loading ? (
+            <div className="flex h-full min-h-[120px] items-center justify-center rounded-2xl border border-[#EADCE5] bg-white">
+              <Loader2 className="h-5 w-5 animate-spin text-[#B74783]" />
+            </div>
+          ) : playlists.length > 0 ? (
+            <div className="h-full overflow-hidden rounded-2xl border border-[#EADCE5] bg-[#121212]">
+              <SpotifyCard playlists={playlists.slice(0, 1)} />
+            </div>
+          ) : (
+            <div className="flex h-full min-h-[100px] items-center justify-center rounded-2xl border border-dashed border-[#EADCE5] bg-white px-3 text-center">
+              <p className="text-xs text-[#927C8B]">Music unavailable</p>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <Card className="flex h-full flex-col overflow-hidden">

@@ -14,9 +14,9 @@ export const BRAND_ICON_SRC = "/branding/soul-discovery-icon-circle.png";
 /** Full lockup artwork (icon + name + caption) */
 export const BRAND_LOGO_SRC = "/branding/soul-discovery-logo.png";
 
-/** Pastel landscape for the Progress dashboard only (cache-bust when asset updates) */
+/** Pastel landscape used as the Dashboard page background only */
 export const BRAND_PASTEL_BACKGROUND_SRC =
-  "/branding/soul-discovery-pastel-background.png?v=3";
+  "/branding/soul-discovery-pastel-background.png?v=4";
 
 export const BRAND_TITLE =
   "Soul Discovery – Mental Wellness & Professional Support";

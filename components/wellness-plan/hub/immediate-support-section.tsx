@@ -1,13 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import {
-  ChevronRight,
-  Flower2,
-  Heart,
-  Leaf,
-  Zap,
-} from "lucide-react";
+import { Flower2, Heart, Leaf } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   Dialog,
@@ -25,79 +19,68 @@ type SupportKind = "breathing" | "grounding" | "panic" | null;
 const ACTIONS = [
   {
     id: "breathing" as const,
-    title: "Calm Breathing",
+    title: "Breathe",
     meta: "2–5 min",
-    description: "Follow a gentle guided breathing exercise.",
     icon: Flower2,
     tint: "bg-[#FFF0F6] text-[#BE4A8B]",
   },
   {
     id: "grounding" as const,
-    title: "Grounding Exercise",
+    title: "Ground",
     meta: "3–5 min",
-    description: "Reconnect with the present moment.",
     icon: Leaf,
     tint: "bg-[#EAF6F2] text-[#3D9B84]",
   },
   {
     id: "panic" as const,
-    title: "Panic Support",
-    meta: "Immediate help",
-    description: "Find a calm, guided next step when you're feeling overwhelmed.",
+    title: "Panic help",
+    meta: "Now",
     icon: Heart,
     tint: "bg-[#F2ECFF] text-[#8B6BC7]",
   },
 ];
 
-export function ImmediateSupportSection() {
+interface ImmediateSupportSectionProps {
+  compact?: boolean;
+}
+
+export function ImmediateSupportSection({
+  compact = false,
+}: ImmediateSupportSectionProps) {
   const [open, setOpen] = useState<SupportKind>(null);
 
   return (
-    <section className="rounded-[22px] border border-[#EEDCE9] bg-white p-5 shadow-[0_8px_28px_rgba(123,57,98,0.06)] md:p-6">
-      <div className="flex gap-3.5 sm:gap-4">
-        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#FFF0F6]">
-          <Zap className="h-5 w-5 text-[#BE4A8B]" aria-hidden />
-        </div>
-        <div className="min-w-0 flex-1">
-          <h2 className="text-[17px] font-bold tracking-[-0.02em] text-[#512943] md:text-lg">
-            Need help right now?
-          </h2>
-          <p className="mt-1 max-w-[52ch] text-sm leading-relaxed text-[#957F94]">
-            Get immediate support with breathing exercises, grounding techniques
-            and calming tools.
-          </p>
-
-          <div className="mt-4 grid gap-2.5 sm:grid-cols-3 sm:gap-3">
-            {ACTIONS.map((action) => (
-              <button
-                key={action.id}
-                type="button"
-                onClick={() => setOpen(action.id)}
+    <>
+      <div className={cn("min-w-0", compact && "w-full")}>
+        <p className="mb-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-[#927C8B]">
+          Need help now?
+        </p>
+        <div className="flex gap-1.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:flex-wrap sm:overflow-visible">
+          {ACTIONS.map((action) => (
+            <button
+              key={action.id}
+              type="button"
+              onClick={() => setOpen(action.id)}
+              className="inline-flex shrink-0 items-center gap-2 rounded-full border border-[#EADCE5] bg-white/90 py-1.5 pl-1.5 pr-3 text-left transition hover:border-[#DFC7D6] hover:bg-white hover:shadow-[0_6px_16px_rgba(123,57,98,0.08)]"
+            >
+              <span
                 className={cn(
-                  "group flex items-center gap-3 rounded-[16px] border border-[#EEDCE9] bg-[#FCF8FC] p-3 text-left transition sm:p-3.5",
-                  "hover:border-[#DFC7D6] hover:bg-white hover:shadow-[0_8px_24px_rgba(123,57,98,0.08)]"
+                  "flex h-7 w-7 items-center justify-center rounded-full",
+                  action.tint
                 )}
               >
-                <span
-                  className={cn(
-                    "flex h-10 w-10 shrink-0 items-center justify-center rounded-full",
-                    action.tint
-                  )}
-                >
-                  <action.icon className="h-[18px] w-[18px]" strokeWidth={1.75} aria-hidden />
+                <action.icon className="h-3.5 w-3.5" strokeWidth={1.75} aria-hidden />
+              </span>
+              <span>
+                <span className="block text-[12px] font-bold leading-none text-[#512943]">
+                  {action.title}
                 </span>
-                <span className="min-w-0 flex-1">
-                  <span className="block text-sm font-bold text-[#512943]">
-                    {action.title}
-                  </span>
-                  <span className="mt-0.5 block text-[11px] font-medium text-[#957F94]">
-                    {action.meta}
-                  </span>
+                <span className="mt-0.5 block text-[10px] font-medium text-[#927C8B]">
+                  {action.meta}
                 </span>
-                <ChevronRight className="h-4 w-4 shrink-0 text-[#BE4A8B] opacity-60 transition group-hover:opacity-100" />
-              </button>
-            ))}
-          </div>
+              </span>
+            </button>
+          ))}
         </div>
       </div>
 
@@ -124,6 +107,6 @@ export function ImmediateSupportSection() {
           )}
         </DialogContent>
       </Dialog>
-    </section>
+    </>
   );
 }

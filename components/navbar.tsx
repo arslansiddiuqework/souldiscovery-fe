@@ -75,6 +75,7 @@ export function Navbar() {
   };
 
   const navItems = [
+    { href: "/", label: "Home" },
     { href: "/features", label: "Features" },
     { href: "/assessments", label: "Assessments" },
   ];

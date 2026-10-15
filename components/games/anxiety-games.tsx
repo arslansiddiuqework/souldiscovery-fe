@@ -82,11 +82,25 @@ const games = [
   },
 ];
 
-interface AnxietyGamesProps {
-  onGamePlayed?: (gameName: string, description: string) => Promise<void>;
+function parseDurationMinutes(label: string): number {
+  const match = label.match(/(\d+)/);
+  return match ? Number(match[1]) : 5;
 }
 
-export const AnxietyGames = ({ onGamePlayed }: AnxietyGamesProps) => {
+interface AnxietyGamesProps {
+  onGamePlayed?: (
+    gameName: string,
+    description: string,
+    durationMinutes?: number
+  ) => Promise<void>;
+  /** Dense icon grid for single-screen dashboard */
+  compact?: boolean;
+}
+
+export const AnxietyGames = ({
+  onGamePlayed,
+  compact = false,
+}: AnxietyGamesProps) => {
   const [selectedGame, setSelectedGame] = useState<string | null>(null);
   const [showGame, setShowGame] = useState(false);
 
@@ -94,12 +108,14 @@ export const AnxietyGames = ({ onGamePlayed }: AnxietyGamesProps) => {
     setSelectedGame(gameId);
     setShowGame(true);
 
-    // Log the activity
+    // Log the activity with catalog duration so Progress Duration isn't stuck at 0m
     if (onGamePlayed) {
       try {
+        const game = games.find((g) => g.id === gameId);
         await onGamePlayed(
           gameId,
-          games.find((g) => g.id === gameId)?.description || ""
+          game?.description || "",
+          game ? parseDurationMinutes(game.duration) : 5
         );
       } catch (error) {
         console.error("Error logging game activity:", error);
@@ -125,6 +141,66 @@ export const AnxietyGames = ({ onGamePlayed }: AnxietyGamesProps) => {
         return null;
     }
   };
+
+  const dialog = (
+    <Dialog open={showGame} onOpenChange={setShowGame}>
+      <DialogContent className="sm:max-w-[600px]">
+        <DialogHeader>
+          <DialogTitle>
+            {games.find((g) => g.id === selectedGame)?.title}
+          </DialogTitle>
+        </DialogHeader>
+        {renderGame()}
+      </DialogContent>
+    </Dialog>
+  );
+
+  if (compact) {
+    return (
+      <>
+        <div className="flex h-full flex-col rounded-[20px] border border-[#EADCE5]/90 bg-white/88 p-3.5 shadow-[0_8px_28px_rgba(123,57,98,0.06)] backdrop-blur-sm">
+          <div className="mb-2.5 flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#FFE5F0]">
+              <Gamepad2 className="h-4 w-4 text-[#B74783]" />
+            </div>
+            <div>
+              <p className="font-display text-sm font-semibold text-[#49263D]">
+                Calm tools
+              </p>
+              <p className="text-[11px] text-[#927C8B]">Tap to start</p>
+            </div>
+          </div>
+          <div className="grid flex-1 grid-cols-3 gap-2 sm:grid-cols-6 lg:grid-cols-3 xl:grid-cols-6">
+            {games.map((game) => (
+              <motion.button
+                key={game.id}
+                type="button"
+                whileHover={{ y: -2 }}
+                whileTap={{ scale: 0.96 }}
+                onClick={() => handleGameStart(game.id)}
+                className="flex flex-col items-center gap-1.5 rounded-2xl border border-[#EADCE5] bg-white px-1.5 py-2.5 text-center transition hover:border-[rgba(183,71,131,0.35)] hover:shadow-card"
+                title={game.title}
+              >
+                <span
+                  className={cn(
+                    "flex h-9 w-9 items-center justify-center rounded-xl",
+                    game.bgColor,
+                    game.color
+                  )}
+                >
+                  <game.icon className="h-4 w-4" />
+                </span>
+                <span className="line-clamp-2 text-[10px] font-semibold leading-tight text-[#49263D]">
+                  {game.title.split(" ")[0]}
+                </span>
+              </motion.button>
+            ))}
+          </div>
+        </div>
+        {dialog}
+      </>
+    );
+  }
 
   return (
     <>
@@ -201,16 +277,7 @@ export const AnxietyGames = ({ onGamePlayed }: AnxietyGamesProps) => {
         </CardContent>
       </Card>
 
-      <Dialog open={showGame} onOpenChange={setShowGame}>
-        <DialogContent className="sm:max-w-[600px]">
-          <DialogHeader>
-            <DialogTitle>
-              {games.find((g) => g.id === selectedGame)?.title}
-            </DialogTitle>
-          </DialogHeader>
-          {renderGame()}
-        </DialogContent>
-      </Dialog>
+      {dialog}
     </>
   );
 };

@@ -245,6 +245,25 @@ export function WellnessPlanApp() {
     getPendingChatSuggestion();
   }, []);
 
+  if (view === "hub") {
+    return (
+      <>
+        <WellnessPlansHub
+          activePlan={plan}
+          enrollments={enrollments}
+          onContinueActive={handleContinueActive}
+          onOpenPlan={handleOpenPlan}
+        />
+        <TaskRunner
+          task={activeTask}
+          open={!!activeTask}
+          onClose={() => setActiveTask(null)}
+          onComplete={handleTaskComplete}
+        />
+      </>
+    );
+  }
+
   return (
     <div className="page-shell pb-10 text-[#512943] md:pb-14">
       <Container className="max-w-[1240px] space-y-5">
@@ -296,15 +315,6 @@ export function WellnessPlanApp() {
           <div className="flex min-h-[40vh] items-center justify-center">
             <div className="h-10 w-10 animate-spin rounded-full border-2 border-primary/20 border-t-primary" />
           </div>
-        )}
-
-        {view === "hub" && (
-          <WellnessPlansHub
-            activePlan={plan}
-            enrollments={enrollments}
-            onContinueActive={handleContinueActive}
-            onOpenPlan={handleOpenPlan}
-          />
         )}
 
         {view === "detail" && selectedCatalog && (

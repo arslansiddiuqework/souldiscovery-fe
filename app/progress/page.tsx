@@ -6,29 +6,11 @@ import {
 } from "@/components/progress/weekly-summary";
 import { Flower2 } from "lucide-react";
 import { Container } from "@/components/ui/container";
-import { BRAND_PASTEL_BACKGROUND_SRC } from "@/lib/branding";
 
 export default function ProgressPage() {
   return (
     <div className="page-shell relative overflow-hidden pb-12 text-[#49263D] md:pb-16">
-      {/* Soul Discovery pastel landscape — mountains (upper-right) + botanicals (bottom) */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-10 overflow-hidden"
-      >
-        {/* eslint-disable-next-line @next/next/no-img-element -- static public asset; avoid Next Image soft resize */}
-        <img
-          src={BRAND_PASTEL_BACKGROUND_SRC}
-          alt=""
-          width={1672}
-          height={940}
-          decoding="async"
-          fetchPriority="high"
-          className="progress-pastel-bg h-full w-full object-cover"
-        />
-      </div>
-
-      <Container className="relative z-10 max-w-[1180px] space-y-7">
+      <Container className="max-w-[1180px] space-y-7">
         <header
           data-particles-mask
           className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"

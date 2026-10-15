@@ -10,9 +10,6 @@ import {
   Moon,
   Heart,
   Trophy,
-  Bell,
-  AlertCircle,
-  PhoneCall,
   Sparkles,
   MessageSquare,
   BrainCircuit,
@@ -20,31 +17,18 @@ import {
   X,
   Loader2,
   Trash2,
-  Clock,
   Dumbbell,
   Mic,
-  LineChart,
-  ChevronRight,
 } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Container } from "@/components/ui/container";
+import { PastelLandscapeBackground } from "@/components/ui/pastel-landscape-background";
 import { cn } from "@/lib/utils";
 
 import { MoodForm } from "@/components/mood/mood-form";
-import { AnxietyGames } from "@/components/games/anxiety-games";
 import { BreathingGame } from "@/components/games/breathing-game";
 import { ZenGarden } from "@/components/games/zen-garden";
 import { ForestGame } from "@/components/games/forest-game";
 import { OceanWaves } from "@/components/games/ocean-waves";
-import { DashboardMusic } from "@/components/music/dashboard-music";
 
 import {
   getActivityHistory,
@@ -80,6 +64,11 @@ import { UpcomingConsultationCard } from "@/components/consultation/upcoming-con
 import { MySessions } from "@/components/consultation/my-sessions";
 import { BookingFlow } from "@/components/consultation/booking-flow";
 import { SESSION_PRICE_USD } from "@/lib/consultation/types";
+import { DashboardPlanner } from "@/components/todo/dashboard-planner";
+import {
+  DashboardTabs,
+  type DashTabId,
+} from "@/components/dashboard/dashboard-tabs";
 
 // type definition
 type ActivityLevel = "none" | "low" | "medium" | "high";
@@ -294,6 +283,7 @@ export default function Dashboard() {
   const [todayActivities, setTodayActivities] = useState<Activity[]>([]);
   const [showBookingFlow, setShowBookingFlow] = useState(false);
   const [sessionsRefreshKey, setSessionsRefreshKey] = useState(0);
+  const [dashTab, setDashTab] = useState<DashTabId>("insights");
 
   // Helper function to check if mood modal should be shown (once per 24 hours)
   const shouldShowMoodModal = (): boolean => {
@@ -607,27 +597,6 @@ export default function Dashboard() {
     });
   };
 
-  // Add handler for game activities
-  const handleGamePlayed = useCallback(
-    async (gameName: string, description: string) => {
-      try {
-        await logActivity({
-          type: "game",
-          name: gameName,
-          description: description,
-          duration: 0,
-        });
-
-        // Refresh activities after logging
-        loadActivities();
-        fetchDailyStats();
-      } catch (error) {
-        console.error("Error logging game activity:", error);
-      }
-    },
-    [loadActivities, fetchDailyStats]
-  );
-
   const handleDeleteActivity = async (activityId: string) => {
     try {
       await deleteActivity(activityId);
@@ -655,506 +624,440 @@ export default function Dashboard() {
     );
   }
 
-  return (
-    <div className="page-shell pb-10 text-[#49263D] md:pb-14">
-      <Container className="space-y-6 md:space-y-8">
-        {/* Header Section */}
-        <div className="border-b border-[#EADCE5] pb-5 md:pb-6">
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, ease: "easeOut" }}
-            className="space-y-4"
-          >
-            <span className="badge-soft">
-              <Calendar className="h-3.5 w-3.5" />
-              {currentTime.toLocaleDateString("en-US", {
-                weekday: "long",
-                month: "long",
-                day: "numeric",
-              })}
-            </span>
-            <h1 className="font-display text-3xl font-bold tracking-tight text-[#49263D] md:text-4xl lg:text-[40px]">
-              Welcome back,{" "}
-              <span className="text-gradient-brand">
-                {user?.name || "there"}
-              </span>
-            </h1>
-            <p className="max-w-2xl text-base leading-relaxed text-[#927C8B] md:text-lg">
-              A calm snapshot of your wellbeing — your mood, check-ins and
-              supportive activities, all in one place.
-            </p>
-          </motion.div>
-        </div>
+  const checkIns = todayActivities.filter(
+    (a: any) => !["game"].includes(a.type)
+  );
+  const firstName = (user?.name || "friend").split(" ")[0];
+  const hour = currentTime.getHours();
+  const greeting =
+    hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
 
-        {/* Main Grid Layout */}
-        <div className="space-y-10 md:space-y-14">
-          {/* Today's Overview */}
-          <section className="space-y-6">
-            <div className="flex flex-wrap items-end justify-between gap-4">
-              <div className="space-y-1.5">
-                <h2 className="font-display text-xl font-semibold tracking-tight text-[#49263D] md:text-2xl">
-                  Today&apos;s Overview
-                </h2>
-                <p className="text-sm text-[#927C8B]">
-                  Your wellness metrics for {format(new Date(), "MMMM d, yyyy")}
-                </p>
+  return (
+    <div className="dashboard-shell relative text-[#49263D]">
+      <PastelLandscapeBackground />
+      <div className="dashboard-canvas relative z-10 flex h-full min-h-0 flex-col gap-3 overflow-hidden sm:gap-3.5">
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+          className="flex h-full min-h-0 flex-col overflow-hidden rounded-[28px] border border-[#EADCE5]/90 bg-white/78 shadow-[0_18px_50px_rgba(123,57,98,0.1)] backdrop-blur-xl"
+        >
+          {/* Slim top bar — greeting + metrics + actions */}
+          <header
+            data-particles-mask
+            className="shrink-0 border-b border-[#EADCE5]/80 bg-gradient-to-r from-[#FFF8FB] via-white/95 to-[#F8F0FF]/60 px-3 py-2.5 sm:px-4"
+          >
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h1 className="font-display text-lg font-bold tracking-tight text-[#49263D] sm:text-xl">
+                    {greeting},{" "}
+                    <span className="text-gradient-brand">{firstName}</span>
+                  </h1>
+                  <span className="inline-flex items-center gap-1 rounded-full bg-white/90 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.1em] text-[#B74783] ring-1 ring-[#EADCE5]">
+                    <Calendar className="h-2.5 w-2.5" />
+                    {currentTime.toLocaleDateString("en-US", {
+                      weekday: "short",
+                      month: "short",
+                      day: "numeric",
+                    })}
+                  </span>
+                </div>
               </div>
-              <div className="flex items-center gap-3">
-                <p className="text-xs text-[#927C8B]">
-                  Last updated: {format(dailyStats.lastUpdated, "h:mm a")}
-                </p>
+
+              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                {wellnessStats.map((stat) => (
+                  <div
+                    key={stat.title}
+                    title={stat.description}
+                    className="flex items-center gap-1.5 rounded-full bg-white/90 py-1 pl-1 pr-2.5 ring-1 ring-[#EADCE5]/90 sm:pr-3"
+                  >
+                    <span
+                      className={cn(
+                        "flex h-6 w-6 items-center justify-center rounded-full",
+                        stat.bgColor
+                      )}
+                    >
+                      <stat.icon className={cn("h-3 w-3", stat.color)} />
+                    </span>
+                    <span className="font-display text-[12px] font-bold tabular-nums text-[#49263D]">
+                      {stat.value}
+                    </span>
+                    <span className="hidden text-[9px] font-semibold uppercase tracking-[0.06em] text-[#A8939E] md:inline">
+                      {stat.title.split(" ")[0]}
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex shrink-0 items-center gap-1.5">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowActivityLogger(true)}
+                  className="h-8 rounded-full border-[#EADCE5] bg-white px-3 text-[11px] shadow-soft"
+                >
+                  <Activity className="mr-1.5 h-3.5 w-3.5 text-[#B74783]" />
+                  Log
+                </Button>
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={fetchDailyStats}
-                  className="group h-9 w-9 rounded-xl border border-[#EADCE5] bg-white text-[#D9B8F5] shadow-card hover:bg-[#FFF0F6]"
-                  title="Refresh metrics"
+                  className="group h-8 w-8 rounded-full border border-[#EADCE5] bg-white text-[#B74783] shadow-soft"
+                  title="Refresh"
                 >
-                  <Loader2 className="h-4 w-4 transition-transform duration-500 group-hover:rotate-180" />
+                  <Loader2 className="h-3.5 w-3.5 transition-transform duration-500 group-hover:rotate-180" />
                 </Button>
               </div>
             </div>
+          </header>
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4 md:gap-4">
-              {wellnessStats.map((stat) => (
-                <Card key={stat.title} interactive className="glass-panel border-[#EADCE5] p-6 md:p-7">
-                  <div className="flex items-start justify-between gap-4">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#927C8B]">
-                      {stat.title}
-                    </p>
-                    <div
-                      className={cn(
-                        "flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl",
-                        stat.bgColor
-                      )}
-                    >
-                      <stat.icon className={cn("h-5 w-5", stat.color)} />
-                    </div>
-                  </div>
-                  <p className="mt-6 font-display text-3xl font-bold tracking-tight text-[#49263D]">
-                    {stat.value}
+          {/* Main workspace */}
+          <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+            <DashboardTabs value={dashTab} onChange={setDashTab} />
+            {dashTab === "todo" ? (
+              <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain bg-gradient-to-b from-[#F4E8FF]/35 via-[#FBF9FF] to-[#FFF0F6]/40 p-3 sm:p-4">
+                <div className="mb-3">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#B74783]">
+                    Daily planner
                   </p>
-                  <p className="mt-1.5 text-sm text-[#927C8B]">
-                    {stat.description}
+                  <h2 className="mt-1 font-display text-lg font-bold tracking-tight text-[#49263D] sm:text-xl">
+                    Calendar & tasks
+                  </h2>
+                  <p className="mt-1 text-xs text-[#927C8B] sm:text-sm">
+                    Pick a date, then keep a simple list just for that day.
                   </p>
-                </Card>
-              ))}
-            </div>
-          </section>
-
-          {/* Actions + Insights Grid */}
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 md:gap-5">
-            {/* Quick Actions Card */}
-            <Card className="relative overflow-hidden lg:col-span-2">
-              <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-primary/[0.07] to-transparent" />
-              <CardHeader className="relative pb-0">
-                <div className="flex items-center gap-4">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-[#EADCE5] bg-[#FFE5F0] shadow-soft">
-                    <Sparkles className="h-5 w-5 text-[#49263D]" />
-                  </div>
-                  <div className="space-y-1">
-                    <CardTitle className="text-lg md:text-xl">
-                      Quick Actions
-                    </CardTitle>
-                    <CardDescription>
-                      Start your wellness journey
-                    </CardDescription>
-                  </div>
                 </div>
-              </CardHeader>
-              <CardContent className="relative space-y-4 pt-6">
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <Button
-                    variant="secondary"
-                    className="group/button h-auto w-full items-center justify-start border-[#EADCE5] bg-[rgba(183,71,131,0.08)] p-4 hover:bg-[#FFE5F0]"
+                <DashboardPlanner />
+              </div>
+            ) : (
+          <div
+            className={cn(
+              "grid min-h-0 flex-1 overflow-hidden",
+              dashTab === "insights"
+                ? "lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.95fr)]"
+                : "grid-cols-1"
+            )}
+          >
+            {/* Support stage — Insights only */}
+            {dashTab === "insights" && (
+            <section className="relative flex min-h-0 flex-col overflow-y-auto overscroll-contain border-b border-[#EADCE5]/80 p-3 sm:p-4 lg:border-b-0 lg:border-r">
+              <div className="pointer-events-none absolute -right-12 -top-16 h-44 w-44 rounded-full bg-[radial-gradient(circle,rgba(183,71,131,0.14),transparent_70%)]" />
+              <div className="relative flex min-h-0 flex-1 flex-col">
+                <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#B74783]">
+                  Need support
+                </p>
+                <h2 className="mt-1 font-display text-lg font-bold tracking-tight sm:text-xl">
+                  Talk it through, your way
+                </h2>
+                <p className="mt-1 max-w-md text-xs leading-relaxed text-[#927C8B] sm:text-sm">
+                  Chat or speak — both are free, private, and ready when you
+                  are.
+                </p>
+
+                <div className="mt-3 grid w-full flex-1 gap-2.5 sm:grid-cols-2 sm:gap-3">
+                  {/* Open Up — chat */}
+                  <button
+                    type="button"
                     onClick={handleStartTherapy}
+                    className="group relative flex min-h-[168px] flex-col overflow-hidden rounded-[22px] bg-gradient-to-br from-[#C45A92] via-[#B74783] to-[#8B4FA0] p-4 text-left text-white shadow-[0_14px_36px_rgba(183,71,131,0.28)] transition hover:-translate-y-0.5 hover:shadow-[0_18px_42px_rgba(183,71,131,0.34)] sm:min-h-0 sm:p-5"
                   >
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#FFE5F0]">
-                        <MessageSquare className="h-4 w-4 text-[#B74783]" />
+                    <div
+                      aria-hidden
+                      className="pointer-events-none absolute -right-6 -top-8 h-28 w-28 rounded-full bg-white/10 blur-2xl"
+                    />
+                    <div
+                      aria-hidden
+                      className="pointer-events-none absolute bottom-8 right-2 h-20 w-20 rounded-full bg-[#D9B8F5]/25 blur-xl"
+                    />
+
+                    <div className="relative flex items-start justify-between gap-2">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/18 ring-1 ring-white/25 backdrop-blur-sm">
+                        <MessageSquare className="h-5 w-5" />
                       </div>
-                      <div className="text-left">
-                        <div className="font-display text-base font-semibold text-[#49263D]">
-                          Open Up
-                        </div>
-                        <div className="text-[11px] font-normal text-[#927C8B]">
-                          Share what&apos;s on your mind.
-                        </div>
+                      <div className="flex items-center gap-1">
+                        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/15 text-base shadow-sm ring-1 ring-white/20 transition group-hover:-translate-y-0.5">
+                          💬
+                        </span>
+                        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/15 text-base shadow-sm ring-1 ring-white/20 transition delay-75 group-hover:-translate-y-1">
+                          ✨
+                        </span>
+                        <span className="hidden h-8 w-8 items-center justify-center rounded-full bg-white/15 text-base shadow-sm ring-1 ring-white/20 transition delay-100 group-hover:-translate-y-0.5 sm:flex">
+                          🤍
+                        </span>
                       </div>
                     </div>
-                  </Button>
 
-                  <Button
-                    variant="secondary"
-                    className="group/voice h-auto w-full items-center justify-start border-[#EADCE5] bg-[rgba(183,71,131,0.08)] p-4 hover:bg-[#FFE5F0]"
+                    {/* Mini chat preview fills empty mid space */}
+                    <div
+                      aria-hidden
+                      className="relative mt-3 space-y-1.5 opacity-95"
+                    >
+                      <div className="max-w-[88%] rounded-2xl rounded-tl-md bg-white/18 px-2.5 py-1.5 text-[10px] font-medium leading-snug text-white/95 backdrop-blur-sm">
+                        How are you feeling tonight?
+                      </div>
+                      <div className="ml-auto max-w-[78%] rounded-2xl rounded-tr-md bg-white px-2.5 py-1.5 text-[10px] font-semibold leading-snug text-[#9F376F] shadow-sm">
+                        A little heavy… but okay 💜
+                      </div>
+                      <div className="flex items-center gap-1.5 pl-1">
+                        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white/70" />
+                        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white/55 [animation-delay:150ms]" />
+                        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white/40 [animation-delay:300ms]" />
+                      </div>
+                    </div>
+
+                    <div className="relative mt-auto pt-3">
+                      <p className="font-display text-lg font-bold">Open Up</p>
+                      <p className="mt-0.5 text-xs text-white/80">
+                        Share what&apos;s on your mind in chat
+                      </p>
+                      <span className="mt-2.5 inline-flex items-center gap-1 rounded-full bg-white/15 px-2.5 py-1 text-[11px] font-semibold ring-1 ring-white/20">
+                        Begin session
+                        <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" />
+                      </span>
+                    </div>
+                  </button>
+
+                  {/* Speak Freely — voice */}
+                  <button
+                    type="button"
                     onClick={handleStartVoiceTherapy}
+                    className="group relative flex min-h-[168px] flex-col overflow-hidden rounded-[22px] border border-[#EADCE5] bg-gradient-to-br from-white via-[#FFF8FB] to-[#F4E8FF] p-4 text-left shadow-[0_10px_28px_rgba(123,57,98,0.08)] transition hover:-translate-y-0.5 hover:border-[#B74783]/30 hover:shadow-card sm:min-h-0 sm:p-5"
                   >
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#FFE5F0]">
-                        <Mic className="h-4 w-4 text-[#B74783]" />
+                    <div
+                      aria-hidden
+                      className="pointer-events-none absolute -right-8 top-0 h-28 w-28 rounded-full bg-[#FFE5F0]/80 blur-2xl"
+                    />
+                    <div
+                      aria-hidden
+                      className="pointer-events-none absolute -bottom-6 left-8 h-24 w-24 rounded-full bg-[#E8D5FF]/70 blur-2xl"
+                    />
+
+                    <div className="relative flex items-start justify-between gap-2">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#FFE5F0] text-[#B74783] ring-1 ring-[#F0CADA]">
+                        <Mic className="h-5 w-5" />
                       </div>
-                      <div className="text-left">
-                        <div className="font-display text-base font-semibold text-[#49263D]">
-                          Speak Freely
-                        </div>
-                        <div className="text-[11px] font-normal text-[#927C8B]">
-                          Share your thoughts out loud and be heard.
-                        </div>
+                      <div className="flex items-center gap-1">
+                        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-base shadow-sm ring-1 ring-[#EADCE5] transition group-hover:-translate-y-0.5">
+                          🎙️
+                        </span>
+                        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-base shadow-sm ring-1 ring-[#EADCE5] transition delay-75 group-hover:-translate-y-1">
+                          🎧
+                        </span>
+                        <span className="hidden h-8 w-8 items-center justify-center rounded-full bg-white text-base shadow-sm ring-1 ring-[#EADCE5] transition delay-100 group-hover:-translate-y-0.5 sm:flex">
+                          🌙
+                        </span>
                       </div>
                     </div>
-                  </Button>
+
+                    {/* Voice waveform visual */}
+                    <div
+                      aria-hidden
+                      className="relative mt-4 flex flex-1 items-end justify-center gap-1 px-2"
+                    >
+                      {[10, 18, 28, 16, 34, 22, 40, 18, 30, 14, 24, 12].map(
+                        (h, i) => (
+                          <span
+                            key={i}
+                            className="w-1.5 rounded-full bg-gradient-to-t from-[#B74783] to-[#D9B8F5] opacity-80 transition group-hover:opacity-100"
+                            style={{
+                              height: `${h}px`,
+                              animation: `pulse 1.4s ease-in-out ${i * 0.08}s infinite alternate`,
+                            }}
+                          />
+                        )
+                      )}
+                    </div>
+
+                    <div className="relative mt-auto pt-2">
+                      <p className="font-display text-lg font-bold text-[#49263D]">
+                        Speak Freely
+                      </p>
+                      <p className="mt-0.5 text-xs text-[#927C8B]">
+                        Voice support that listens with care
+                      </p>
+                      <span className="mt-2.5 inline-flex items-center gap-1 rounded-full bg-[#FFF0F6] px-2.5 py-1 text-[11px] font-semibold text-[#B74783] ring-1 ring-[#F0CADA]">
+                        Start speaking
+                        <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" />
+                      </span>
+                    </div>
+                  </button>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
-                  <Button
-                    variant="outline"
-                    className="group/mood h-[124px] flex-col items-center justify-center border-[#EADCE5] px-4 py-3 text-center hover:border-primary/40"
+                <div className="mt-3 grid w-full grid-cols-2 gap-2">
+                  <button
+                    type="button"
                     onClick={() => setShowMoodModal(true)}
+                    className="rounded-xl border border-[#EADCE5] bg-[#FFF8FB] px-2.5 py-2.5 text-left transition hover:border-[#B74783]/25 hover:bg-white"
                   >
-                    <div className="mb-2.5 flex h-11 w-11 items-center justify-center rounded-2xl bg-[#FFE5F0]">
-                      <Heart className="h-5 w-5 text-[#B74783]" />
-                    </div>
-                    <div>
-                      <div className="font-display text-sm font-semibold text-[#49263D]">
-                        Track Mood
-                      </div>
-                      <div className="mt-0.5 text-xs font-normal text-[#927C8B]">
-                        How are you feeling?
-                      </div>
-                    </div>
-                  </Button>
-
-                  <Button
-                    variant="outline"
-                    className="group/ai h-[124px] flex-col items-center justify-center border-[#EADCE5] px-4 py-3 text-center hover:border-primary/40"
+                    <Heart className="h-3.5 w-3.5 text-[#B74783]" />
+                    <p className="mt-1.5 text-[11px] font-bold">Track mood</p>
+                  </button>
+                  <button
+                    type="button"
                     onClick={handleAICheckIn}
+                    className="rounded-xl border border-[#EADCE5] bg-[#FFF8FB] px-2.5 py-2.5 text-left transition hover:border-[#B74783]/25 hover:bg-white"
                   >
-                    <div className="mb-2.5 flex h-11 w-11 items-center justify-center rounded-2xl bg-[#FFE5F0]">
-                      <BrainCircuit className="h-5 w-5 text-[#B74783]" />
-                    </div>
-                    <div>
-                      <div className="font-display text-sm font-semibold text-[#49263D]">
-                        Check-in
-                      </div>
-                      <div className="mt-0.5 text-xs font-normal text-[#927C8B]">
-                        Quick wellness check
-                      </div>
-                    </div>
-                  </Button>
+                    <Activity className="h-3.5 w-3.5 text-[#B74783]" />
+                    <p className="mt-1.5 text-[11px] font-bold">Quick check-in</p>
+                  </button>
                 </div>
+              </div>
+            </section>
+            )}
 
-                <Button
-                  asChild
-                  variant="secondary"
-                  className="group/assessments h-auto w-full items-center justify-between border-[#EADCE5] bg-[rgba(167,139,250,0.12)] p-4 hover:bg-[rgba(167,139,250,0.18)]"
-                >
-                  <Link href="/assessments">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[rgba(167,139,250,0.2)]">
-                        <BrainCircuit className="h-4 w-4 text-[#7863C6]" />
-                      </div>
-                      <div className="text-left">
-                        <div className="font-display text-base font-semibold text-[#49263D]">
-                          Assessment Center
-                        </div>
-                        <div className="text-[11px] font-normal text-[#927C8B]">
-                          Check in with your feelings & patterns
-                        </div>
-                      </div>
+            {/* Tabbed side panel */}
+            <aside className="flex min-h-0 flex-col overflow-hidden bg-gradient-to-b from-[#FFF8FB]/80 to-white">
+              <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3 sm:p-4">
+                {dashTab === "insights" && (
+                  <div className="space-y-2.5">
+                    <div className="mb-1 flex items-center gap-2">
+                      <BrainCircuit className="h-4 w-4 text-[#B74783]" />
+                      <p className="text-sm font-bold text-[#49263D]">
+                        Just for you today
+                      </p>
                     </div>
-                    <ChevronRight className="h-5 w-5 text-[#927C8B] transition-transform group-hover/assessments:translate-x-1 group-hover/assessments:text-[#7863C6]" />
-                  </Link>
-                </Button>
-
-                <Button
-                  asChild
-                  variant="outline"
-                  className="group/history h-auto w-full items-center justify-between border-[#EADCE5] p-3"
-                >
-                  <Link href="/dashboard/assessment-history">
-                    <div className="text-left text-sm font-semibold text-[#49263D]">
-                      Assessment history
-                    </div>
-                    <ChevronRight className="h-4 w-4 text-[#927C8B]" />
-                  </Link>
-                </Button>
-
-                <Button
-                  asChild
-                  variant="secondary"
-                  className="group/wellness h-auto w-full items-center justify-between border-[#EADCE5] bg-[rgba(183,71,131,0.1)] p-4 hover:bg-[rgba(183,71,131,0.14)]"
-                >
-                  <Link href="/wellness-plan">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[rgba(183,71,131,0.16)]">
-                        <Sparkles className="h-4 w-4 text-[#B74783]" />
-                      </div>
-                      <div className="text-left">
-                        <div className="font-display text-base font-semibold text-[#49263D]">
-                          Create Your Wellness Plan
-                        </div>
-                        <div className="text-[11px] font-normal text-[#927C8B]">
-                          Personalized daily missions & AI coaching
-                        </div>
-                      </div>
-                    </div>
-                    <ChevronRight className="h-5 w-5 text-[#927C8B] transition-transform group-hover/wellness:translate-x-1 group-hover/wellness:text-[#B74783]" />
-                  </Link>
-                </Button>
-
-                <Button
-                  asChild
-                  variant="secondary"
-                  className="group/progress h-auto w-full items-center justify-between border-[#EADCE5] p-4"
-                >
-                  <Link href="/progress">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#FFE5F0]">
-                        <LineChart className="h-4 w-4 text-[#B74783]" />
-                      </div>
-                      <div className="text-left">
-                        <div className="font-display text-base font-semibold text-[#49263D]">
-                          Weekly Progress
-                        </div>
-                        <div className="text-[11px] font-normal text-[#927C8B]">
-                          View your insights & trends
-                        </div>
-                      </div>
-                    </div>
-                    <ChevronRight className="h-5 w-5 text-[#927C8B] transition-transform group-hover/progress:translate-x-1 group-hover/progress:text-[#B74783]" />
-                  </Link>
-                </Button>
-
-                <Button
-                  asChild
-                  variant="outline"
-                  className="group/pricing h-auto w-full items-center justify-between border-[#EADCE5] p-4"
-                >
-                  <Link href="/pricing">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#FFE5F0]">
-                        <Heart className="h-4 w-4 text-[#B74783]" />
-                      </div>
-                      <div className="text-left">
-                        <div className="font-display text-base font-semibold text-[#49263D]">
-                          Pricing & Sessions
-                        </div>
-                        <div className="text-[11px] font-normal text-[#927C8B]">
-                          Free AI · $10 psychologist sessions
-                        </div>
-                      </div>
-                    </div>
-                    <ChevronRight className="h-5 w-5 text-[#927C8B] transition-transform group-hover/pricing:translate-x-1 group-hover/pricing:text-[#B74783]" />
-                  </Link>
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* Insights Card */}
-            <Card>
-              <CardHeader>
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#FFE5F0]">
-                    <BrainCircuit className="h-5 w-5 text-[#B74783]" />
-                  </div>
-                  <div className="space-y-1">
-                    <CardTitle className="text-lg md:text-xl">Insights</CardTitle>
-                    <CardDescription>
-                      Personalized recommendations based on your activity patterns
-                    </CardDescription>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {insights.length > 0 ? (
-                    insights.map((insight, index) => (
-                      <div
-                        key={index}
-                        className={cn(
-                          "space-y-2 rounded-[16px] border border-[#EADCE5] p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/20 hover:shadow-card",
-                          insight.priority === "high"
-                            ? "bg-[rgba(183,71,131,0.08)]"
-                            : insight.priority === "medium"
-                              ? "bg-[rgba(183,71,131,0.06)]"
-                              : "bg-white"
-                        )}
-                      >
-                        <div className="flex items-center gap-2.5">
-                          <insight.icon className="h-4 w-4 text-[#B74783]" />
-                          <p className="font-display text-sm font-semibold text-[#49263D]">
-                            {insight.title}
+                    {insights.length > 0 ? (
+                      insights.slice(0, 4).map((insight, index) => (
+                        <div
+                          key={index}
+                          className={cn(
+                            "rounded-2xl border border-[#EADCE5] p-3.5",
+                            insight.priority === "high"
+                              ? "bg-[rgba(183,71,131,0.08)]"
+                              : "bg-white/90"
+                          )}
+                        >
+                          <div className="flex items-center gap-2">
+                            <insight.icon className="h-3.5 w-3.5 text-[#B74783]" />
+                            <p className="text-sm font-semibold">
+                              {insight.title}
+                            </p>
+                          </div>
+                          <p className="mt-1 text-xs leading-relaxed text-[#927C8B]">
+                            {insight.description}
                           </p>
                         </div>
-                        <p className="text-sm leading-relaxed text-[#927C8B]">
-                          {insight.description}
+                      ))
+                    ) : (
+                      <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-[#EADCE5] bg-white/60 px-4 py-10 text-center">
+                        <Activity className="mb-2 h-7 w-7 text-[#927C8B]/40" />
+                        <p className="text-sm font-medium text-[#49263D]">
+                          Insights will appear here
+                        </p>
+                        <p className="mt-1 max-w-[26ch] text-xs text-[#927C8B]">
+                          Complete a few activities and we&apos;ll surface gentle
+                          patterns.
                         </p>
                       </div>
-                    ))
-                  ) : (
-                    <div className="py-10 text-center text-[#927C8B]">
-                      <Activity className="mx-auto mb-3 h-8 w-8 opacity-40" />
-                      <p className="text-sm leading-relaxed">
-                        Complete more activities to receive personalized
-                        insights
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Professional Consultation */}
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 md:gap-5">
-            <UpcomingConsultationCard
-              refreshKey={sessionsRefreshKey}
-              onBook={() => setShowBookingFlow(true)}
-            />
-            <Card className="flex flex-col justify-center p-5 md:p-6">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#927C8B]">
-                Human support
-              </p>
-              <h3 className="mt-2 font-display text-xl font-bold text-[#49263D]">
-                AI stays free. Professionals when you need them.
-              </h3>
-              <p className="mt-2 text-sm leading-relaxed text-[#927C8B]">
-                {`Book a private 90-minute online session with a licensed psychologist for $${SESSION_PRICE_USD}.`}
-              </p>
-              <Button
-                asChild
-                variant="outline"
-                className="mt-5 w-fit rounded-xl"
-              >
-                <Link href="/pricing">Explore pricing</Link>
-              </Button>
-            </Card>
-          </div>
-
-          {/* Your Check-ins Card */}
-          <Card>
-            <CardHeader>
-              <div className="flex flex-wrap items-start justify-between gap-4">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#FFE5F0]">
-                    <Calendar className="h-5 w-5 text-[#B74783]" />
+                    )}
                   </div>
-                  <div className="space-y-1">
-                    <CardTitle className="text-lg md:text-xl">
-                      Your Check-ins
-                    </CardTitle>
-                    <CardDescription>
-                      Activities you&apos;ve logged today
-                    </CardDescription>
-                  </div>
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowActivityLogger(true)}
-                  className="border-[#EADCE5]"
-                >
-                  <Activity className="mr-2 h-4 w-4" />
-                  Log Activity
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              {(() => {
-                const checkIns = todayActivities.filter(
-                  (a: any) => !["game"].includes(a.type)
-                );
-                if (checkIns.length === 0) {
-                  return (
-                    <div className="rounded-[16px] border border-dashed border-[#EADCE5] bg-white py-12 text-center text-[#927C8B]">
-                      <Calendar className="mx-auto mb-3 h-8 w-8 opacity-40" />
-                      <p className="font-display text-sm font-medium text-[#49263D]">
-                        No check-ins today.
-                      </p>
-                      <p className="mx-auto mt-1.5 max-w-sm text-sm">
-                        Click &quot;Log Activity&quot; to record meditation,
-                        exercise, or other wellness activities.
-                      </p>
-                    </div>
-                  );
-                }
-                return (
-                  <div className="space-y-3">
-                    {checkIns.map((activity: any) => (
-                      <div
-                        key={activity._id || activity.id}
-                        className="group flex items-center justify-between rounded-[16px] border border-[#EADCE5] bg-white p-4 transition-all duration-300 hover:border-primary/20 hover:bg-[#FFF0F6] hover:shadow-card"
+                )}
+
+                {dashTab === "checkins" && (
+                  <div className="space-y-2.5">
+                    <div className="mb-1 flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <Calendar className="h-4 w-4 text-[#B74783]" />
+                        <p className="text-sm font-bold text-[#49263D]">
+                          Today&apos;s check-ins
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setShowActivityLogger(true)}
+                        className="text-[11px] font-bold text-[#B74783] hover:underline"
                       >
-                        <div className="flex min-w-0 items-center gap-3.5">
-                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#FFE5F0]">
-                            <Activity className="h-4 w-4 text-[#B74783]" />
-                          </div>
-                          <div className="min-w-0">
-                            <div className="flex items-center gap-2">
-                              <p className="truncate font-display text-sm font-semibold text-[#49263D]">
+                        + Log
+                      </button>
+                    </div>
+                    {checkIns.length === 0 ? (
+                      <div className="rounded-2xl border border-dashed border-[#EADCE5] bg-white/60 px-4 py-10 text-center">
+                        <Calendar className="mx-auto mb-2 h-7 w-7 text-[#927C8B]/40" />
+                        <p className="text-sm font-medium text-[#49263D]">
+                          No check-ins yet
+                        </p>
+                        <p className="mx-auto mt-1 max-w-[28ch] text-xs text-[#927C8B]">
+                          Log meditation, movement, or anything that supported
+                          you today.
+                        </p>
+                      </div>
+                    ) : (
+                      checkIns.slice(0, 6).map((activity: any) => (
+                        <div
+                          key={activity._id || activity.id}
+                          className="group flex items-center justify-between gap-2 rounded-2xl border border-[#EADCE5] bg-white px-3 py-2.5"
+                        >
+                          <div className="flex min-w-0 items-center gap-2.5">
+                            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#FFE5F0]">
+                              <Activity className="h-3.5 w-3.5 text-[#B74783]" />
+                            </div>
+                            <div className="min-w-0">
+                              <p className="truncate text-xs font-bold text-[#49263D]">
                                 {activity.name}
                               </p>
-                              <span className="badge-soft shrink-0 capitalize">
-                                {activity.type}
-                              </span>
-                            </div>
-                            {activity.description && (
-                              <p className="mt-0.5 truncate text-xs text-[#927C8B]">
-                                {activity.description}
-                              </p>
-                            )}
-                            <div className="mt-1.5 flex items-center gap-2">
-                              <Clock className="h-3 w-3 text-[#927C8B]" />
-                              <span className="text-xs text-[#927C8B]">
+                              <p className="text-[10px] text-[#927C8B]">
                                 {formatDistanceToNow(
                                   new Date(activity.timestamp),
                                   { addSuffix: true }
                                 )}
-                              </span>
-                              {activity.duration > 0 && (
-                                <span className="text-xs text-[#927C8B]">
-                                  • {activity.duration} min
-                                </span>
-                              )}
+                                {activity.duration > 0
+                                  ? ` · ${activity.duration} min`
+                                  : ""}
+                              </p>
                             </div>
                           </div>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 shrink-0 text-[#927C8B] opacity-0 transition group-hover:opacity-100 hover:text-destructive"
+                            onClick={() =>
+                              handleDeleteActivity(activity._id || activity.id)
+                            }
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </Button>
                         </div>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-9 w-9 shrink-0 text-[#927C8B] opacity-0 transition-opacity hover:text-destructive group-hover:opacity-100"
-                          onClick={() =>
-                            handleDeleteActivity(activity._id || activity.id)
-                          }
-                          title="Delete activity"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    ))}
+                      ))
+                    )}
                   </div>
-                );
-              })()}
-            </CardContent>
-          </Card>
+                )}
 
-          {/* Content Grid */}
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 md:gap-5">
-            <div className="space-y-6 lg:col-span-2">
-              <AnxietyGames onGamePlayed={handleGamePlayed} />
-            </div>
-            <div className="space-y-6 lg:col-span-1">
-              <DashboardMusic />
-            </div>
+                {dashTab === "care" && (
+                  <div className="w-full">
+                    <div className="mb-4">
+                      <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#B74783]">
+                        Human support
+                      </p>
+                      <h2 className="mt-1 font-display text-xl font-bold tracking-tight text-[#49263D]">
+                        Care when you need it deeper
+                      </h2>
+                      <p className="mt-1 max-w-lg text-xs leading-relaxed text-[#927C8B] sm:text-sm">
+                        AI stays free. Optional ${SESSION_PRICE_USD} · 90-min
+                        psychologist sessions — private and on your schedule.
+                      </p>
+                    </div>
+                    <div className="grid items-stretch gap-3.5 lg:grid-cols-[minmax(260px,340px)_minmax(0,1fr)]">
+                      <UpcomingConsultationCard
+                        compact
+                        refreshKey={sessionsRefreshKey}
+                        onBook={() => setShowBookingFlow(true)}
+                      />
+                      <MySessions
+                        compact
+                        refreshKey={sessionsRefreshKey}
+                        onBook={() => setShowBookingFlow(true)}
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            </aside>
           </div>
-
-          <MySessions
-            refreshKey={sessionsRefreshKey}
-            onBook={() => setShowBookingFlow(true)}
-          />
-        </div>
-      </Container>
+            )}
+          </div>
+        </motion.div>
+      </div>
 
       {/* Mood tracking modal */}
       <Dialog

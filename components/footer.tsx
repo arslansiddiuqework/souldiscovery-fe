@@ -8,6 +8,7 @@ const productLinks = [
   { label: "Pricing", href: "/pricing" },
   { label: "Assessment Center", href: "/assessments" },
   { label: "Wellness Plans", href: "/wellness-plan" },
+  { label: "To-Do List", href: "/todo" },
   { label: "Dashboard", href: "/dashboard" },
   { label: "About", href: "/about" },
 ];

@@ -1,7 +1,14 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Calendar, Clock, FileText, UserRound } from "lucide-react";
+import {
+  Calendar,
+  Clock,
+  FileText,
+  HeartHandshake,
+  Plus,
+  UserRound,
+} from "lucide-react";
 import {
   Card,
   CardContent,
@@ -23,9 +30,11 @@ type Tab = "upcoming" | "completed" | "cancelled";
 export function MySessions({
   refreshKey,
   onBook,
+  compact = false,
 }: {
   refreshKey?: number;
   onBook?: () => void;
+  compact?: boolean;
 }) {
   const [sessions, setSessions] = useState<ConsultationBooking[]>([]);
   const [tab, setTab] = useState<Tab>("upcoming");
@@ -52,6 +61,134 @@ export function MySessions({
     await cancelConsultation(id);
     await load();
   };
+
+  if (compact) {
+    const preview = filtered.slice(0, 6);
+    const counts = {
+      upcoming: sessions.filter(
+        (s) => s.status === "scheduled" && s.date >= today
+      ).length,
+      completed: sessions.filter((s) => s.status === "completed").length,
+      cancelled: sessions.filter((s) => s.status === "cancelled").length,
+    };
+
+    return (
+      <div className="relative flex h-full min-h-[320px] flex-col overflow-hidden rounded-[24px] bg-gradient-to-b from-white to-[#FFF8FB]/80 shadow-[0_14px_36px_rgba(123,57,98,0.08)] ring-1 ring-[#EADCE5]/90">
+        <div className="pointer-events-none absolute -right-10 top-0 h-28 w-28 rounded-full bg-[radial-gradient(circle,rgba(183,71,131,0.08),transparent_70%)]" />
+
+        <div className="relative flex shrink-0 flex-wrap items-center gap-3 px-4 pb-3 pt-4 sm:px-5">
+          <div className="flex min-w-0 flex-1 items-center gap-3">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[#C45A92] to-[#B74783] text-white shadow-[0_8px_18px_rgba(183,71,131,0.28)]">
+              <HeartHandshake className="h-5 w-5" />
+            </span>
+            <div className="min-w-0">
+              <p className="font-display text-base font-bold tracking-tight text-[#49263D]">
+                My sessions
+              </p>
+              <p className="text-[11px] font-medium text-[#927C8B]">
+                Professional care · {counts[tab]} {tab}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <div className="inline-flex rounded-full bg-[#F4EEF3] p-1 ring-1 ring-[#EADCE5]/80">
+              {(["upcoming", "completed", "cancelled"] as Tab[]).map((t) => (
+                <button
+                  key={t}
+                  type="button"
+                  onClick={() => setTab(t)}
+                  className={cn(
+                    "rounded-full px-3 py-1.5 text-[10px] font-bold capitalize transition",
+                    tab === t
+                      ? "bg-white text-[#49263D] shadow-[0_4px_10px_rgba(123,57,98,0.12)]"
+                      : "text-[#927C8B] hover:text-[#795A70]"
+                  )}
+                >
+                  {t}
+                </button>
+              ))}
+            </div>
+            {onBook && (
+              <button
+                type="button"
+                onClick={onBook}
+                aria-label="Book session"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-[#C45A92] to-[#B74783] text-white shadow-[0_8px_18px_rgba(183,71,131,0.28)] transition hover:scale-[1.04] active:scale-[0.97]"
+              >
+                <Plus className="h-4 w-4" strokeWidth={2.5} />
+              </button>
+            )}
+          </div>
+        </div>
+
+        <div className="relative mx-4 mb-4 flex min-h-[220px] flex-1 flex-col overflow-hidden rounded-[20px] bg-white/80 p-3 ring-1 ring-[#F1E9EF] sm:mx-5">
+          {preview.length === 0 ? (
+            <div className="flex h-full min-h-[196px] flex-col items-center justify-center px-4 py-6 text-center">
+              <span className="mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-[#FFF0F6] text-[#B74783] ring-1 ring-[#F0D9E6]">
+                <Calendar className="h-6 w-6" />
+              </span>
+              <p className="font-display text-sm font-bold text-[#49263D]">
+                Nothing {tab} yet
+              </p>
+              <p className="mt-1 max-w-[240px] text-[12px] leading-relaxed text-[#927C8B]">
+                Book a psychologist and your sessions will land here.
+              </p>
+              {/* Reserve CTA space on every tab so height stays stable */}
+              <div className="mt-4 flex h-9 items-center justify-center">
+                {onBook && tab === "upcoming" ? (
+                  <button
+                    type="button"
+                    onClick={onBook}
+                    className="inline-flex items-center gap-1.5 rounded-full bg-[#FFF0F6] px-3.5 py-2 text-[11px] font-bold text-[#B74783] ring-1 ring-[#F0D9E6] transition hover:bg-white"
+                  >
+                    <Plus className="h-3.5 w-3.5" strokeWidth={2.5} />
+                    Schedule one now
+                  </button>
+                ) : (
+                  <span className="invisible inline-flex items-center gap-1.5 px-3.5 py-2 text-[11px] font-bold">
+                    <Plus className="h-3.5 w-3.5" />
+                    Schedule one now
+                  </span>
+                )}
+              </div>
+            </div>
+          ) : (
+            <ul className="min-h-[196px] flex-1 space-y-2 overflow-y-auto">
+              {preview.map((session) => (
+                <li
+                  key={session.id}
+                  className="flex items-center gap-3 rounded-2xl bg-[#FBF9FF] px-3 py-2.5 transition hover:bg-[#FFF0F6]/60"
+                >
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#FFE5F0] to-[#F4E8FF] text-[#B74783]">
+                    <UserRound className="h-4 w-4" />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-bold text-[#49263D]">
+                      {session.psychologistName}
+                    </p>
+                    <p className="mt-0.5 text-[11px] font-medium text-[#927C8B]">
+                      {format(parseISO(session.date), "EEE, MMM d")} ·{" "}
+                      {session.time}
+                    </p>
+                  </div>
+                  {session.status === "scheduled" && (
+                    <button
+                      type="button"
+                      className="shrink-0 rounded-full px-2.5 py-1 text-[11px] font-bold text-[#A8939E] transition hover:bg-[#FFF0F2] hover:text-[#B4233D]"
+                      onClick={() => handleCancel(session.id)}
+                    >
+                      Cancel
+                    </button>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <Card>

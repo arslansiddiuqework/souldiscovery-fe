@@ -78,6 +78,49 @@ function formatDuration(totalMinutes: number): string {
   return m === 0 ? `${h}h` : `${h}h ${m}m`;
 }
 
+const GAME_DURATION_BY_NAME: Record<string, number> = {
+  breathing: 5,
+  garden: 10,
+  forest: 15,
+  waves: 8,
+  rain: 5,
+  campfire: 5,
+};
+
+/** Match backend estimation when activity.duration was logged as 0. */
+function effectiveActivityMinutes(activity: {
+  type?: string;
+  name?: string;
+  duration?: number | null;
+}): number {
+  const stored = Number(activity.duration);
+  if (Number.isFinite(stored) && stored > 0) return stored;
+
+  const type = String(activity.type || "").toLowerCase();
+  const name = String(activity.name || "").toLowerCase();
+  if (type === "game" || GAME_DURATION_BY_NAME[name] != null) {
+    return GAME_DURATION_BY_NAME[name] ?? 5;
+  }
+  switch (type) {
+    case "meditation":
+      return 10;
+    case "exercise":
+      return 20;
+    case "walking":
+      return 15;
+    case "journaling":
+      return 10;
+    case "reading":
+      return 15;
+    case "music":
+      return 10;
+    case "therapy":
+      return 15;
+    default:
+      return 5;
+  }
+}
+
 function formatRangeLabel(daily: DailyProgressData[]): string {
   if (!daily.length) return "This week";
   const start = parseISO(daily[0].date);
@@ -199,18 +242,21 @@ export function WeeklySummary() {
         const acts = Array.isArray(activitiesRes.data) ? activitiesRes.data : [];
         let mindfulnessMin = 0;
         let movementMin = 0;
+        let estimatedWeekMinutes = 0;
         for (const a of acts) {
           const ts = a.timestamp || a.createdAt;
           if (!ts) continue;
           const day = format(new Date(ts), "yyyy-MM-dd");
           if (!weekDates.has(day)) continue;
-          const dur = Number(a.duration) || 0;
+          const dur = effectiveActivityMinutes(a);
+          estimatedWeekMinutes += dur;
           const type = String(a.type || a.name || "").toLowerCase();
           if (
             type.includes("mindful") ||
             type.includes("meditat") ||
             type.includes("breath") ||
-            type.includes("journal")
+            type.includes("journal") ||
+            type === "game"
           ) {
             mindfulnessMin += dur;
           } else if (
@@ -222,6 +268,48 @@ export function WeeklySummary() {
             movementMin += dur;
           }
         }
+
+        // If API duration is 0 but we have activities, prefer estimated minutes
+        const apiDuration = progressRes.data.summary.totalDuration || 0;
+        const chartDuration = progressRes.data.dailyData.reduce(
+          (s, d) => s + (d.activityDuration || 0),
+          0
+        );
+        const resolvedDuration = Math.max(
+          apiDuration,
+          chartDuration,
+          estimatedWeekMinutes
+        );
+        if (resolvedDuration > apiDuration) {
+          setData({
+            ...progressRes.data,
+            summary: {
+              ...progressRes.data.summary,
+              totalDuration: resolvedDuration,
+            },
+            dailyData:
+              chartDuration > 0
+                ? progressRes.data.dailyData
+                : progressRes.data.dailyData.map((d) => {
+                    const dayActs = acts.filter((a) => {
+                      const ts = a.timestamp || a.createdAt;
+                      return (
+                        ts &&
+                        format(new Date(ts), "yyyy-MM-dd") === d.date
+                      );
+                    });
+                    const dayMins = dayActs.reduce(
+                      (s: number, a) => s + effectiveActivityMinutes(a),
+                      0
+                    );
+                    return {
+                      ...d,
+                      activityDuration: Math.max(d.activityDuration || 0, dayMins),
+                    };
+                  }),
+          });
+        }
+
         setBreakdown({
           mindfulnessMin,
           therapySessions: progressRes.data.summary.therapySessionsCount,
