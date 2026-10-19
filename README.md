@@ -9,7 +9,6 @@ The platform combines advanced natural language understanding, emotional state a
 
 
 Key Objectives
-
    Provide accessible and personalized mental health support using AI
    Detect emotional distress and potential crisis signals in real time
    Ensure user data privacy through end-to-end encryption and decentralized storage
