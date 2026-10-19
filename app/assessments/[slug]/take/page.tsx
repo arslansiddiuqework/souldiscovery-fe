@@ -80,7 +80,7 @@ function AssessmentTakeFlow() {
         setCrisis(data.crisis);
 
         if (data.assessment.requiresAcknowledgment && !acknowledged) {
-          router.replace(`/assessments/${slug}`);
+          router.replace(`/assessments?learn=${encodeURIComponent(slug)}`);
           return;
         }
 
@@ -126,15 +126,6 @@ function AssessmentTakeFlow() {
     }));
   };
 
-  const skipQuestion = () => {
-    if (!current || !current.allowSkip) return;
-    setValidationMsg(null);
-    setAnswers((prev) => ({
-      ...prev,
-      [current.id]: { value: null, skipped: true },
-    }));
-  };
-
   const persistProgress = useCallback(
     async (nextAnswers: AnswerState, questionId?: string) => {
       if (!sessionId) return;
@@ -154,45 +145,14 @@ function AssessmentTakeFlow() {
     [sessionId, slug]
   );
 
-  const goNext = async () => {
-    if (!current) return;
-    const answer = answers[current.id];
-    const hasAnswer = answer && (answer.skipped || answer.value !== null && answer.value !== undefined);
-    if (current.required && !current.allowSkip && !hasAnswer) {
-      setValidationMsg("Please select an answer to continue.");
-      return;
-    }
-    if (!hasAnswer && current.allowSkip) {
-      // treat as skip if continuing without selection
-      const next = {
-        ...answers,
-        [current.id]: { value: null, skipped: true },
-      };
-      setAnswers(next);
-      await persistProgress(next, current.id);
-    } else {
-      await persistProgress(answers, current.id);
-    }
-
-    if (index >= visibleQuestions.length - 1) {
-      await handleSubmit();
-      return;
-    }
-    setIndex((i) => i + 1);
-  };
-
-  const goPrev = () => {
-    setValidationMsg(null);
-    setIndex((i) => Math.max(0, i - 1));
-  };
-
-  const handleSubmit = async () => {
+  const handleSubmit = async (answersOverride?: AnswerState) => {
     if (submitting) return;
     setSubmitting(true);
     setError(null);
+    const finalAnswers = answersOverride ?? answers;
     try {
       const payloadAnswers = questions.map((q) => {
-        const a = answers[q.id];
+        const a = finalAnswers[q.id];
         return {
           questionId: q.id,
           value: a?.value ?? null,
@@ -218,6 +178,57 @@ function AssessmentTakeFlow() {
       setError(e instanceof Error ? e.message : "Failed to submit assessment");
       setSubmitting(false);
     }
+  };
+
+  const skipQuestion = async () => {
+    if (!current || !current.allowSkip || submitting) return;
+    setValidationMsg(null);
+    const next: AnswerState = {
+      ...answers,
+      [current.id]: { value: null, skipped: true },
+    };
+    setAnswers(next);
+    await persistProgress(next, current.id);
+
+    if (index >= visibleQuestions.length - 1) {
+      await handleSubmit(next);
+      return;
+    }
+    setIndex((i) => i + 1);
+  };
+
+  const goNext = async () => {
+    if (!current) return;
+    const answer = answers[current.id];
+    const hasAnswer =
+      answer &&
+      (answer.skipped ||
+        (answer.value !== null && answer.value !== undefined));
+    if (current.required && !current.allowSkip && !hasAnswer) {
+      setValidationMsg("Please select an answer to continue.");
+      return;
+    }
+
+    let nextAnswers = answers;
+    if (!hasAnswer && current.allowSkip) {
+      nextAnswers = {
+        ...answers,
+        [current.id]: { value: null, skipped: true },
+      };
+      setAnswers(nextAnswers);
+    }
+    await persistProgress(nextAnswers, current.id);
+
+    if (index >= visibleQuestions.length - 1) {
+      await handleSubmit(nextAnswers);
+      return;
+    }
+    setIndex((i) => i + 1);
+  };
+
+  const goPrev = () => {
+    setValidationMsg(null);
+    setIndex((i) => Math.max(0, i - 1));
   };
 
   useEffect(() => {
@@ -395,8 +406,9 @@ function AssessmentTakeFlow() {
                   {current?.allowSkip && (
                     <button
                       type="button"
-                      onClick={skipQuestion}
-                      className="rounded-full px-4 py-2.5 text-sm font-semibold text-[#927C8B] hover:bg-[#FBF9FF]"
+                      onClick={() => void skipQuestion()}
+                      disabled={submitting}
+                      className="rounded-full px-4 py-2.5 text-sm font-semibold text-[#927C8B] hover:bg-[#FBF9FF] disabled:opacity-50"
                     >
                       Skip
                     </button>
@@ -472,7 +484,7 @@ function AssessmentTakeFlow() {
               </button>
               <button
                 type="button"
-                onClick={() => router.push(`/assessments/${slug}`)}
+                onClick={() => router.push("/assessments")}
                 className="rounded-full bg-[#B74783] px-4 py-2 text-sm font-bold text-white"
               >
                 Exit

@@ -302,7 +302,7 @@ export function MissionCheckbox({
       className={cn(
         "flex h-6 w-6 shrink-0 items-center justify-center rounded-full border transition",
         completed
-          ? "border-[#B74783] bg-[#B74783] text-[#49263D]"
+          ? "border-[#B74783] bg-[#B74783] text-white"
           : "border-[#EADCE5] bg-transparent",
         className
       )}

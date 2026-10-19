@@ -14,7 +14,7 @@ export const BRAND_ICON_SRC = "/branding/soul-discovery-icon-circle.png";
 /** Full lockup artwork (icon + name + caption) */
 export const BRAND_LOGO_SRC = "/branding/soul-discovery-logo.png";
 
-/** Pastel landscape used as the Dashboard page background only */
+/** Pastel landscape shared by Dashboard + Wellness Plan (tone differs in CSS) */
 export const BRAND_PASTEL_BACKGROUND_SRC =
   "/branding/soul-discovery-pastel-background.png?v=4";
 

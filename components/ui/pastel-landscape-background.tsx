@@ -1,9 +1,13 @@
 import { cn } from "@/lib/utils";
 import { BRAND_PASTEL_BACKGROUND_SRC } from "@/lib/branding";
 
+export type PastelLandscapeTone = "default" | "wellness";
+
 interface PastelLandscapeBackgroundProps {
   className?: string;
   children?: React.ReactNode;
+  /** Same landscape asset; wellness uses a softer peach–lilac wash so it feels distinct from Dashboard. */
+  tone?: PastelLandscapeTone;
 }
 
 /**
@@ -14,11 +18,16 @@ interface PastelLandscapeBackgroundProps {
 export function PastelLandscapeBackground({
   className,
   children,
+  tone = "default",
 }: PastelLandscapeBackgroundProps) {
   const layer = (
     <div
       aria-hidden
-      className={cn("pastel-landscape-bg", !children && className)}
+      className={cn(
+        "pastel-landscape-bg",
+        tone === "wellness" && "pastel-landscape-bg--wellness",
+        !children && className
+      )}
     >
       {/* eslint-disable-next-line @next/next/no-img-element -- public PNG; avoid optimizer re-encode */}
       <img

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowUpRight,
@@ -55,13 +54,15 @@ export function AssessmentCard({
   assessment,
   featured = false,
   index = 0,
+  onLearnMore,
 }: {
   assessment: AssessmentCardType & { headline?: string; cta?: string };
   featured?: boolean;
   index?: number;
+  onLearnMore?: (slug: string) => void;
 }) {
-  const href = `/assessments/${assessment.slug}`;
   const theme = themeFor(assessment.slug);
+  const openLearnMore = () => onLearnMore?.(assessment.slug);
 
   if (featured) {
     return (
@@ -89,13 +90,14 @@ export function AssessmentCard({
               {assessment.shortDescription}
             </p>
           </div>
-          <Link
-            href={href}
+          <button
+            type="button"
+            onClick={openLearnMore}
             className="btn-spatium group/cta inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-[#B74783] px-6 py-3 text-sm font-bold text-white shadow-[0_8px_24px_rgba(183,71,131,0.28)] transition hover:bg-[#9F376F]"
           >
             {assessment.cta || "Find a starting point"}
             <ArrowUpRight className="h-4 w-4 transition group-hover/cta:translate-x-0.5 group-hover/cta:-translate-y-0.5" />
-          </Link>
+          </button>
         </div>
       </motion.section>
     );
@@ -182,16 +184,17 @@ export function AssessmentCard({
         ) : null}
 
         <div className="mt-auto pt-3">
-          <Link
-            href={href}
+          <button
+            type="button"
+            onClick={openLearnMore}
             className={cn(
               "inline-flex h-9 w-full items-center justify-center gap-1.5 rounded-full border border-[#EADCE5] bg-white/90 px-4 text-sm font-bold text-[#49263D] shadow-sm transition duration-300",
               theme.cta
             )}
           >
-            Learn more
+            Get started
             <ArrowUpRight className="h-3.5 w-3.5 opacity-60 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:opacity-100" />
-          </Link>
+          </button>
         </div>
       </div>
     </motion.article>

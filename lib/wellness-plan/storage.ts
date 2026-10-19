@@ -221,6 +221,13 @@ export function saveWellnessPlan(plan: WellnessPlan | null): void {
   }
   if (plan.status === "active") {
     store.activeEnrollmentId = plan.id;
+    // Enforce a single active plan whenever one is saved as active
+    const now = plan.updatedAt || new Date().toISOString();
+    store.enrollments = store.enrollments.map((p) =>
+      p.id !== plan.id && p.status === "active"
+        ? { ...p, status: "paused" as const, updatedAt: now }
+        : p
+    );
   }
   saveEnrollmentStore(store);
 }
@@ -291,19 +298,100 @@ export function pauseActiveEnrollmentsForSlug(
   if (dirty) saveEnrollmentStore(store);
 }
 
+/**
+ * Only one plan can be in focus at a time. Pause every other active enrollment
+ * so starting Lift Mood never leaves Sleep Better marked active.
+ */
+export function pauseOtherActiveEnrollments(exceptId: string): WellnessPlan[] {
+  const store = loadEnrollmentStore();
+  const now = new Date().toISOString();
+  const paused: WellnessPlan[] = [];
+  store.enrollments = store.enrollments.map((p) => {
+    if (p.status === "active" && p.id !== exceptId) {
+      const next = { ...p, status: "paused" as const, updatedAt: now };
+      paused.push(next);
+      return next;
+    }
+    return p;
+  });
+  if (paused.length) saveEnrollmentStore(store);
+  return paused;
+}
+
+/**
+ * Merge backend enrollments without letting a stale remote "active" plan
+ * steal the local active pointer (e.g. Sleep Better overwriting a newly started plan).
+ */
+export function mergeRemoteEnrollments(remote: WellnessPlan[]): void {
+  const store = loadEnrollmentStore();
+  const preferredActiveId = store.activeEnrollmentId;
+
+  for (const plan of remote) {
+    const idx = store.enrollments.findIndex((p) => p.id === plan.id);
+    if (idx >= 0) {
+      const local = store.enrollments[idx];
+      const remoteNewer =
+        new Date(plan.updatedAt).getTime() >=
+        new Date(local.updatedAt).getTime();
+      store.enrollments[idx] = remoteNewer ? plan : local;
+    } else {
+      store.enrollments.push(plan);
+    }
+  }
+
+  const preferred =
+    preferredActiveId &&
+    store.enrollments.find((p) => p.id === preferredActiveId);
+
+  if (preferred) {
+    const now = new Date().toISOString();
+    store.activeEnrollmentId = preferred.id;
+    store.enrollments = store.enrollments.map((p) => {
+      if (p.id === preferred.id) {
+        return p.status === "active" ? p : { ...p, status: "active", updatedAt: now };
+      }
+      if (p.status === "active") {
+        return { ...p, status: "paused" as const, updatedAt: now };
+      }
+      return p;
+    });
+  } else {
+    const actives = store.enrollments.filter((p) => p.status === "active");
+    if (actives.length > 1) {
+      const winner = [...actives].sort(
+        (a, b) =>
+          new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+      )[0];
+      const now = new Date().toISOString();
+      store.activeEnrollmentId = winner.id;
+      store.enrollments = store.enrollments.map((p) =>
+        p.id !== winner.id && p.status === "active"
+          ? { ...p, status: "paused" as const, updatedAt: now }
+          : p
+      );
+    } else if (actives.length === 1) {
+      store.activeEnrollmentId = actives[0].id;
+    }
+  }
+
+  saveEnrollmentStore(store);
+}
+
 export function setActiveEnrollment(id: string): WellnessPlan | null {
   const store = loadEnrollmentStore();
   const plan = store.enrollments.find((p) => p.id === id);
   if (!plan) return null;
+  const now = new Date().toISOString();
+  store.enrollments = store.enrollments.map((p) => {
+    if (p.id === id) {
+      return { ...p, status: "active" as const, updatedAt: now };
+    }
+    if (p.status === "active") {
+      return { ...p, status: "paused" as const, updatedAt: now };
+    }
+    return p;
+  });
   store.activeEnrollmentId = id;
-  if (plan.status === "paused") {
-    const idx = store.enrollments.findIndex((p) => p.id === id);
-    store.enrollments[idx] = {
-      ...plan,
-      status: "active",
-      updatedAt: new Date().toISOString(),
-    };
-  }
   saveEnrollmentStore(store);
   return store.enrollments.find((p) => p.id === id) || null;
 }

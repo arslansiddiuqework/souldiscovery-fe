@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Quicksand } from "next/font/google";
+import { Great_Vibes, Playfair_Display, Quicksand } from "next/font/google";
 
 import "./globals.css";
 import { AppChrome } from "@/components/app-chrome";
@@ -21,6 +21,18 @@ const quicksand = Quicksand({
   subsets: ["latin"],
   variable: "--font-quicksand",
   weight: ["400", "500", "600", "700"],
+});
+
+const script = Great_Vibes({
+  subsets: ["latin"],
+  variable: "--font-script",
+  weight: "400",
+});
+
+const display = Playfair_Display({
+  subsets: ["latin"],
+  variable: "--font-display",
+  weight: ["500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -109,7 +121,9 @@ export default function RootLayout({
 
   return (
     <html lang="en" className="light" suppressHydrationWarning>
-      <body className={`${quicksand.variable} font-sans antialiased`}>
+      <body
+        className={`${quicksand.variable} ${script.variable} ${display.variable} font-sans antialiased`}
+      >
         {googleClientId ? (
           <GoogleOAuthProvider clientId={googleClientId}>{app}</GoogleOAuthProvider>
         ) : (

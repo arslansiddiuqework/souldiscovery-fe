@@ -13,7 +13,9 @@ import {
   getEnrollmentBySlug,
   listEnrollments,
   loadWellnessPlan,
+  mergeRemoteEnrollments,
   pauseActiveEnrollmentsForSlug,
+  pauseOtherActiveEnrollments,
   saveWellnessPlan,
   setActiveEnrollment,
   upsertEnrollment,
@@ -21,6 +23,7 @@ import {
 import {
   completeTaskInPlan,
   suggestionFromEmotion,
+  uncompleteTaskInPlan,
 } from "@/lib/wellness-plan/adaptive";
 import {
   evaluateAchievements,
@@ -39,17 +42,32 @@ function authHeaders(): HeadersInit | null {
   };
 }
 
-async function syncPlanToBackend(plan: WellnessPlan): Promise<void> {
+async function syncPlanToBackend(
+  plan: WellnessPlan,
+  opts?: { requireSuccess?: boolean }
+): Promise<boolean> {
   const headers = authHeaders();
-  if (!headers) return;
+  if (!headers) return true; // guest / local-only
   try {
-    await fetch("/api/wellness-plan", {
+    const response = await fetch("/api/wellness-plan", {
       method: "PUT",
       headers,
       body: JSON.stringify(plan),
     });
-  } catch {
-    /* offline — local copy remains */
+    if (!response.ok) {
+      if (opts?.requireSuccess) {
+        throw new Error("Couldn't save your progress. Please try again.");
+      }
+      return false;
+    }
+    return true;
+  } catch (error) {
+    if (opts?.requireSuccess) {
+      throw error instanceof Error
+        ? error
+        : new Error("Couldn't save your progress. Please try again.");
+    }
+    return false;
   }
 }
 
@@ -73,9 +91,7 @@ async function pullEnrollmentsFromBackend(): Promise<WellnessPlan[] | null> {
 export async function getWellnessPlan(): Promise<WellnessPlan | null> {
   const remote = await pullEnrollmentsFromBackend();
   if (remote?.length) {
-    for (const plan of remote) {
-      upsertEnrollment(plan);
-    }
+    mergeRemoteEnrollments(remote);
   }
   return loadWellnessPlan();
 }
@@ -95,10 +111,7 @@ export async function listWellnessEnrollments(): Promise<WellnessPlan[]> {
   }
 
   if (remote?.length) {
-    for (const plan of remote) {
-      upsertEnrollment(plan);
-    }
-    // Prefer merged local view after upserts
+    mergeRemoteEnrollments(remote);
     return listEnrollments();
   }
   return local;
@@ -133,14 +146,9 @@ export async function createWellnessPlan(
 
   if (input.catalogSlug && !input.forceNew) {
     const existing = getEnrollmentBySlug(input.catalogSlug);
-    if (existing?.status === "active") {
-      setActiveEnrollment(existing.id);
-      return existing;
-    }
-    // Resume paused enrollment instead of creating a duplicate
-    if (existing?.status === "paused") {
-      const resumed = setActiveEnrollment(existing.id);
-      return resumed || existing;
+    if (existing?.status === "active" || existing?.status === "paused") {
+      const activated = await activateEnrollment(existing.id);
+      return activated || existing;
     }
   }
 
@@ -159,9 +167,11 @@ export async function createWellnessPlan(
     outline: catalog?.activityOutline,
   });
 
+  // Pause every other catalog plan (Sleep Better, etc.) so dashboard shows this one
+  pauseOtherActiveEnrollments(plan.id);
   upsertEnrollment(plan);
+  pauseOtherActiveEnrollments(plan.id);
   await syncPlanToBackend(plan);
-  // Also sync any plans paused for this slug so admin sees accurate statuses
   for (const enrollment of listEnrollments()) {
     if (enrollment.id !== plan.id) {
       await syncPlanToBackend(enrollment);
@@ -174,7 +184,14 @@ export async function activateEnrollment(
   enrollmentId: string
 ): Promise<WellnessPlan | null> {
   const next = setActiveEnrollment(enrollmentId);
-  if (next) await syncPlanToBackend(next);
+  if (!next) return null;
+  await syncPlanToBackend(next);
+  // Persist paused siblings so a later refresh cannot revive the old active plan
+  for (const enrollment of listEnrollments()) {
+    if (enrollment.id !== next.id && enrollment.status === "paused") {
+      await syncPlanToBackend(enrollment);
+    }
+  }
   return next;
 }
 
@@ -189,14 +206,37 @@ export async function updateWellnessPlan(
 
 export async function completeWellnessTask(
   taskId: string,
-  extras?: { journalEntry?: string; notes?: string }
+  extras?: { journalEntry?: string; notes?: string },
+  opts?: { requireSync?: boolean }
 ): Promise<WellnessPlan | null> {
   const plan = loadWellnessPlan();
   if (!plan) return null;
   let next = completeTaskInPlan(plan, taskId, extras);
   next = evaluateAchievements(next);
   saveWellnessPlan(next);
-  await syncPlanToBackend(next);
+  try {
+    await syncPlanToBackend(next, { requireSuccess: !!opts?.requireSync });
+  } catch (error) {
+    saveWellnessPlan(plan);
+    throw error;
+  }
+  return next;
+}
+
+export async function uncompleteWellnessTask(
+  taskId: string,
+  opts?: { requireSync?: boolean }
+): Promise<WellnessPlan | null> {
+  const plan = loadWellnessPlan();
+  if (!plan) return null;
+  const next = uncompleteTaskInPlan(plan, taskId);
+  saveWellnessPlan(next);
+  try {
+    await syncPlanToBackend(next, { requireSuccess: opts?.requireSync !== false });
+  } catch (error) {
+    saveWellnessPlan(plan);
+    throw error;
+  }
   return next;
 }
 

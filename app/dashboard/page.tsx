@@ -69,6 +69,7 @@ import {
   DashboardTabs,
   type DashTabId,
 } from "@/components/dashboard/dashboard-tabs";
+import { YourDayPanel } from "@/components/dashboard/your-day-panel";
 
 // type definition
 type ActivityLevel = "none" | "low" | "medium" | "high";
@@ -735,7 +736,7 @@ export default function Dashboard() {
             className={cn(
               "grid min-h-0 flex-1 overflow-hidden",
               dashTab === "insights"
-                ? "lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.95fr)]"
+                ? "lg:grid-cols-2"
                 : "grid-cols-1"
             )}
           >
@@ -755,12 +756,12 @@ export default function Dashboard() {
                   are.
                 </p>
 
-                <div className="mt-3 grid w-full flex-1 gap-2.5 sm:grid-cols-2 sm:gap-3">
+                <div className="mt-3 grid w-full flex-1 gap-2.5 sm:grid-cols-3 sm:gap-3">
                   {/* Open Up — chat */}
                   <button
                     type="button"
                     onClick={handleStartTherapy}
-                    className="group relative flex min-h-[168px] flex-col overflow-hidden rounded-[22px] bg-gradient-to-br from-[#C45A92] via-[#B74783] to-[#8B4FA0] p-4 text-left text-white shadow-[0_14px_36px_rgba(183,71,131,0.28)] transition hover:-translate-y-0.5 hover:shadow-[0_18px_42px_rgba(183,71,131,0.34)] sm:min-h-0 sm:p-5"
+                    className="group relative flex min-h-[168px] flex-col overflow-hidden rounded-[22px] bg-gradient-to-br from-[#C45A92] via-[#B74783] to-[#8B4FA0] p-3.5 text-left text-white shadow-[0_14px_36px_rgba(183,71,131,0.28)] transition hover:-translate-y-0.5 hover:shadow-[0_18px_42px_rgba(183,71,131,0.34)] sm:min-h-0 sm:p-4"
                   >
                     <div
                       aria-hidden
@@ -822,7 +823,7 @@ export default function Dashboard() {
                   <button
                     type="button"
                     onClick={handleStartVoiceTherapy}
-                    className="group relative flex min-h-[168px] flex-col overflow-hidden rounded-[22px] border border-[#EADCE5] bg-gradient-to-br from-white via-[#FFF8FB] to-[#F4E8FF] p-4 text-left shadow-[0_10px_28px_rgba(123,57,98,0.08)] transition hover:-translate-y-0.5 hover:border-[#B74783]/30 hover:shadow-card sm:min-h-0 sm:p-5"
+                    className="group relative flex min-h-[168px] flex-col overflow-hidden rounded-[22px] border border-[#EADCE5] bg-gradient-to-br from-white via-[#FFF8FB] to-[#F4E8FF] p-3.5 text-left shadow-[0_10px_28px_rgba(123,57,98,0.08)] transition hover:-translate-y-0.5 hover:border-[#B74783]/30 hover:shadow-card sm:min-h-0 sm:p-4"
                   >
                     <div
                       aria-hidden
@@ -882,6 +883,9 @@ export default function Dashboard() {
                       </span>
                     </div>
                   </button>
+
+                  {/* Spacer — keeps room for a future third item */}
+                  <div aria-hidden className="hidden sm:block" />
                 </div>
 
                 <div className="mt-3 grid w-full grid-cols-2 gap-2">
@@ -910,47 +914,51 @@ export default function Dashboard() {
             <aside className="flex min-h-0 flex-col overflow-hidden bg-gradient-to-b from-[#FFF8FB]/80 to-white">
               <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3 sm:p-4">
                 {dashTab === "insights" && (
-                  <div className="space-y-2.5">
-                    <div className="mb-1 flex items-center gap-2">
-                      <BrainCircuit className="h-4 w-4 text-[#B74783]" />
-                      <p className="text-sm font-bold text-[#49263D]">
-                        Just for you today
-                      </p>
-                    </div>
-                    {insights.length > 0 ? (
-                      insights.slice(0, 4).map((insight, index) => (
-                        <div
-                          key={index}
-                          className={cn(
-                            "rounded-2xl border border-[#EADCE5] p-3.5",
-                            insight.priority === "high"
-                              ? "bg-[rgba(183,71,131,0.08)]"
-                              : "bg-white/90"
-                          )}
-                        >
-                          <div className="flex items-center gap-2">
-                            <insight.icon className="h-3.5 w-3.5 text-[#B74783]" />
-                            <p className="text-sm font-semibold">
-                              {insight.title}
-                            </p>
-                          </div>
-                          <p className="mt-1 text-xs leading-relaxed text-[#927C8B]">
-                            {insight.description}
-                          </p>
-                        </div>
-                      ))
-                    ) : (
-                      <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-[#EADCE5] bg-white/60 px-4 py-10 text-center">
-                        <Activity className="mb-2 h-7 w-7 text-[#927C8B]/40" />
-                        <p className="text-sm font-medium text-[#49263D]">
-                          Insights will appear here
-                        </p>
-                        <p className="mt-1 max-w-[26ch] text-xs text-[#927C8B]">
-                          Complete a few activities and we&apos;ll surface gentle
-                          patterns.
+                  <div className="space-y-4">
+                    <YourDayPanel />
+
+                    <div className="space-y-2.5">
+                      <div className="mb-1 flex items-center gap-2">
+                        <BrainCircuit className="h-4 w-4 text-[#B74783]" />
+                        <p className="text-sm font-bold text-[#49263D]">
+                          Just for you today
                         </p>
                       </div>
-                    )}
+                      {insights.length > 0 ? (
+                        insights.slice(0, 4).map((insight, index) => (
+                          <div
+                            key={index}
+                            className={cn(
+                              "rounded-2xl border border-[#EADCE5] p-3.5",
+                              insight.priority === "high"
+                                ? "bg-[rgba(183,71,131,0.08)]"
+                                : "bg-white/90"
+                            )}
+                          >
+                            <div className="flex items-center gap-2">
+                              <insight.icon className="h-3.5 w-3.5 text-[#B74783]" />
+                              <p className="text-sm font-semibold">
+                                {insight.title}
+                              </p>
+                            </div>
+                            <p className="mt-1 text-xs leading-relaxed text-[#927C8B]">
+                              {insight.description}
+                            </p>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-[#EADCE5] bg-white/60 px-4 py-8 text-center">
+                          <Activity className="mb-2 h-7 w-7 text-[#927C8B]/40" />
+                          <p className="text-sm font-medium text-[#49263D]">
+                            Insights will appear here
+                          </p>
+                          <p className="mt-1 max-w-[26ch] text-xs text-[#927C8B]">
+                            Complete a few activities and we&apos;ll surface
+                            gentle patterns.
+                          </p>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )}
 

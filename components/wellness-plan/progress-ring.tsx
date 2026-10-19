@@ -8,6 +8,10 @@ interface ProgressRingProps {
   stroke?: number;
   className?: string;
   label?: string;
+  /** Matches Dashboard rose accent by default */
+  trackColor?: string;
+  progressColor?: string;
+  textClassName?: string;
 }
 
 export function ProgressRing({
@@ -16,6 +20,9 @@ export function ProgressRing({
   stroke = 8,
   className,
   label,
+  trackColor = "rgba(183,71,131,0.16)",
+  progressColor = "#B74783",
+  textClassName = "text-[#49263D]",
 }: ProgressRingProps) {
   const radius = (size - stroke) / 2;
   const circumference = 2 * Math.PI * radius;
@@ -30,7 +37,7 @@ export function ProgressRing({
           cy={size / 2}
           r={radius}
           fill="none"
-          stroke="rgba(183,71,131,0.15)"
+          stroke={trackColor}
           strokeWidth={stroke}
         />
         <circle
@@ -38,7 +45,7 @@ export function ProgressRing({
           cy={size / 2}
           r={radius}
           fill="none"
-          stroke="#B74783"
+          stroke={progressColor}
           strokeWidth={stroke}
           strokeLinecap="round"
           strokeDasharray={circumference}
@@ -47,7 +54,12 @@ export function ProgressRing({
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="font-display text-2xl font-bold tracking-tight text-[#49263D]">
+        <span
+          className={cn(
+            "font-display text-2xl font-bold tracking-tight",
+            textClassName
+          )}
+        >
           {clamped}%
         </span>
         {label && (

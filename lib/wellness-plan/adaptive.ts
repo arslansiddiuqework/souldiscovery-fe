@@ -236,6 +236,21 @@ export function markDayCompletionFlags(plan: WellnessPlan): WellnessPlan {
   };
 }
 
+function refreshTodayProgress(plan: WellnessPlan): WellnessPlan {
+  const today = getCurrentDay(plan);
+  if (!today) return plan;
+  const done = today.tasks.filter((t) => t.completed).length;
+  const records = plan.progressRecords.filter((r) => r.date !== today.date);
+  records.push({
+    date: today.date,
+    tasksCompleted: done,
+    tasksTotal: today.tasks.length,
+    engagement:
+      done === 0 ? "low" : done / today.tasks.length >= 0.7 ? "high" : "medium",
+  });
+  return { ...plan, progressRecords: records };
+}
+
 export function completeTaskInPlan(
   plan: WellnessPlan,
   taskId: string,
@@ -280,21 +295,7 @@ export function completeTaskInPlan(
 
   updated = markDayCompletionFlags(updated);
   updated = adaptPlanIfNeeded(updated);
-
-  // Progress record for today
-  const today = getCurrentDay(updated);
-  if (today) {
-    const done = today.tasks.filter((t) => t.completed).length;
-    const records = updated.progressRecords.filter((r) => r.date !== today.date);
-    records.push({
-      date: today.date,
-      tasksCompleted: done,
-      tasksTotal: today.tasks.length,
-      engagement:
-        done === 0 ? "low" : done / today.tasks.length >= 0.7 ? "high" : "medium",
-    });
-    updated = { ...updated, progressRecords: records };
-  }
+  updated = refreshTodayProgress(updated);
 
   // Auto-complete plan if all done
   const { percent } = computePlanProgress(updated);
@@ -303,6 +304,47 @@ export function completeTaskInPlan(
   }
 
   return updated;
+}
+
+/** Clear a task completion (same plan model — no new storage). */
+export function uncompleteTaskInPlan(
+  plan: WellnessPlan,
+  taskId: string
+): WellnessPlan {
+  let found = false;
+
+  let updated: WellnessPlan = {
+    ...plan,
+    weeks: plan.weeks.map((week) => ({
+      ...week,
+      days: week.days.map((day) => ({
+        ...day,
+        tasks: day.tasks.map((task) => {
+          if (task.id !== taskId) return task;
+          found = true;
+          if (!task.completed) return task;
+          return {
+            ...task,
+            completed: false,
+            completedAt: undefined,
+          };
+        }),
+      })),
+    })),
+    updatedAt: new Date().toISOString(),
+    status: plan.status === "completed" ? "active" : plan.status,
+  };
+
+  if (!found) return plan;
+
+  updated = markDayCompletionFlags(updated);
+  updated = refreshTodayProgress(updated);
+  return updated;
+}
+
+/** Tasks that need a guided flow instead of a plain checkbox. */
+export function taskRequiresGuidedFlow(type: TaskType): boolean {
+  return type !== "walk" && type !== "reading";
 }
 
 export function mostHelpfulTaskType(plan: WellnessPlan): string {

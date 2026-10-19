@@ -1,25 +1,104 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { CheckCircle2, Loader2, Sparkles } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
+import { ArrowRight, Loader2, X } from "lucide-react";
+import { BrandLogo } from "@/components/brand-logo";
 import { NeedSupportNow } from "@/components/assessments/crisis-support";
+import { PastelLandscapeBackground } from "@/components/ui/pastel-landscape-background";
+import { BRAND_NAME } from "@/lib/branding";
 import {
   fetchAssessmentResult,
   readGuestResult,
   type SubmitResult,
 } from "@/lib/api/assessments";
 import { useSession } from "@/lib/contexts/session-context";
+import { cn } from "@/lib/utils";
+
+function ResultPulse({
+  answered,
+  skipped,
+  score,
+  maxScore,
+  reduceMotion,
+}: {
+  answered: number;
+  skipped: number;
+  score: number | null;
+  maxScore: number | null;
+  reduceMotion: boolean | null;
+}) {
+  const total = Math.max(answered + skipped, 1);
+  const answeredPct = Math.round((answered / total) * 100);
+  const scorePct =
+    score != null && maxScore != null && maxScore > 0
+      ? Math.round((score / maxScore) * 100)
+      : null;
+  const ringPct = scorePct ?? answeredPct;
+  const radius = 54;
+  const circ = 2 * Math.PI * radius;
+  const offset = circ - (ringPct / 100) * circ;
+
+  return (
+    <div className="relative mx-auto flex h-[148px] w-[148px] items-center justify-center sm:h-[168px] sm:w-[168px]">
+      <svg viewBox="0 0 128 128" className="h-full w-full -rotate-90">
+        <circle
+          cx="64"
+          cy="64"
+          r={radius}
+          fill="none"
+          stroke="rgba(183,71,131,0.12)"
+          strokeWidth="10"
+        />
+        <motion.circle
+          cx="64"
+          cy="64"
+          r={radius}
+          fill="none"
+          stroke="#B74783"
+          strokeWidth="10"
+          strokeLinecap="round"
+          strokeDasharray={circ}
+          initial={reduceMotion ? false : { strokeDashoffset: circ }}
+          animate={{ strokeDashoffset: offset }}
+          transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+        />
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        {scorePct != null ? (
+          <>
+            <span className="font-display text-[2.4rem] font-bold leading-none tracking-tight text-[#49263D] sm:text-[2.75rem]">
+              {scorePct}
+            </span>
+            <span className="mt-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#927C8B]">
+              score
+            </span>
+          </>
+        ) : (
+          <>
+            <span className="font-display text-[2.4rem] font-bold leading-none tracking-tight text-[#49263D] sm:text-[2.75rem]">
+              {answered}
+            </span>
+            <span className="mt-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#927C8B]">
+              answered
+            </span>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
 
 export default function AssessmentResultsPage() {
   const params = useParams();
   const resultId = String(params.resultId || "");
   const { isAuthenticated } = useSession();
+  const reduceMotion = useReducedMotion();
   const [result, setResult] = useState<SubmitResult | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [dismissed, setDismissed] = useState<string[]>([]);
 
   useEffect(() => {
     let active = true;
@@ -58,241 +137,209 @@ export default function AssessmentResultsPage() {
   }, [resultId, isAuthenticated]);
 
   const scoring = result?.scoring;
-  const recommendations = (result?.recommendations || []).filter(
-    (r) => !dismissed.includes(r.planSlug)
-  );
+  const isRouting = scoring?.scoringMethod === "starting_point_routing";
+
+  const chips = useMemo(() => {
+    if (!scoring) return [];
+    if (isRouting) {
+      return (scoring.suggestedAssessmentSlugs || []).slice(0, 3).map((slug) => ({
+        key: slug,
+        label: slug.replace(/-/g, " "),
+        href: `/assessments/${slug}`,
+        tone: "rose" as const,
+      }));
+    }
+    const items: Array<{
+      key: string;
+      label: string;
+      tone: "green" | "rose" | "muted";
+    }> = [];
+    scoring.goingWell.slice(0, 2).forEach((item, i) => {
+      items.push({
+        key: `well-${i}`,
+        label: item.split(/[.!—]/)[0]?.trim() || item,
+        tone: "green",
+      });
+    });
+    scoring.needsAttention.slice(0, 2).forEach((item, i) => {
+      items.push({
+        key: `need-${i}`,
+        label: item.split(/[.!—]/)[0]?.trim() || item,
+        tone: "rose",
+      });
+    });
+    if (items.length === 0) {
+      items.push({
+        key: "neutral",
+        label:
+          scoring.skippedCount > 0 && scoring.answeredCount === 0
+            ? "Skipped this time"
+            : "Reflection complete",
+        tone: "muted",
+      });
+    }
+    return items.slice(0, 4);
+  }, [scoring, isRouting]);
+
+  const headline =
+    scoring?.interpretationLabel ||
+    (scoring && scoring.answeredCount === 0 ? "Paused for now" : "You’re done");
+
+  const primaryHref = result?.primaryNextStep?.href || "/wellness-plan";
+  const primaryLabel =
+    result?.primaryNextStep?.label ||
+    (scoring && scoring.answeredCount === 0 ? "Retake when ready" : "Continue");
 
   return (
-    <div className="min-h-screen bg-[#FBF9FF] text-[#302B3D]">
-      <div className="page-shell pb-20 pt-28">
-        <div className="container-app max-w-3xl">
-          <div className="mb-6 flex justify-end">
-            <NeedSupportNow crisis={result?.crisis} />
+    <div className="dashboard-shell relative fixed inset-0 z-[55] overflow-hidden text-[#49263D]">
+      <PastelLandscapeBackground />
+
+      <div className="dashboard-canvas relative z-10 flex h-full min-h-0 flex-col overflow-hidden px-4 pb-4 pt-3 sm:px-6 sm:pb-5 sm:pt-4 lg:px-10">
+        <header className="flex shrink-0 items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5">
+            <BrandLogo variant="icon" size={34} className="shrink-0" />
+            <p className="font-display text-[15px] font-bold tracking-tight">
+              {BRAND_NAME}
+            </p>
           </div>
+          <div className="flex items-center gap-2">
+            <NeedSupportNow crisis={result?.crisis} />
+            <Link
+              href="/assessments"
+              aria-label="Close"
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-[#EADCE5] bg-white/90 text-[#795A70] transition hover:bg-white"
+            >
+              <X className="h-4 w-4" />
+            </Link>
+          </div>
+        </header>
 
-          {loading ? (
-            <div className="flex min-h-[280px] items-center justify-center">
-              <Loader2 className="h-8 w-8 animate-spin text-[#B74783]" />
+        {loading ? (
+          <div className="flex min-h-0 flex-1 items-center justify-center">
+            <Loader2 className="h-8 w-8 animate-spin text-[#B74783]" />
+          </div>
+        ) : error || !result || !scoring ? (
+          <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-3 text-center">
+            <p className="text-[15px]">{error || "Result not found"}</p>
+            <Link href="/assessments" className="text-sm font-bold text-[#B74783]">
+              Back
+            </Link>
+          </div>
+        ) : (
+          <motion.main
+            className="relative mx-auto flex min-h-0 w-full max-w-[720px] flex-1 flex-col items-center justify-center"
+            initial={reduceMotion ? false : { opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+          >
+            <div
+              aria-hidden
+              className="pointer-events-none absolute left-1/2 top-[18%] h-64 w-64 -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(183,71,131,0.18),transparent_70%)] blur-2xl"
+            />
+
+            <p className="relative text-[12px] font-semibold uppercase tracking-[0.16em] text-[#B74783]">
+              Your result
+            </p>
+            <h1 className="relative mt-2 max-w-[16ch] text-center font-display text-[clamp(1.5rem,3.5vw,2.15rem)] font-bold leading-[1.1] tracking-tight text-[#49263D]">
+              {headline}
+            </h1>
+
+            <div className="relative mt-6 sm:mt-8">
+              <ResultPulse
+                answered={scoring.answeredCount}
+                skipped={scoring.skippedCount}
+                score={scoring.totalScore}
+                maxScore={scoring.maxScore}
+                reduceMotion={reduceMotion}
+              />
             </div>
-          ) : error || !result || !scoring ? (
-            <div className="rounded-2xl border border-[#EADCE5] bg-white p-8 text-center">
-              <p>{error || "Result not found"}</p>
-              <Link href="/assessments" className="mt-4 inline-block font-semibold text-[#B74783]">
-                Return to Assessment Center
-              </Link>
-            </div>
-          ) : (
-            <div className="space-y-6">
-              <section className="rounded-3xl border border-[#E9E2F2] bg-white p-6 shadow-[0_12px_40px_rgba(123,57,98,0.06)] sm:p-8">
-                <p className="text-sm font-semibold uppercase tracking-[0.12em] text-[#7863C6]">
-                  Your results
-                </p>
-                <h1 className="mt-2 text-3xl font-bold tracking-tight">{result.title}</h1>
-                <p className="mt-2 text-sm text-[#716B7D]">
-                  Completed{" "}
-                  {new Date(result.completedAt).toLocaleString(undefined, {
-                    dateStyle: "medium",
-                    timeStyle: "short",
-                  })}
-                  {" · "}Instrument version {result.instrumentVersion}
-                </p>
-                {scoring.interpretationLabel && (
-                  <p className="mt-4 text-lg font-semibold text-[#49263D]">
-                    {scoring.interpretationLabel}
-                  </p>
-                )}
-                <p className="mt-3 text-base leading-relaxed text-[#716B7D]">
-                  {scoring.interpretationSummary}
-                </p>
-                <p className="mt-4 rounded-2xl bg-[#F0EAFE]/70 px-4 py-3 text-sm text-[#716B7D]">
-                  {scoring.disclaimer}
-                </p>
-              </section>
 
-              {scoring.scoringMethod === "starting_point_routing" ? (
-                <section className="rounded-3xl border border-[#E9E2F2] bg-white p-6 sm:p-8">
-                  <h2 className="text-xl font-bold">Suggested assessments</h2>
-                  <p className="mt-2 text-sm text-[#716B7D]">
-                    These suggestions help you choose where to begin. They are not a diagnosis.
-                  </p>
-                  <ul className="mt-4 space-y-2">
-                    {(scoring.suggestedAssessmentSlugs || []).map((slug) => (
-                      <li key={slug}>
-                        <Link
-                          href={`/assessments/${slug}`}
-                          className="block rounded-2xl border border-[#EADCE5] px-4 py-3 text-sm font-semibold text-[#49263D] hover:bg-[#FFF0F6]"
-                        >
-                          {slug.replace(/-/g, " ")}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                  {(scoring.educationalTips || []).length > 0 && (
-                    <ul className="mt-4 list-disc space-y-1 pl-5 text-sm text-[#716B7D]">
-                      {scoring.educationalTips!.map((tip) => (
-                        <li key={tip}>{tip}</li>
-                      ))}
-                    </ul>
-                  )}
-                  <Link
-                    href="/assessments"
-                    className="mt-6 inline-flex rounded-full border border-[#EADCE5] px-5 py-2.5 text-sm font-bold text-[#49263D] hover:bg-[#FFF0F6]"
-                  >
-                    Browse all assessments
-                  </Link>
-                </section>
-              ) : (
-                <>
-                  <section className="rounded-3xl border border-[#E9E2F2] bg-white p-6 sm:p-8">
-                    <h2 className="text-xl font-bold">Patterns you reflected on</h2>
-                    <p className="mt-2 text-sm text-[#716B7D]">
-                      What this may mean: these notes describe themes from your answers. They cannot
-                      establish a clinical diagnosis.
-                    </p>
-                    <div className="mt-5 grid gap-4 sm:grid-cols-2">
-                      <div className="rounded-2xl bg-[#F0EAFE]/60 p-4">
-                        <h3 className="text-sm font-bold text-[#49263D]">
-                          What seems to be going well
-                        </h3>
-                        {scoring.goingWell.length > 0 ? (
-                          <ul className="mt-2 space-y-1 text-sm text-[#716B7D]">
-                            {scoring.goingWell.map((item) => (
-                              <li key={item} className="flex gap-2">
-                                <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[#287D58]" />
-                                {item}
-                              </li>
-                            ))}
-                          </ul>
-                        ) : (
-                          <p className="mt-2 text-sm text-[#927C8B]">
-                            Nothing strongly stood out as a strength this time — that is okay.
-                          </p>
-                        )}
-                      </div>
-                      <div className="rounded-2xl bg-[#FFF0F7]/80 p-4">
-                        <h3 className="text-sm font-bold text-[#49263D]">
-                          Areas you may want to give attention to
-                        </h3>
-                        {scoring.needsAttention.length > 0 ? (
-                          <ul className="mt-2 list-disc space-y-1 pl-4 text-sm text-[#716B7D]">
-                            {scoring.needsAttention.map((item) => (
-                              <li key={item}>{item}</li>
-                            ))}
-                          </ul>
-                        ) : (
-                          <p className="mt-2 text-sm text-[#927C8B]">
-                            No areas were flagged for extra attention based on this reflection.
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                    <div className="mt-4 rounded-2xl border border-dashed border-[#E9B7D5] bg-white p-4">
-                      <p className="text-sm font-bold text-[#49263D]">
-                        One small step you could try today
-                      </p>
-                      <p className="mt-1 text-sm text-[#716B7D]">{scoring.smallStep}</p>
-                    </div>
-                  </section>
-
-                  <section className="rounded-3xl border border-[#E9E2F2] bg-white p-6 sm:p-8">
-                    <div className="flex items-center gap-2">
-                      <Sparkles className="h-5 w-5 text-[#B74783]" />
-                      <h2 className="text-xl font-bold">Explore activities that fit your needs</h2>
-                    </div>
-                    <p className="mt-2 text-sm text-[#716B7D]">
-                      Free AI Wellness Plan activities related to what you reflected on. You choose
-                      what to try — nothing is added without your confirmation.
-                    </p>
-                    {recommendations.length === 0 ? (
-                      <p className="mt-4 text-sm text-[#927C8B]">
-                        Browse the Wellness Plan catalog to pick activities yourself.
-                      </p>
-                    ) : (
-                      <ul className="mt-4 space-y-3">
-                        {recommendations.map((rec) => (
-                          <li
-                            key={rec.planSlug}
-                            className="flex flex-col gap-3 rounded-2xl border border-[#EADCE5] p-4 sm:flex-row sm:items-center sm:justify-between"
-                          >
-                            <div>
-                              <p className="font-semibold capitalize text-[#49263D]">
-                                {rec.planSlug.replace(/-/g, " ")}
-                              </p>
-                              <p className="mt-1 text-sm text-[#716B7D]">{rec.reason}</p>
-                            </div>
-                            <div className="flex gap-2">
-                              <Link
-                                href={rec.href}
-                                className="rounded-full bg-[#B74783] px-4 py-2 text-sm font-bold text-white"
-                              >
-                                Explore
-                              </Link>
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  setDismissed((d) => [...d, rec.planSlug])
-                                }
-                                className="rounded-full px-3 py-2 text-sm font-semibold text-[#927C8B] hover:bg-[#FBF9FF]"
-                              >
-                                Dismiss
-                              </button>
-                            </div>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </section>
-                </>
+            {/* Compact metric row — visual, not paragraphs */}
+            <div className="relative mt-5 flex flex-wrap items-center justify-center gap-2">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1.5 text-[12px] font-bold text-[#49263D] ring-1 ring-[#EADCE5]">
+                <span className="h-2 w-2 rounded-full bg-[#287D58]" />
+                {scoring.goingWell.length} strengths
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1.5 text-[12px] font-bold text-[#49263D] ring-1 ring-[#EADCE5]">
+                <span className="h-2 w-2 rounded-full bg-[#B74783]" />
+                {scoring.needsAttention.length} focus
+              </span>
+              {scoring.skippedCount > 0 && (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1.5 text-[12px] font-bold text-[#795A70] ring-1 ring-[#EADCE5]">
+                  {scoring.skippedCount} skipped
+                </span>
               )}
-
-              <section className="rounded-3xl border border-[#E9E2F2] bg-gradient-to-br from-[#F0EAFE] to-[#FFF0F7] p-6 sm:p-8">
-                <h2 className="text-xl font-bold">Your next step</h2>
-                <p className="mt-2 text-sm text-[#716B7D]">
-                  One primary action based on this assessment. Professional support remains optional.
-                </p>
-                <div className="mt-5 flex flex-wrap gap-3">
-                  <Link
-                    href={result.primaryNextStep?.href || "/wellness-plan"}
-                    className="inline-flex rounded-full bg-[#B74783] px-5 py-3 text-sm font-bold text-white"
-                  >
-                    {result.primaryNextStep?.label || "Explore my Wellness Plan"}
-                  </Link>
-                  <Link
-                    href="/wellness-plan"
-                    className="inline-flex rounded-full border border-[#EADCE5] bg-white px-5 py-3 text-sm font-bold text-[#49263D]"
-                  >
-                    Explore my Wellness Plan
-                  </Link>
-                  {isAuthenticated && (
-                    <Link
-                      href="/dashboard/assessment-history"
-                      className="inline-flex rounded-full border border-[#EADCE5] bg-white px-5 py-3 text-sm font-bold text-[#49263D]"
-                    >
-                      View assessment history
-                    </Link>
-                  )}
-                  <Link
-                    href="/assessments"
-                    className="inline-flex rounded-full px-5 py-3 text-sm font-semibold text-[#7863C6]"
-                  >
-                    Return to Assessment Center
-                  </Link>
-                </div>
-                <p className="mt-4 text-xs text-[#927C8B]">
-                  Consider speaking with a qualified healthcare professional if distress continues.
-                  Online psychologist consultation is available if you choose it — it is never
-                  required to use Assessment Center.
-                </p>
-                {result.guestNote && (
-                  <p className="mt-3 text-sm font-medium text-[#795A70]">{result.guestNote}</p>
-                )}
-                {result.license?.notes && (
-                  <p className="mt-3 text-xs text-[#927C8B]">{result.license.notes}</p>
-                )}
-              </section>
             </div>
-          )}
-        </div>
+
+            {/* Short theme chips instead of essay blocks */}
+            <div className="relative mt-5 flex max-w-full flex-wrap justify-center gap-2 px-1">
+              {chips.map((chip, i) => {
+                const className = cn(
+                  "max-w-[220px] truncate rounded-full px-3.5 py-2 text-[12px] font-semibold capitalize",
+                  "tone" in chip && chip.tone === "green" && "bg-[#E8F7EF] text-[#1F6B4A]",
+                  "tone" in chip && chip.tone === "rose" && "bg-[#FFF0F6] text-[#B74783]",
+                  "tone" in chip && chip.tone === "muted" && "bg-white/90 text-[#795A70] ring-1 ring-[#EADCE5]"
+                );
+                if ("href" in chip && chip.href) {
+                  return (
+                    <motion.div
+                      key={chip.key}
+                      initial={reduceMotion ? false : { opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.2 + i * 0.05 }}
+                    >
+                      <Link href={chip.href} className={className}>
+                        {chip.label}
+                      </Link>
+                    </motion.div>
+                  );
+                }
+                return (
+                  <motion.span
+                    key={chip.key}
+                    className={className}
+                    initial={reduceMotion ? false : { opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 + i * 0.05 }}
+                  >
+                    {chip.label}
+                  </motion.span>
+                );
+              })}
+            </div>
+
+            {!isRouting && scoring.smallStep && scoring.answeredCount > 0 && (
+              <p className="relative mt-5 max-w-[34ch] text-center text-[13px] font-medium leading-snug text-[#795A70]">
+                {scoring.smallStep.split(/[.!]/)[0]?.trim()}
+                {scoring.smallStep.includes(".") || scoring.smallStep.includes("!")
+                  ? "."
+                  : ""}
+              </p>
+            )}
+
+            <div className="relative mt-7 flex flex-wrap items-center justify-center gap-3">
+              <Link
+                href={
+                  scoring.answeredCount === 0
+                    ? `/assessments/${result.assessmentSlug}/take`
+                    : primaryHref
+                }
+                className="inline-flex h-11 items-center gap-2 rounded-full bg-[#B74783] px-6 text-[13px] font-bold text-white transition hover:bg-[#9F376F]"
+              >
+                {scoring.answeredCount === 0 ? "Retake" : primaryLabel}
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+              {isAuthenticated && (
+                <Link
+                  href="/dashboard/assessment-history"
+                  className="text-[13px] font-semibold text-[#927C8B] hover:text-[#49263D]"
+                >
+                  History
+                </Link>
+              )}
+            </div>
+          </motion.main>
+        )}
       </div>
     </div>
   );

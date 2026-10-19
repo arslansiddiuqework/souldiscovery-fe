@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import {
   ArrowUpRight,
@@ -18,6 +19,7 @@ import {
 } from "@/components/assessments/assessment-card";
 import { AssessmentIcon } from "@/components/assessments/assessment-icons";
 import { NeedSupportNow } from "@/components/assessments/crisis-support";
+import { AssessmentLearnMoreModal } from "@/components/assessments/assessment-learn-more-modal";
 import {
   fetchAssessmentCatalog,
   type AssessmentCard as AssessmentCardType,
@@ -25,6 +27,8 @@ import {
 } from "@/lib/api/assessments";
 
 export default function AssessmentCenterPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
   const [assessments, setAssessments] = useState<AssessmentCardType[]>([]);
@@ -37,6 +41,30 @@ export default function AssessmentCenterPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [isPending, startTransition] = useTransition();
+  const [learnSlug, setLearnSlug] = useState<string | null>(null);
+
+  const openLearnMore = useCallback(
+    (slug: string) => {
+      setLearnSlug(slug);
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("learn", slug);
+      router.replace(`/assessments?${params.toString()}`, { scroll: false });
+    },
+    [router, searchParams]
+  );
+
+  const closeLearnMore = useCallback(() => {
+    setLearnSlug(null);
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("learn");
+    const qs = params.toString();
+    router.replace(qs ? `/assessments?${qs}` : "/assessments", { scroll: false });
+  }, [router, searchParams]);
+
+  useEffect(() => {
+    const fromQuery = searchParams.get("learn");
+    if (fromQuery) setLearnSlug(fromQuery);
+  }, [searchParams]);
 
   useEffect(() => {
     let active = true;
@@ -138,12 +166,13 @@ export default function AssessmentCenterPage() {
                     Explore assessments
                   </a>
                   {featured && (
-                    <Link
-                      href={`/assessments/${featured.slug}`}
+                    <button
+                      type="button"
+                      onClick={() => openLearnMore(featured.slug)}
                       className="inline-flex h-11 w-full items-center justify-center rounded-full border border-[#EADCE5] bg-white px-4 text-sm font-bold text-[#49263D] transition hover:bg-[#FFF0F6]"
                     >
                       Starting point
-                    </Link>
+                    </button>
                   )}
                   <Link
                     href="/dashboard/assessment-history"
@@ -176,13 +205,14 @@ export default function AssessmentCenterPage() {
                         <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-[#716B7D]">
                           {featured.shortDescription}
                         </p>
-                        <Link
-                          href={`/assessments/${featured.slug}`}
+                        <button
+                          type="button"
+                          onClick={() => openLearnMore(featured.slug)}
                           className="mt-3 inline-flex items-center gap-1 text-xs font-bold text-[#B74783] transition hover:underline"
                         >
                           {featured.cta || "Find a starting point"}
                           <ArrowUpRight className="h-3.5 w-3.5" />
-                        </Link>
+                        </button>
                       </div>
                     </div>
                   </motion.div>
@@ -295,7 +325,12 @@ export default function AssessmentCenterPage() {
                           }`}
                         >
                           {available.map((a, i) => (
-                            <AssessmentCard key={a.id} assessment={a} index={i} />
+                            <AssessmentCard
+                              key={a.id}
+                              assessment={a}
+                              index={i}
+                              onLearnMore={openLearnMore}
+                            />
                           ))}
                         </div>
                       )}
@@ -320,6 +355,12 @@ export default function AssessmentCenterPage() {
           </div>
         </div>
       </div>
+
+      <AssessmentLearnMoreModal
+        slug={learnSlug}
+        open={!!learnSlug}
+        onClose={closeLearnMore}
+      />
     </div>
   );
 }

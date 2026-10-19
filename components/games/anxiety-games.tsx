@@ -1,16 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
-import { Gamepad2, Flower2, Wind, TreePine, Waves, Music2, CloudRain, Flame } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+  Flower2,
+  Wind,
+  TreePine,
+  Waves,
+  CloudRain,
+  Flame,
+} from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -28,56 +27,68 @@ import { cn } from "@/lib/utils";
 const games = [
   {
     id: "breathing",
-    title: "Breathing Patterns",
+    title: "Breathing",
+    fullTitle: "Breathing Patterns",
     description: "Follow calming breathing exercises with visual guidance",
     icon: Wind,
-    color: "text-blue-500",
-    bgColor: "bg-blue-500/10",
+    accent: "from-[#7DD3FC] to-[#38BDF8]",
+    soft: "bg-[#E0F2FE]",
+    ink: "text-[#0369A1]",
     duration: "5 mins",
   },
   {
     id: "garden",
     title: "Zen Garden",
+    fullTitle: "Zen Garden",
     description: "Create and maintain your digital peaceful space",
     icon: Flower2,
-    color: "text-rose-500",
-    bgColor: "bg-rose-500/10",
+    accent: "from-[#F9A8D4] to-[#E879C0]",
+    soft: "bg-[#FCE7F3]",
+    ink: "text-[#B74783]",
     duration: "10 mins",
   },
   {
     id: "forest",
-    title: "Mindful Forest",
+    title: "Forest",
+    fullTitle: "Mindful Forest",
     description: "Take a peaceful walk through a virtual forest",
     icon: TreePine,
-    color: "text-green-500",
-    bgColor: "bg-green-500/10",
+    accent: "from-[#86EFAC] to-[#34D399]",
+    soft: "bg-[#DCFCE7]",
+    ink: "text-[#15803D]",
     duration: "15 mins",
   },
   {
     id: "waves",
-    title: "Ocean Waves",
+    title: "Ocean",
+    fullTitle: "Ocean Waves",
     description: "Match your breath with gentle ocean waves",
     icon: Waves,
-    color: "text-cyan-500",
-    bgColor: "bg-cyan-500/10",
+    accent: "from-[#67E8F9] to-[#22D3EE]",
+    soft: "bg-[#CFFAFE]",
+    ink: "text-[#0E7490]",
     duration: "8 mins",
   },
   {
     id: "rain",
-    title: "Gentle Rain",
+    title: "Rain",
+    fullTitle: "Gentle Rain",
     description: "Drift into calm with the soothing sound of rainfall",
     icon: CloudRain,
-    color: "text-[#B74783]",
-    bgColor: "bg-[#FFE5F0]",
+    accent: "from-[#C4B5FD] to-[#A78BFA]",
+    soft: "bg-[#EDE9FE]",
+    ink: "text-[#6D28D9]",
     duration: "5 mins",
   },
   {
     id: "campfire",
-    title: "Campfire Night",
+    title: "Campfire",
+    fullTitle: "Campfire Night",
     description: "Unwind by a crackling fire under a starry sky",
     icon: Flame,
-    color: "text-amber-500",
-    bgColor: "bg-amber-500/10",
+    accent: "from-[#FDBA74] to-[#FB923C]",
+    soft: "bg-[#FFEDD5]",
+    ink: "text-[#C2410C]",
     duration: "5 mins",
   },
 ];
@@ -101,6 +112,7 @@ export const AnxietyGames = ({
   onGamePlayed,
   compact = false,
 }: AnxietyGamesProps) => {
+  const reduceMotion = useReducedMotion();
   const [selectedGame, setSelectedGame] = useState<string | null>(null);
   const [showGame, setShowGame] = useState(false);
 
@@ -108,7 +120,6 @@ export const AnxietyGames = ({
     setSelectedGame(gameId);
     setShowGame(true);
 
-    // Log the activity with catalog duration so Progress Duration isn't stuck at 0m
     if (onGamePlayed) {
       try {
         const game = games.find((g) => g.id === gameId);
@@ -147,7 +158,7 @@ export const AnxietyGames = ({
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>
-            {games.find((g) => g.id === selectedGame)?.title}
+            {games.find((g) => g.id === selectedGame)?.fullTitle}
           </DialogTitle>
         </DialogHeader>
         {renderGame()}
@@ -155,128 +166,75 @@ export const AnxietyGames = ({
     </Dialog>
   );
 
-  if (compact) {
-    return (
-      <>
-        <div className="flex h-full flex-col rounded-[20px] border border-[#EADCE5]/90 bg-white/88 p-3.5 shadow-[0_8px_28px_rgba(123,57,98,0.06)] backdrop-blur-sm">
-          <div className="mb-2.5 flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#FFE5F0]">
-              <Gamepad2 className="h-4 w-4 text-[#B74783]" />
-            </div>
-            <div>
-              <p className="font-display text-sm font-semibold text-[#49263D]">
-                Calm tools
-              </p>
-              <p className="text-[11px] text-[#927C8B]">Tap to start</p>
-            </div>
-          </div>
-          <div className="grid flex-1 grid-cols-3 gap-2 sm:grid-cols-6 lg:grid-cols-3 xl:grid-cols-6">
-            {games.map((game) => (
-              <motion.button
-                key={game.id}
-                type="button"
-                whileHover={{ y: -2 }}
-                whileTap={{ scale: 0.96 }}
-                onClick={() => handleGameStart(game.id)}
-                className="flex flex-col items-center gap-1.5 rounded-2xl border border-[#EADCE5] bg-white px-1.5 py-2.5 text-center transition hover:border-[rgba(183,71,131,0.35)] hover:shadow-card"
-                title={game.title}
-              >
-                <span
-                  className={cn(
-                    "flex h-9 w-9 items-center justify-center rounded-xl",
-                    game.bgColor,
-                    game.color
-                  )}
-                >
-                  <game.icon className="h-4 w-4" />
-                </span>
-                <span className="line-clamp-2 text-[10px] font-semibold leading-tight text-[#49263D]">
-                  {game.title.split(" ")[0]}
-                </span>
-              </motion.button>
-            ))}
-          </div>
-        </div>
-        {dialog}
-      </>
-    );
-  }
-
   return (
     <>
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#FFE5F0]">
-              <Gamepad2 className="h-5 w-5 text-[#B74783]" />
-            </div>
-            <div className="space-y-1">
-              <CardTitle className="text-lg md:text-xl">
-                Anxiety Relief Activities
-              </CardTitle>
-              <CardDescription>
-                Interactive exercises to help reduce stress and anxiety
-              </CardDescription>
-            </div>
+      <div
+        className={cn(
+          "flex h-full min-h-0 flex-col overflow-hidden",
+          compact
+            ? "rounded-[22px] bg-white/80 p-3 ring-1 ring-white/70 backdrop-blur-md"
+            : "rounded-[28px] bg-white/85 p-4 ring-1 ring-white/80 backdrop-blur-md sm:p-5"
+        )}
+      >
+        <div className="mb-3 flex shrink-0 items-end justify-between gap-3">
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#B74783]">
+              Relief
+            </p>
+            <h3 className="mt-0.5 font-display text-[15px] font-bold tracking-tight text-[#49263D] sm:text-base">
+              Tap to calm
+            </h3>
           </div>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            {games.map((game) => (
-              <motion.div
-                key={game.id}
-                whileHover={{ y: -2 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <button
-                  type="button"
-                  className={cn(
-                    "w-full rounded-[16px] border border-[#EADCE5] bg-white p-4 text-left shadow-card transition-all duration-300 hover:border-[rgba(183,71,131,0.25)] hover:shadow-card-hover",
-                    selectedGame === game.id && "border-[rgba(183,71,131,0.4)] ring-2 ring-[rgba(183,71,131,0.2)]"
-                  )}
-                  onClick={() => handleGameStart(game.id)}
-                >
-                  <div className="flex items-start gap-4">
-                    <div
-                      className={cn(
-                        "flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl",
-                        game.bgColor,
-                        game.color
-                      )}
-                    >
-                      <game.icon className="h-6 w-6" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <h4 className="font-display text-sm font-semibold text-[#49263D] md:text-base">
-                        {game.title}
-                      </h4>
-                      <p className="mt-1 text-sm leading-relaxed text-[#927C8B]">
-                        {game.description}
-                      </p>
-                      <div className="mt-3 flex items-center gap-2">
-                        <Music2 className="h-3.5 w-3.5 text-[#927C8B]" />
-                        <span className="text-xs text-[#927C8B]">
-                          {game.duration}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </button>
-              </motion.div>
-            ))}
-          </div>
+          <p className="text-[11px] font-medium text-[#A08B9A]">
+            {games.length} tools
+          </p>
+        </div>
 
-          {selectedGame && (
-            <div className="mt-6 text-center">
-              <Button className="gap-2" onClick={() => setSelectedGame(null)}>
-                <Gamepad2 className="h-4 w-4" />
-                Start {games.find((g) => g.id === selectedGame)?.title}
-              </Button>
-            </div>
+        <div
+          className={cn(
+            "grid min-h-0 flex-1 gap-2.5",
+            compact
+              ? "grid-cols-3 content-stretch sm:grid-cols-3"
+              : "grid-cols-2 content-stretch sm:grid-cols-3"
           )}
-        </CardContent>
-      </Card>
-
+        >
+          {games.map((game, i) => (
+            <motion.button
+              key={game.id}
+              type="button"
+              initial={reduceMotion ? false : { opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.04 * i, duration: 0.35 }}
+              whileHover={reduceMotion ? undefined : { y: -3 }}
+              whileTap={reduceMotion ? undefined : { scale: 0.97 }}
+              onClick={() => handleGameStart(game.id)}
+              className="group relative flex min-h-0 flex-col items-center justify-center gap-2 overflow-hidden rounded-[22px] bg-[#FBF7FA] px-2 py-3 text-center transition hover:bg-white"
+            >
+              <span
+                aria-hidden
+                className={cn(
+                  "absolute inset-x-3 top-0 h-px bg-gradient-to-r opacity-0 transition group-hover:opacity-100",
+                  game.accent
+                )}
+              />
+              <span
+                className={cn(
+                  "relative flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br text-white shadow-sm sm:h-12 sm:w-12",
+                  game.accent
+                )}
+              >
+                <game.icon className="h-5 w-5" strokeWidth={1.75} />
+              </span>
+              <span className="relative text-[12px] font-bold leading-tight text-[#49263D]">
+                {game.title}
+              </span>
+              <span className="relative text-[10px] font-semibold text-[#A08B9A]">
+                {game.duration}
+              </span>
+            </motion.button>
+          ))}
+        </div>
+      </div>
       {dialog}
     </>
   );

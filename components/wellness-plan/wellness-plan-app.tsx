@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
+import { PastelLandscapeBackground } from "@/components/ui/pastel-landscape-background";
 import { useSession } from "@/lib/contexts/session-context";
 import {
   WellnessAssessment,
@@ -32,8 +33,9 @@ import { PlanDashboard } from "./plan-dashboard";
 import { TaskRunner } from "./task-runner";
 import { WellnessPlansHub } from "./hub/wellness-plans-hub";
 import { WellnessPlanDetails } from "./hub/wellness-plan-details";
+import { DayCompleteCelebration } from "./day-complete-celebration";
 
-type View = "loading" | "hub" | "detail" | "assessment" | "dashboard";
+type View = "loading" | "hub" | "assessment" | "dashboard";
 
 export function WellnessPlanApp() {
   const { user } = useSession();
@@ -48,6 +50,9 @@ export function WellnessPlanApp() {
   const [detailEnrollment, setDetailEnrollment] =
     useState<WellnessPlan | null>(null);
   const [generating, setGenerating] = useState(false);
+  const [dayCelebration, setDayCelebration] = useState<{
+    dayNumber: number;
+  } | null>(null);
   const [activeTask, setActiveTask] = useState<PlanTask | null>(null);
 
   const refresh = useCallback(async () => {
@@ -89,9 +94,16 @@ export function WellnessPlanApp() {
           if (cancelled) return;
           setSelectedCatalog(catalog);
           setDetailEnrollment(enrollment);
-          setView("detail");
+          setView((current) =>
+            current === "dashboard" || current === "assessment"
+              ? current
+              : "hub"
+          );
           return;
         }
+      } else {
+        setSelectedCatalog(null);
+        setDetailEnrollment(null);
       }
 
       // Refresh enrollments without yanking the user out of an open dashboard
@@ -117,7 +129,7 @@ export function WellnessPlanApp() {
     const enrollment = await getEnrollmentForCatalogSlug(slug);
     setSelectedCatalog(catalog);
     setDetailEnrollment(enrollment);
-    setView("detail");
+    setView("hub");
     router.replace(`/wellness-plan?plan=${slug}`, { scroll: false });
   };
 
@@ -131,7 +143,10 @@ export function WellnessPlanApp() {
       const activated = await activateEnrollment(detailEnrollment.id);
       if (activated) {
         setPlan(activated);
+        setSelectedCatalog(null);
+        setDetailEnrollment(null);
         setView("dashboard");
+        router.replace("/wellness-plan", { scroll: false });
       }
     }
   };
@@ -152,7 +167,8 @@ export function WellnessPlanApp() {
       });
       clearPendingChatSuggestion();
       setPlan(created);
-      setDetailEnrollment(created);
+      setSelectedCatalog(null);
+      setDetailEnrollment(null);
       await refresh();
       setView("dashboard");
       router.replace("/wellness-plan", { scroll: false });
@@ -196,9 +212,44 @@ export function WellnessPlanApp() {
     taskId: string,
     extras?: { journalEntry?: string; notes?: string }
   ) => {
+    // Snapshot which days were incomplete before this task
+    const incompleteBefore = new Set<number>();
+    if (plan) {
+      for (const week of plan.weeks) {
+        for (const day of week.days) {
+          if (!day.completed) incompleteBefore.add(day.dayNumber);
+        }
+      }
+    }
+
     const next = await completeWellnessTask(taskId, extras);
     if (next) {
       setPlan(next);
+      setActiveTask(null);
+
+      // Celebrate every day that just flipped to complete (Day 1, Day 2, …)
+      let celebrateDay: number | null = null;
+      for (const week of next.weeks) {
+        for (const day of week.days) {
+          if (
+            day.completed &&
+            incompleteBefore.has(day.dayNumber) &&
+            day.tasks.some((t) => t.id === taskId)
+          ) {
+            celebrateDay = day.dayNumber;
+            break;
+          }
+        }
+        if (celebrateDay != null) break;
+      }
+
+      if (celebrateDay != null) {
+        // Let the task dialog close first, then show balloons for that day
+        window.setTimeout(() => {
+          setDayCelebration({ dayNumber: celebrateDay! });
+        }, 220);
+      }
+
       await refresh();
     }
   };
@@ -245,6 +296,14 @@ export function WellnessPlanApp() {
     getPendingChatSuggestion();
   }, []);
 
+  const celebration = (
+    <DayCompleteCelebration
+      open={!!dayCelebration}
+      dayNumber={dayCelebration?.dayNumber ?? 1}
+      onClose={() => setDayCelebration(null)}
+    />
+  );
+
   if (view === "hub") {
     return (
       <>
@@ -254,41 +313,74 @@ export function WellnessPlanApp() {
           onContinueActive={handleContinueActive}
           onOpenPlan={handleOpenPlan}
         />
+        {selectedCatalog && (
+          <WellnessPlanDetails
+            catalog={selectedCatalog}
+            enrollment={detailEnrollment}
+            starting={generating}
+            open={!!selectedCatalog}
+            onBack={openHub}
+            onStart={handleStartFromCatalog}
+            onContinue={handleContinueFromDetail}
+          />
+        )}
         <TaskRunner
           task={activeTask}
           open={!!activeTask}
           onClose={() => setActiveTask(null)}
           onComplete={handleTaskComplete}
         />
+        {celebration}
       </>
+    );
+  }
+
+  if (view === "dashboard" && plan) {
+    return (
+      <div className="dashboard-shell relative text-[#49263D]">
+        <PastelLandscapeBackground />
+        <div className="dashboard-canvas relative z-10 flex h-full min-h-0 flex-col gap-2.5 overflow-hidden">
+          <div className="flex shrink-0 items-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 rounded-full border border-[#EADCE5] bg-white/90 shadow-[0_4px_12px_rgba(123,57,98,0.08)]"
+              onClick={openHub}
+              aria-label="Back to wellness plans"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            <p className="text-[12px] font-semibold text-[#927C8B]">
+              Wellness Plan
+            </p>
+          </div>
+
+          <div className="min-h-0 flex-1 overflow-hidden">
+            <PlanDashboard
+              plan={plan}
+              onTaskClick={handleTaskClick}
+              onRefreshReport={handleRefreshReport}
+              onReset={handleReset}
+              onDismissSuggestion={handleDismissSuggestion}
+              onApplySuggestion={handleApplySuggestion}
+            />
+          </div>
+        </div>
+
+        <TaskRunner
+          task={activeTask}
+          open={!!activeTask}
+          onClose={() => setActiveTask(null)}
+          onComplete={handleTaskComplete}
+        />
+        {celebration}
+      </div>
     );
   }
 
   return (
     <div className="page-shell pb-10 text-[#512943] md:pb-14">
       <Container className="max-w-[1240px] space-y-5">
-        {view === "dashboard" && (
-          <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="rounded-xl"
-              onClick={openHub}
-              aria-label="Back to wellness plans"
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-[#BE4A8B]">
-                Active plan
-              </p>
-              <h1 className="text-xl font-bold tracking-tight text-[#512943]">
-                {plan?.title || "Wellness Plan"}
-              </h1>
-            </div>
-          </div>
-        )}
-
         {view === "assessment" && (
           <div className="flex items-center gap-3">
             <Button
@@ -317,33 +409,11 @@ export function WellnessPlanApp() {
           </div>
         )}
 
-        {view === "detail" && selectedCatalog && (
-          <WellnessPlanDetails
-            catalog={selectedCatalog}
-            enrollment={detailEnrollment}
-            starting={generating}
-            onBack={openHub}
-            onStart={handleStartFromCatalog}
-            onContinue={handleContinueFromDetail}
-          />
-        )}
-
         {view === "assessment" && (
           <AssessmentFlow
             onComplete={handleAssessmentComplete}
             onCancel={openHub}
             isGenerating={generating}
-          />
-        )}
-
-        {view === "dashboard" && plan && (
-          <PlanDashboard
-            plan={plan}
-            onTaskClick={handleTaskClick}
-            onRefreshReport={handleRefreshReport}
-            onReset={handleReset}
-            onDismissSuggestion={handleDismissSuggestion}
-            onApplySuggestion={handleApplySuggestion}
           />
         )}
       </Container>
@@ -354,6 +424,7 @@ export function WellnessPlanApp() {
         onClose={() => setActiveTask(null)}
         onComplete={handleTaskComplete}
       />
+      {celebration}
     </div>
   );
 }
