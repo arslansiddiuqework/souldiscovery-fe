@@ -64,7 +64,8 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
         } catch {
           /* wellness storage optional at boot */
         }
-      } else {
+      } else if (response.status === 401 || response.status === 403) {
+        // Only clear on auth rejection — keep token on 5xx / proxy blips
         setUser(null);
         localStorage.removeItem("token");
         try {
@@ -75,14 +76,13 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
         } catch {
           /* ignore */
         }
+      } else {
+        setUser(null);
       }
     } catch (error) {
       console.error("SessionContext: Error checking session:", error);
       setUser(null);
-      // Keep token on abort/network blip so a flaky backend does not force logout
-      if (!(error instanceof DOMException && error.name === "AbortError")) {
-        localStorage.removeItem("token");
-      }
+      // Keep token on network/abort so a flaky backend does not force logout
     } finally {
       setLoading(false);
     }
