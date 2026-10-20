@@ -9,9 +9,14 @@ import { cn } from "@/lib/utils";
 interface TodaysMissionProps {
   day: PlanDay | null;
   onTaskClick: (taskId: string) => void;
+  hideAmbience?: boolean;
 }
 
-export function TodaysMission({ day, onTaskClick }: TodaysMissionProps) {
+export function TodaysMission({
+  day,
+  onTaskClick,
+  hideAmbience = false,
+}: TodaysMissionProps) {
   if (!day) {
     return (
       <div className="flex h-full min-h-0 flex-col justify-center rounded-[26px] border border-[#EADCE5] bg-gradient-to-br from-white via-[#FFF8FB] to-[#FFF0F6] p-6">
@@ -158,7 +163,9 @@ export function TodaysMission({ day, onTaskClick }: TodaysMissionProps) {
         })}
       </ul>
 
-      <RelaxAmbience allDone={allDone} theme={day.theme} dayNumber={day.dayNumber} />
+      {!hideAmbience && (
+        <RelaxAmbience allDone={allDone} theme={day.theme} dayNumber={day.dayNumber} />
+      )}
     </section>
   );
 }

@@ -40,7 +40,7 @@ import { ForestGame } from "@/components/games/forest-game";
 import { OceanWaves } from "@/components/games/ocean-waves";
 import { X } from "lucide-react";
 import { FaceEmotionLauncher } from "@/components/face-emotion/FaceEmotionLauncher";
-import { ReviewsSection } from "@/components/reviews-section";
+import { SmallStepsSection } from "@/components/small-steps-section";
 
 export default function Home() {
   const router = useRouter();
@@ -108,13 +108,13 @@ export default function Home() {
     {
       title: "Personalized Support 🌱",
       description:
-        "I adapt to your needs and emotional state, offering evidence-based techniques and gentle guidance when you need it most.",
+        "Chat, mood check-ins, and short wellness activities are here when you want them. This is not clinical care.",
       icon: Brain,
     },
     {
       title: "Your Privacy Matters 🛡️",
       description:
-        "Our conversations are completely private and secure. I follow strict ethical guidelines and respect your boundaries.",
+        "Conversations stay in your account. Soul Discovery is not an emergency service, and it does not replace a licensed professional.",
       icon: Shield,
     },
   ];
@@ -251,9 +251,9 @@ export default function Home() {
     },
     {
       icon: Lightbulb,
-      title: "Smart Insights",
-      description: "Personalized guidance powered by emotional intelligence.",
-      accent: "Adaptive",
+      title: "Reflections",
+      description: "Short notes based on what you actually record, when there is something to show.",
+      accent: "Optional",
       glow: "rgba(61, 155, 132, 0.2)",
       iconWell: "from-[#E3F7F1] to-[#CDEADF]",
       iconColor: "text-[#2F8F78]",
@@ -262,9 +262,9 @@ export default function Home() {
     },
     {
       icon: Lock,
-      title: "Private & Secure",
-      description: "Your conversations are always confidential and encrypted.",
-      accent: "Encrypted",
+      title: "Private to your account",
+      description: "Conversations are stored with your account and are not shown on public pages.",
+      accent: "Private",
       glow: "rgba(91, 124, 218, 0.2)",
       iconWell: "from-[#E8EEFF] to-[#D5DFFA]",
       iconColor: "text-[#4F6ECF]",
@@ -273,9 +273,9 @@ export default function Home() {
     },
     {
       icon: FileText,
-      title: "Evidence-Based",
-      description: "Therapeutic techniques backed by clinical research.",
-      accent: "Trusted",
+      title: "Gentle practices",
+      description: "Breathing, reflection, and mood check-ins you can leave at any time.",
+      accent: "Optional",
       glow: "rgba(139, 107, 199, 0.2)",
       iconWell: "from-[#F0E9FF] to-[#E0D4FA]",
       iconColor: "text-[#7A5BB8]",
@@ -544,7 +544,7 @@ export default function Home() {
         </div>
       </section>
 
-      <ReviewsSection />
+      <SmallStepsSection />
 
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
         <DialogContent className="bg-card sm:max-w-[440px]">

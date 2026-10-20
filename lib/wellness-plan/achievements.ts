@@ -50,6 +50,13 @@ export function evaluateAchievements(plan: WellnessPlan): WellnessPlan {
     achievements = unlock(achievements, "plan_complete");
   }
 
+  const achievementsChanged = achievements.some(
+    (item, index) => item.unlockedAt !== plan.achievements[index]?.unlockedAt
+  );
+  if (!achievementsChanged && streak === plan.currentStreak) {
+    return plan;
+  }
+
   return { ...plan, achievements, currentStreak: streak };
 }
 
@@ -64,31 +71,16 @@ export function generateWeeklyReport(plan: WellnessPlan): WeeklyReport {
   const streak = countCompletionStreakDays(plan);
   const helpful = mostHelpfulTaskType(plan);
 
-  const stress = plan.assessment.stressLevel;
-  const sleep = plan.assessment.sleepQuality;
-
-  const moodTrend =
-    completionRate >= 70
-      ? "improving"
-      : completionRate >= 40
-        ? "stable"
-        : "declining";
-
-  const stressTrend =
-    stress <= 4 ? "improving" : stress <= 7 ? "stable" : "elevated";
-
-  const sleepTrend =
-    sleep === "excellent" || sleep === "good"
-      ? "improving"
-      : sleep === "average"
-        ? "stable"
-        : "declining";
+  // Completion is not a mood, stress, or sleep measurement.
+  const moodTrend = "unknown" as const;
+  const stressTrend = "unknown" as const;
+  const sleepTrend = "unknown" as const;
 
   const insights: string[] = [];
   if (completionRate >= 70) {
-    insights.push("You completed most of this week's missions — consistency is compounding.");
-  } else if (completionRate < 40) {
-    insights.push("Engagement dipped this week. Shorter sessions may help you restart gently.");
+    insights.push("You completed most of this week's plan activities.");
+  } else if (completionRate < 40 && tasks.length > 0) {
+    insights.push("A few plan activities are still open. You can return to them whenever you want.");
   }
   if (plan.assessment.preferredTime === "evening") {
     insights.push("You tend to prefer evening wellness — protect that window when possible.");
@@ -100,15 +92,13 @@ export function generateWeeklyReport(plan: WellnessPlan): WeeklyReport {
     insights.push("Your plan adapted based on recent engagement patterns.");
   }
 
+  const helpfulLine = helpful
+    ? ` The activity you finished most often was ${helpful.toLowerCase()}.`
+    : "";
   const aiSummary =
-    completionRate >= 70
-      ? `This week you stayed close to your ${plan.title.replace(
-          " Plan",
-          ""
-        ).toLowerCase()} intention. Your completion rate of ${completionRate}% and a ${streak}-day streak show real commitment. Keep leaning into ${helpful.toLowerCase()} — it's clearly resonating.`
-      : completionRate >= 40
-        ? `You made meaningful progress on your ${plan.title} this week (${completionRate}% of tasks). A ${streak}-day streak is a solid foundation. Next week, prioritize the smallest doable mission first to rebuild momentum.`
-        : `This was a quieter week on your ${plan.title} (${completionRate}% completion). That's okay — wellness isn't linear. We've kept your path available with lighter options so returning feels easy, not overwhelming.`;
+    tasks.length === 0
+      ? `There isn't enough recorded activity yet for a summary of ${plan.title}.`
+      : `This note only counts activities saved in ${plan.title}: ${completed} of ${tasks.length} (${completionRate}%).${helpfulLine} It is not a clinical assessment.`;
 
   return {
     id: `report_w${weekNumber}_${Date.now().toString(36)}`,

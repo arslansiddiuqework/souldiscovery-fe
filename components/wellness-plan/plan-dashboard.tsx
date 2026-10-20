@@ -57,6 +57,8 @@ interface PlanDashboardProps {
   onReset?: () => void;
   onDismissSuggestion?: () => void;
   onApplySuggestion?: () => void;
+  savedNote?: string | null;
+  onDismissSaved?: () => void;
 }
 
 export function PlanDashboard({
@@ -66,6 +68,8 @@ export function PlanDashboard({
   onReset,
   onDismissSuggestion,
   onApplySuggestion,
+  savedNote,
+  onDismissSaved,
 }: PlanDashboardProps) {
   const { percent, completedTasks, totalTasks } = computePlanProgress(plan);
   const today = getCurrentDay(plan);
@@ -94,29 +98,24 @@ export function PlanDashboard({
                 {plan.challengeLevel} · {plan.durationDays} days
               </span>
             </div>
-            {week && (
-              <p className="mt-0.5 truncate text-[12px] text-[#927C8B]">
-                Week {week.weekNumber} of {plan.weeks.length} · {week.focus}
-              </p>
-            )}
+            <p className="mt-0.5 text-[12px] leading-relaxed text-[#927C8B]">
+              {week
+                ? `Week ${week.weekNumber} of ${plan.weeks.length} · ${week.focus} `
+                : ""}
+              A short sequence you chose. It does not diagnose or treat a condition.
+            </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
             <MetricChip
+              icon={CalendarDays}
+              value={`${currentDayNumber}`}
+              label="Day"
+            />
+            <MetricChip
               icon={CheckCircle2}
-              value={`${percent}%`}
-              label="Progress"
-            />
-            <MetricChip
-              icon={Flame}
-              value={`${plan.currentStreak}`}
-              label="Streak"
-            />
-            <MetricChip
-              icon={Trophy}
-              value={`${unlocked}`}
-              label="Badges"
-              className="hidden sm:inline-flex"
+              value={`${completedTasks}/${totalTasks}`}
+              label="Done"
             />
           </div>
 
@@ -162,16 +161,41 @@ export function PlanDashboard({
         </div>
       )}
 
-      <div className="relative grid min-h-0 flex-1 grid-cols-1 overflow-hidden lg:grid-cols-[minmax(260px,0.82fr)_minmax(340px,1.25fr)_minmax(280px,0.95fr)]">
-        <section className="min-h-0 overflow-hidden border-b border-[#EADCE5]/70 bg-gradient-to-b from-[#FFF8FB]/40 to-transparent p-3 sm:p-3.5 lg:border-b-0 lg:border-r">
-          <TodaysMission day={today} onTaskClick={onTaskClick} />
-        </section>
+      <div className="relative min-h-0 flex-1 overflow-y-auto overscroll-contain">
+        <div className="mx-auto flex w-full max-w-3xl flex-col gap-3 p-3 sm:p-4">
+          {savedNote && (
+            <div className="flex items-start justify-between gap-3 rounded-2xl border border-[#EADCE5] bg-[#FFF8FB] px-4 py-3">
+              <p className="text-sm leading-relaxed text-[#49263D]">{savedNote}</p>
+              {onDismissSaved && (
+                <button
+                  type="button"
+                  onClick={onDismissSaved}
+                  className="shrink-0 text-xs font-semibold text-[#B74783] underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D98CB4]"
+                >
+                  Stay here
+                </button>
+              )}
+            </div>
+          )}
 
-        <section className="min-h-0 overflow-hidden border-b border-[#EADCE5]/70 p-3 sm:p-3.5 lg:border-b-0 lg:border-r">
-          <PlanRoadmap plan={plan} onTaskClick={onTaskClick} />
-        </section>
+          <section>
+            <TodaysMission day={today} onTaskClick={onTaskClick} hideAmbience />
+          </section>
 
-        <aside className="flex min-h-0 flex-col gap-2.5 overflow-y-auto overscroll-contain bg-gradient-to-b from-[#FFF8FB] via-[#FFF8FB]/50 to-white p-3 sm:p-3.5">
+          <details className="rounded-[22px] border border-[#EADCE5] bg-white px-4 py-3">
+            <summary className="cursor-pointer font-display text-sm font-bold text-[#49263D] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D98CB4]">
+              Rest of this plan
+            </summary>
+            <div className="mt-3">
+              <PlanRoadmap plan={plan} onTaskClick={onTaskClick} />
+            </div>
+          </details>
+
+          <details className="rounded-[22px] border border-[#EADCE5] bg-[#FFF8FB] px-4 py-3">
+            <summary className="cursor-pointer font-display text-sm font-bold text-[#49263D] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D98CB4]">
+              Journey details
+            </summary>
+          <aside className="mt-3 flex flex-col gap-2.5">
           {/* Journey snapshot */}
           <div className="rounded-[22px] border border-[#EADCE5] bg-gradient-to-br from-white via-[#FFF8FB] to-[#FFF0F6]/80 p-3.5 shadow-[0_10px_28px_rgba(123,57,98,0.07)]">
             <div className="flex items-center justify-between gap-2">
@@ -203,6 +227,9 @@ export function PlanDashboard({
               </span>
               <span className="rounded-full bg-white/90 px-2 py-1 ring-1 ring-[#EADCE5]">
                 {completedTasks}/{totalTasks} tasks
+              </span>
+              <span className="rounded-full bg-white/90 px-2 py-1 ring-1 ring-[#EADCE5]">
+                Streak {plan.currentStreak}
               </span>
             </div>
           </div>
@@ -291,10 +318,14 @@ export function PlanDashboard({
                   {latestReport.aiSummary}
                 </p>
                 <div className="flex flex-wrap gap-1.5">
-                  <TinyStat label="Mood" value={latestReport.moodTrend} />
-                  <TinyStat label="Sleep" value={latestReport.sleepTrend} />
+                  {latestReport.moodTrend !== "unknown" && (
+                    <TinyStat label="Mood" value={latestReport.moodTrend} />
+                  )}
+                  {latestReport.sleepTrend !== "unknown" && (
+                    <TinyStat label="Sleep" value={latestReport.sleepTrend} />
+                  )}
                   <TinyStat
-                    label="Done"
+                    label="Activities"
                     value={`${latestReport.completionRate}%`}
                   />
                 </div>
@@ -372,7 +403,9 @@ export function PlanDashboard({
               })}
             </div>
           </div>
-        </aside>
+          </aside>
+          </details>
+        </div>
       </div>
     </div>
   );
@@ -452,11 +485,10 @@ function CompactMoodChart() {
           const d = subDays(new Date(), i);
           const key = format(d, "yyyy-MM-dd");
           const scores = byDay[key];
+          if (!scores?.length) continue;
           points.push({
             label: format(d, "EEE"),
-            score: scores?.length
-              ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
-              : 0,
+            score: Math.round(scores.reduce((a, b) => a + b, 0) / scores.length),
           });
         }
         setData(points);

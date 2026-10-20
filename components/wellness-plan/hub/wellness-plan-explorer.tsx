@@ -1,29 +1,22 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
   ArrowRight,
-  Brain,
   CalendarDays,
-  ChevronDown,
   Clock,
   CloudRain,
-  Focus,
-  HeartHandshake,
   LayoutGrid,
   Moon,
   Search,
   Sparkles,
-  Sprout,
-  Users,
   Zap,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   ACCENT_CLASSES,
   filterCatalogPlans,
-  MORE_CATEGORIES,
   PLAN_CATEGORIES,
   WELLNESS_PLAN_CATALOG,
   type CatalogPlan,
@@ -75,14 +68,6 @@ const FILTER_META: Record<
   },
 };
 
-const MORE_ICONS: Record<string, typeof Sprout> = {
-  Confidence: Sprout,
-  Relationships: Users,
-  Focus: Focus,
-  "Personal Growth": Brain,
-  "Emotional Wellbeing": HeartHandshake,
-};
-
 interface WellnessPlanExplorerProps {
   enrollments: WellnessPlan[];
   highlightSlugs?: string[];
@@ -99,10 +84,8 @@ export function WellnessPlanExplorer({
   onContinueActive,
 }: WellnessPlanExplorerProps) {
   const reduceMotion = useReducedMotion();
-  const moreRef = useRef<HTMLDivElement>(null);
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<string>("All");
-  const [moreOpen, setMoreOpen] = useState(false);
   const [activeSlug, setActiveSlug] = useState<string>(
     activePlan?.catalogSlug || WELLNESS_PLAN_CATALOG[0]?.slug || ""
   );
@@ -134,16 +117,6 @@ export function WellnessPlanExplorer({
     }
   }, [highlightSlugs]);
 
-  useEffect(() => {
-    const onDoc = (e: MouseEvent) => {
-      if (moreRef.current && !moreRef.current.contains(e.target as Node)) {
-        setMoreOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", onDoc);
-    return () => document.removeEventListener("mousedown", onDoc);
-  }, []);
-
   const selected =
     orderedPlans.find((p) => p.slug === activeSlug) || orderedPlans[0] || null;
 
@@ -162,9 +135,6 @@ export function WellnessPlanExplorer({
   };
 
   const primaryFilters = PLAN_CATEGORIES.filter((c) => c !== "More");
-  const moreSelected = MORE_CATEGORIES.includes(
-    category as (typeof MORE_CATEGORIES)[number]
-  );
   const status = selected ? statusFor(selected) : "available";
   const Icon = selected ? getCatalogIcon(selected.icon) : Sparkles;
   const accent = selected ? ACCENT_CLASSES[selected.accent] : ACCENT_CLASSES.mint;
@@ -227,10 +197,7 @@ export function WellnessPlanExplorer({
               <button
                 key={chip}
                 type="button"
-                onClick={() => {
-                  setCategory(chip);
-                  setMoreOpen(false);
-                }}
+                onClick={() => setCategory(chip)}
                 className={cn(
                   "inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3.5 py-2 text-[12px] font-bold transition",
                   isOn ? meta.active : meta.idle
@@ -238,68 +205,9 @@ export function WellnessPlanExplorer({
               >
                 <ChipIcon className="h-3.5 w-3.5" strokeWidth={2.25} />
                 {chip}
-              </button>
-            );
-          })}
-
-          <div className="relative shrink-0" ref={moreRef}>
-            <button
-              type="button"
-              aria-expanded={moreOpen}
-              aria-haspopup="menu"
-              onClick={() => setMoreOpen((v) => !v)}
-              className={cn(
-                "inline-flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-[12px] font-bold transition",
-                moreSelected || moreOpen
-                  ? "border-transparent bg-gradient-to-r from-[#6B8F7E] to-[#4F7364] text-white shadow-[0_8px_18px_rgba(79,115,100,0.28)]"
-                  : "border-[#D5E6DD] bg-white text-[#3A4F47] hover:border-[#A8CFBE] hover:bg-[#F0FAF5]"
-              )}
-            >
-              {moreSelected ? category : "More"}
-              <ChevronDown
-                className={cn(
-                  "h-3.5 w-3.5 transition",
-                  moreOpen && "rotate-180"
-                )}
-              />
             </button>
-            <AnimatePresence>
-              {moreOpen && (
-                <motion.div
-                  role="menu"
-                  initial={{ opacity: 0, y: 6, scale: 0.98 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 4, scale: 0.98 }}
-                  transition={{ duration: 0.18 }}
-                  className="absolute right-0 z-30 mt-2 min-w-[200px] overflow-hidden rounded-2xl border border-[#D5E6DD] bg-white p-1.5 shadow-[0_16px_40px_rgba(42,80,64,0.14)]"
-                >
-                  {MORE_CATEGORIES.map((c) => {
-                    const MoreIcon = MORE_ICONS[c] || Sprout;
-                    return (
-                      <button
-                        key={c}
-                        type="button"
-                        role="menuitem"
-                        onClick={() => {
-                          setCategory(c);
-                          setMoreOpen(false);
-                        }}
-                        className={cn(
-                          "flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-xs font-semibold transition",
-                          category === c
-                            ? "bg-[#EAF6F2] text-[#2A7A66]"
-                            : "text-[#3A4F47] hover:bg-[#F7FBF9]"
-                        )}
-                      >
-                        <MoreIcon className="h-4 w-4 text-[#3D9B84]" />
-                        {c}
-                      </button>
-                    );
-                  })}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+          );
+        })}
         </div>
       </div>
 

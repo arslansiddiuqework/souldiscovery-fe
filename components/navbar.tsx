@@ -176,7 +176,13 @@ export function Navbar() {
         });
 
         try {
-          const planRaw = localStorage.getItem("aurapulse_wellness_plan_v1");
+          const uid = localStorage.getItem("aurapulse_wellness_active_user");
+          const planRaw =
+            localStorage.getItem(
+              uid
+                ? `aurapulse_wellness_plan_v1:${uid}`
+                : "aurapulse_wellness_plan_v1"
+            ) || localStorage.getItem("aurapulse_wellness_plan_v1");
           const hasPlan = planRaw && JSON.parse(planRaw)?.plan?.weeks?.length;
           if (!hasPlan) {
             compiled.push({

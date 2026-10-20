@@ -169,9 +169,9 @@ export function YourDayPanel() {
             : "Please try again in a moment.",
         variant: "destructive",
       });
+      throw error;
     } finally {
       setPendingId(null);
-      setActiveTask(null);
     }
   };
 

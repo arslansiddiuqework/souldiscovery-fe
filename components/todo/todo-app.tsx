@@ -37,7 +37,7 @@ export function TodoApp() {
   const items = filterTodos(filter);
 
   return (
-    <div className="relative mx-auto w-full max-w-3xl px-4 pb-16 pt-8 sm:px-6">
+    <div className="relative mx-auto w-full max-w-3xl px-4 pb-16 sm:px-6">
       <div
         aria-hidden
         className="pointer-events-none absolute -left-20 top-10 h-56 w-56 rounded-full bg-[radial-gradient(circle,rgba(217,184,245,0.35),transparent_70%)] blur-2xl"

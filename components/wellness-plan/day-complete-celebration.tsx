@@ -48,7 +48,7 @@ export function DayCompleteCelebration({
 
   useEffect(() => {
     if (!open) return;
-    const timer = window.setTimeout(onClose, reduceMotion ? 2600 : 4800);
+    const timer = window.setTimeout(onClose, reduceMotion ? 1600 : 2800);
     return () => window.clearTimeout(timer);
   }, [open, onClose, reduceMotion]);
 
@@ -196,7 +196,7 @@ export function DayCompleteCelebration({
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.28 }}
             >
-              Beautifully done!
+              Day {dayNumber} is complete
             </motion.h2>
             <motion.p
               className="mt-1.5 max-w-[260px] text-[13px] leading-relaxed text-[#927C8B]"
@@ -204,8 +204,8 @@ export function DayCompleteCelebration({
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.34 }}
             >
-              You finished Day {dayNumber}. Come back tomorrow for the next
-              unlock.
+              You can stop here. Tomorrow&apos;s activity will be here when you
+              want it.
             </motion.p>
 
             <motion.button
@@ -216,7 +216,7 @@ export function DayCompleteCelebration({
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
             >
-              Keep going
+              Done for now
             </motion.button>
           </motion.div>
         </motion.div>

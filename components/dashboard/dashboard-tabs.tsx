@@ -3,9 +3,10 @@
 import { motion, useReducedMotion } from "framer-motion";
 import {
   CalendarDays,
-  HeartHandshake,
-  ListTodo,
-  Sparkles,
+  ChevronRight,
+  Heart,
+  ListChecks,
+  Sparkle,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -17,11 +18,36 @@ const TABS: {
   label: string;
   hint: string;
   icon: LucideIcon;
+  ink: string;
 }[] = [
-  { id: "insights", label: "Insights", hint: "Just for you", icon: Sparkles },
-  { id: "checkins", label: "Check-ins", hint: "Your day", icon: CalendarDays },
-  { id: "todo", label: "To-do", hint: "Plans", icon: ListTodo },
-  { id: "care", label: "Care", hint: "Support", icon: HeartHandshake },
+  {
+    id: "insights",
+    label: "Insights",
+    hint: "Just for you",
+    icon: Sparkle,
+    ink: "text-[#B74783]",
+  },
+  {
+    id: "checkins",
+    label: "Check-ins",
+    hint: "Your day",
+    icon: CalendarDays,
+    ink: "text-[#B74783]",
+  },
+  {
+    id: "todo",
+    label: "To-do",
+    hint: "Plans",
+    icon: ListChecks,
+    ink: "text-[#7A5BB8]",
+  },
+  {
+    id: "care",
+    label: "Care",
+    hint: "Support",
+    icon: Heart,
+    ink: "text-[#B74783]",
+  },
 ];
 
 export function DashboardTabs({
@@ -34,68 +60,91 @@ export function DashboardTabs({
   const reduceMotion = useReducedMotion();
 
   return (
-    <div className="relative shrink-0 border-b border-[#EADCE5]/70 bg-[#FFF8FB]/70 px-3 py-2 sm:px-4 sm:py-2.5">
+    <div className="relative shrink-0 px-3 py-2.5 sm:px-4 sm:py-3">
       <nav
         role="tablist"
         aria-label="Dashboard sections"
-        className="relative grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-2.5"
+        className={cn(
+          "mx-auto flex w-full items-stretch gap-1 rounded-[24px] p-1.5",
+          "bg-[linear-gradient(180deg,rgba(255,248,251,0.9),rgba(244,232,255,0.55))]",
+          "ring-1 ring-[#EADCE5]/90",
+          "overflow-x-auto overscroll-x-contain [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        )}
       >
         {TABS.map((tab) => {
           const active = value === tab.id;
           const Icon = tab.icon;
 
           return (
-            <button
+            <motion.button
               key={tab.id}
               type="button"
               role="tab"
               aria-selected={active}
+              layout={reduceMotion ? false : "position"}
               onClick={() => onChange(tab.id)}
               className={cn(
-                "group relative flex min-h-[72px] items-center gap-3 overflow-hidden rounded-[20px] px-3 py-2.5 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D98CB4] sm:min-h-[76px] sm:px-3.5",
-                active
-                  ? "bg-white shadow-[0_14px_32px_rgba(123,57,98,0.12)] ring-1 ring-[#F0D9E6]"
-                  : "bg-white/55 ring-1 ring-[#EADCE5]/80 hover:bg-white hover:shadow-[0_8px_20px_rgba(123,57,98,0.08)]"
+                "relative flex min-h-[64px] min-w-[148px] items-center gap-3 rounded-[18px] px-3 py-2 text-left sm:min-h-[68px] sm:min-w-0 sm:px-3.5",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D98CB4] focus-visible:ring-offset-2",
+                active ? "flex-[1.45]" : "flex-1 hover:bg-white/50"
               )}
             >
               {active && (
                 <motion.span
-                  layoutId={reduceMotion ? undefined : "dash-tab-glow"}
-                  className="pointer-events-none absolute -right-4 -top-6 h-20 w-20 rounded-full bg-[radial-gradient(circle,rgba(183,71,131,0.18),transparent_70%)]"
-                  transition={{ type: "spring", stiffness: 380, damping: 32 }}
-                />
+                  layoutId={reduceMotion ? undefined : "dash-tab-stage"}
+                  aria-hidden
+                  className="absolute inset-0 overflow-hidden rounded-[18px] bg-white shadow-[0_10px_28px_rgba(123,57,98,0.1)] ring-1 ring-[#F0CADA]"
+                  transition={
+                    reduceMotion
+                      ? { duration: 0 }
+                      : { type: "spring", stiffness: 420, damping: 34 }
+                  }
+                >
+                  <span className="absolute inset-y-3 left-0 w-[3px] rounded-full bg-[linear-gradient(180deg,#E58AAF,#C9A4E0)]" />
+                  <span className="absolute -right-6 -top-8 h-20 w-20 rounded-full bg-[#FFE5F0]/80" />
+                </motion.span>
               )}
 
               <span
                 className={cn(
-                  "relative z-[1] flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition duration-300",
+                  "relative z-[1] flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl",
                   active
-                    ? "bg-gradient-to-br from-[#D468A0] via-[#B74783] to-[#9B3A6E] text-white shadow-[0_10px_22px_rgba(183,71,131,0.35)]"
-                    : "bg-[#FFF0F6] text-[#C27A9F] ring-1 ring-[#F0D9E6] group-hover:text-[#B74783]"
+                    ? "bg-[#B74783] text-white shadow-[0_6px_14px_rgba(183,71,131,0.28)]"
+                    : cn("bg-white/80 ring-1 ring-[#EADCE5]", tab.ink)
                 )}
               >
-                <Icon className="h-[18px] w-[18px]" strokeWidth={2.15} />
+                <Icon className="h-4 w-4" strokeWidth={2.1} />
               </span>
 
-              <span className="relative z-[1] min-w-0">
+              <span className="relative z-[1] min-w-0 flex-1">
                 <span
                   className={cn(
-                    "block truncate font-display text-[13px] font-bold tracking-tight sm:text-sm",
-                    active ? "text-[#49263D]" : "text-[#795A70]"
+                    "block truncate font-bold tracking-[-0.02em]",
+                    active
+                      ? "text-[15px] text-[#49263D]"
+                      : "text-[13px] text-[#795A70]"
                   )}
                 >
                   {tab.label}
                 </span>
                 <span
                   className={cn(
-                    "mt-0.5 block truncate text-[10px] font-medium sm:text-[11px]",
-                    active ? "text-[#B74783]" : "text-[#A8939E]"
+                    "mt-0.5 block truncate text-[11px] font-medium",
+                    active ? "text-[#B74783]" : "text-[#927C8B]"
                   )}
                 >
                   {tab.hint}
                 </span>
               </span>
-            </button>
+
+              {active && (
+                <ChevronRight
+                  aria-hidden
+                  className="relative z-[1] h-4 w-4 shrink-0 text-[#C9A4E0]"
+                  strokeWidth={2}
+                />
+              )}
+            </motion.button>
           );
         })}
       </nav>

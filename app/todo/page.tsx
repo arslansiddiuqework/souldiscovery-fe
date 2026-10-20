@@ -8,5 +8,9 @@ export const metadata: Metadata = {
 };
 
 export default function TodoPage() {
-  return <TodoApp />;
+  return (
+    <div className="page-shell pb-8">
+      <TodoApp />
+    </div>
+  );
 }

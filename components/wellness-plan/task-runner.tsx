@@ -35,7 +35,7 @@ interface TaskRunnerProps {
   onComplete: (
     taskId: string,
     extras?: { journalEntry?: string; notes?: string }
-  ) => void;
+  ) => void | Promise<void>;
 }
 
 export function TaskRunner({ task, open, onClose, onComplete }: TaskRunnerProps) {
@@ -44,6 +44,8 @@ export function TaskRunner({ task, open, onClose, onComplete }: TaskRunnerProps)
   const [timerSeconds, setTimerSeconds] = useState(0);
   const [timerRunning, setTimerRunning] = useState(false);
   const [timerDone, setTimerDone] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!task || !open) {
@@ -57,6 +59,8 @@ export function TaskRunner({ task, open, onClose, onComplete }: TaskRunnerProps)
     setTimerDone(false);
     setTimerRunning(false);
     setJournalText("");
+    setSaving(false);
+    setSaveError(null);
   }, [task, open]);
 
   useEffect(() => {
@@ -76,8 +80,26 @@ export function TaskRunner({ task, open, onClose, onComplete }: TaskRunnerProps)
 
   if (!task) return null;
 
-  const finish = (extras?: { journalEntry?: string; notes?: string }) => {
-    onComplete(task.id, extras);
+  const finish = async (extras?: { journalEntry?: string; notes?: string }) => {
+    if (saving) return;
+    setSaving(true);
+    setSaveError(null);
+    try {
+      await onComplete(task.id, extras);
+      onClose();
+    } catch (error) {
+      setSaveError(
+        error instanceof Error
+          ? error.message
+          : "Couldn't save. This activity is still unfinished."
+      );
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const leave = () => {
+    if (saving) return;
     onClose();
   };
 
@@ -101,9 +123,16 @@ export function TaskRunner({ task, open, onClose, onComplete }: TaskRunnerProps)
             {task.title}
           </DialogTitle>
           <DialogDescription className="text-[#927C8B]">
-            {task.description} · ~{task.estimatedMinutes} min
+            {task.description} · about {task.estimatedMinutes} min. You can leave
+            whenever you want. This does not diagnose or treat a condition.
           </DialogDescription>
         </DialogHeader>
+
+        {saveError && (
+          <p className="rounded-xl bg-[#FFF0F6] px-3 py-2 text-sm text-[#9F376F]" role="alert">
+            {saveError}
+          </p>
+        )}
 
         {task.type === "mood_checkin" && (
           <div className="space-y-4 pt-2">
@@ -121,13 +150,13 @@ export function TaskRunner({ task, open, onClose, onComplete }: TaskRunnerProps)
         {task.type === "ai_conversation" && (
           <div className="space-y-5 py-2">
             <div className="rounded-2xl border border-[#EADCE5] bg-white p-4 text-sm leading-relaxed text-[#795A70]">
-              Open a reflection session with Soul Discovery. When you return, this
-              mission will be marked complete.
+              Open a conversation when you want to talk something through. It stays
+              unfinished until you mark it complete. The companion is not a
+              clinician or an emergency service.
             </div>
             <Button
               className="btn-spatium w-full gap-2"
               onClick={() => {
-                finish({ notes: "Launched AI conversation" });
                 router.push(
                   `/therapy/new?prefill=${encodeURIComponent(
                     "I'd like to reflect on my wellness plan and how I'm feeling today."
@@ -136,7 +165,15 @@ export function TaskRunner({ task, open, onClose, onComplete }: TaskRunnerProps)
               }}
             >
               <MessageSquare className="h-4 w-4" />
-              Start AI Reflection
+              Open the conversation
+            </Button>
+            <Button
+              variant="outline"
+              className="w-full rounded-xl"
+              disabled={saving}
+              onClick={() => finish({ notes: "Conversation marked complete" })}
+            >
+              I&apos;ve finished this conversation
             </Button>
           </div>
         )}
@@ -248,12 +285,26 @@ export function TaskRunner({ task, open, onClose, onComplete }: TaskRunnerProps)
                   : "Read something that nourishes you. Mark complete when finished."}
               </p>
             </div>
-            <Button className="btn-spatium w-full gap-2" onClick={() => finish()}>
+            <Button
+              className="btn-spatium w-full gap-2"
+              disabled={saving}
+              onClick={() => finish()}
+            >
               <Check className="h-4 w-4" />
               Mark Complete
             </Button>
           </div>
         )}
+
+        <Button
+          type="button"
+          variant="ghost"
+          className="w-full text-[#927C8B]"
+          onClick={leave}
+          disabled={saving}
+        >
+          Leave for now
+        </Button>
       </DialogContent>
     </Dialog>
   );

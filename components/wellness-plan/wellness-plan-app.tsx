@@ -27,7 +27,10 @@ import {
 } from "@/lib/api/wellness-plan";
 import { adaptPlanIfNeeded } from "@/lib/wellness-plan/adaptive";
 import { getPlanBySlug, type CatalogPlan } from "@/lib/wellness-plan/catalog";
-import { setWellnessStorageUserId } from "@/lib/wellness-plan/storage";
+import {
+  loadWellnessPlan,
+  setWellnessStorageUserId,
+} from "@/lib/wellness-plan/storage";
 import { AssessmentFlow } from "./assessment-flow";
 import { PlanDashboard } from "./plan-dashboard";
 import { TaskRunner } from "./task-runner";
@@ -54,13 +57,12 @@ export function WellnessPlanApp() {
     dayNumber: number;
   } | null>(null);
   const [activeTask, setActiveTask] = useState<PlanTask | null>(null);
+  const [savedNote, setSavedNote] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
-    const [existing, all] = await Promise.all([
-      getWellnessPlan(),
-      listWellnessEnrollments(),
-    ]);
+    const all = await listWellnessEnrollments();
     setEnrollments(all);
+    const existing = loadWellnessPlan();
     if (existing && existing.status !== "paused" && existing.weeks.length > 0) {
       setPlan(existing);
     } else {
@@ -106,10 +108,22 @@ export function WellnessPlanApp() {
         setDetailEnrollment(null);
       }
 
-      // Refresh enrollments without yanking the user out of an open dashboard
-      setView((current) =>
-        current === "dashboard" || current === "assessment" ? current : "hub"
-      );
+      // An existing plan opens on today's step. The library stays available
+      // from Back, and ?browse=1 keeps that choice across a reload.
+      const active = loadWellnessPlan();
+      const browsing = searchParams.get("browse") === "1";
+      setView((current) => {
+        if (current === "dashboard" || current === "assessment") return current;
+        if (
+          !browsing &&
+          active &&
+          active.status === "active" &&
+          active.weeks.length > 0
+        ) {
+          return "dashboard";
+        }
+        return "hub";
+      });
     })();
     return () => {
       cancelled = true;
@@ -120,7 +134,7 @@ export function WellnessPlanApp() {
     setSelectedCatalog(null);
     setDetailEnrollment(null);
     setView("hub");
-    router.replace("/wellness-plan", { scroll: false });
+    router.replace("/wellness-plan?browse=1", { scroll: false });
   };
 
   const handleOpenPlan = async (slug: string) => {
@@ -136,6 +150,7 @@ export function WellnessPlanApp() {
   const handleContinueActive = async () => {
     if (!plan) return;
     setView("dashboard");
+    router.replace("/wellness-plan", { scroll: false });
   };
 
   const handleContinueFromDetail = async () => {
@@ -223,9 +238,18 @@ export function WellnessPlanApp() {
     }
 
     const next = await completeWellnessTask(taskId, extras);
-    if (next) {
+    if (!next) {
+      throw new Error("Couldn't save this activity. It is still unfinished.");
+    }
+    {
       setPlan(next);
       setActiveTask(null);
+      const saved = findTask(taskId);
+      setSavedNote(
+        saved
+          ? `"${saved.title}" is saved. You can continue, or stop here.`
+          : "Saved. You can continue, or stop here."
+      );
 
       // Celebrate every day that just flipped to complete (Day 1, Day 2, …)
       let celebrateDay: number | null = null;
@@ -363,6 +387,8 @@ export function WellnessPlanApp() {
               onReset={handleReset}
               onDismissSuggestion={handleDismissSuggestion}
               onApplySuggestion={handleApplySuggestion}
+              savedNote={savedNote}
+              onDismissSaved={() => setSavedNote(null)}
             />
           </div>
         </div>

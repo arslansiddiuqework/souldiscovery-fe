@@ -31,6 +31,7 @@ import {
 } from "@/lib/wellness-plan/achievements";
 import type { WeeklyReport } from "@/lib/wellness-plan/types";
 import { getPlanBySlug } from "@/lib/wellness-plan/catalog";
+import { notifyWellnessUpdated } from "@/lib/journey/events";
 
 function authHeaders(): HeadersInit | null {
   if (typeof window === "undefined") return null;
@@ -204,40 +205,43 @@ export async function updateWellnessPlan(
   return next;
 }
 
+/**
+ * Persist a plan mutation only after the server accepts it for signed-in users.
+ * A failed request leaves the previous completion state in place.
+ * Guests have no server copy, so local storage remains their record.
+ */
+async function commitPlanChange(
+  previous: WellnessPlan,
+  next: WellnessPlan
+): Promise<WellnessPlan> {
+  if (next === previous) return previous;
+  if (authHeaders()) {
+    await syncPlanToBackend(next, { requireSuccess: true });
+  }
+  saveWellnessPlan(next);
+  notifyWellnessUpdated();
+  return next;
+}
+
 export async function completeWellnessTask(
   taskId: string,
   extras?: { journalEntry?: string; notes?: string },
-  opts?: { requireSync?: boolean }
+  _opts?: { requireSync?: boolean }
 ): Promise<WellnessPlan | null> {
   const plan = loadWellnessPlan();
   if (!plan) return null;
-  let next = completeTaskInPlan(plan, taskId, extras);
-  next = evaluateAchievements(next);
-  saveWellnessPlan(next);
-  try {
-    await syncPlanToBackend(next, { requireSuccess: !!opts?.requireSync });
-  } catch (error) {
-    saveWellnessPlan(plan);
-    throw error;
-  }
-  return next;
+  const next = evaluateAchievements(completeTaskInPlan(plan, taskId, extras));
+  return commitPlanChange(plan, next);
 }
 
 export async function uncompleteWellnessTask(
   taskId: string,
-  opts?: { requireSync?: boolean }
+  _opts?: { requireSync?: boolean }
 ): Promise<WellnessPlan | null> {
   const plan = loadWellnessPlan();
   if (!plan) return null;
   const next = uncompleteTaskInPlan(plan, taskId);
-  saveWellnessPlan(next);
-  try {
-    await syncPlanToBackend(next, { requireSuccess: opts?.requireSync !== false });
-  } catch (error) {
-    saveWellnessPlan(plan);
-    throw error;
-  }
-  return next;
+  return commitPlanChange(plan, next);
 }
 
 export async function deleteWellnessPlan(): Promise<void> {

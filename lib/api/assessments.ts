@@ -258,6 +258,9 @@ export async function fetchAssessmentHistory() {
       interpretationLabel: string | null;
       clinicallyValidated: boolean;
       completedAt: string;
+      totalScore?: number | null;
+      maxScore?: number | null;
+      scoringMethod?: string | null;
     }>;
   };
 }

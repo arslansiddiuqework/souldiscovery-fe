@@ -761,58 +761,54 @@ export default function Dashboard() {
                   <button
                     type="button"
                     onClick={handleStartTherapy}
-                    className="group relative flex min-h-[168px] flex-col overflow-hidden rounded-[22px] bg-gradient-to-br from-[#C45A92] via-[#B74783] to-[#8B4FA0] p-3.5 text-left text-white shadow-[0_14px_36px_rgba(183,71,131,0.28)] transition hover:-translate-y-0.5 hover:shadow-[0_18px_42px_rgba(183,71,131,0.34)] sm:min-h-0 sm:p-4"
+                    className="group relative flex min-h-[168px] flex-col overflow-hidden rounded-[22px] bg-gradient-to-b from-[#D45390] via-[#C13D86] to-[#8E4A9C] p-3.5 text-left text-white shadow-[0_14px_36px_rgba(183,71,131,0.28)] transition hover:-translate-y-0.5 hover:shadow-[0_18px_42px_rgba(183,71,131,0.34)] sm:min-h-0 sm:p-4"
                   >
                     <div
                       aria-hidden
-                      className="pointer-events-none absolute -right-6 -top-8 h-28 w-28 rounded-full bg-white/10 blur-2xl"
+                      className="pointer-events-none absolute -right-8 -top-10 h-32 w-32 rounded-full bg-white/10 blur-2xl"
                     />
                     <div
                       aria-hidden
-                      className="pointer-events-none absolute bottom-8 right-2 h-20 w-20 rounded-full bg-[#D9B8F5]/25 blur-xl"
+                      className="pointer-events-none absolute -bottom-10 left-4 h-28 w-28 rounded-full bg-[#6B3478]/40 blur-2xl"
                     />
 
                     <div className="relative flex items-start justify-between gap-2">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/18 ring-1 ring-white/25 backdrop-blur-sm">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 ring-1 ring-white/35">
                         <MessageSquare className="h-5 w-5" />
                       </div>
                       <div className="flex items-center gap-1">
-                        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/15 text-base shadow-sm ring-1 ring-white/20 transition group-hover:-translate-y-0.5">
+                        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/15 text-base ring-1 ring-white/20 transition group-hover:-translate-y-0.5">
                           💬
                         </span>
-                        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/15 text-base shadow-sm ring-1 ring-white/20 transition delay-75 group-hover:-translate-y-1">
+                        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/15 text-base ring-1 ring-white/20 transition delay-75 group-hover:-translate-y-1">
                           ✨
                         </span>
-                        <span className="hidden h-8 w-8 items-center justify-center rounded-full bg-white/15 text-base shadow-sm ring-1 ring-white/20 transition delay-100 group-hover:-translate-y-0.5 sm:flex">
+                        <span className="hidden h-8 w-8 items-center justify-center rounded-full bg-white/15 text-base ring-1 ring-white/20 transition delay-100 group-hover:-translate-y-0.5 sm:flex">
                           🤍
                         </span>
                       </div>
                     </div>
 
-                    {/* Mini chat preview fills empty mid space */}
-                    <div
-                      aria-hidden
-                      className="relative mt-3 space-y-1.5 opacity-95"
-                    >
-                      <div className="max-w-[88%] rounded-2xl rounded-tl-md bg-white/18 px-2.5 py-1.5 text-[10px] font-medium leading-snug text-white/95 backdrop-blur-sm">
+                    <div aria-hidden className="relative mt-4 space-y-2">
+                      <p className="max-w-[16rem] text-[11px] font-medium leading-snug text-white/80">
                         How are you feeling tonight?
-                      </div>
-                      <div className="ml-auto max-w-[78%] rounded-2xl rounded-tr-md bg-white px-2.5 py-1.5 text-[10px] font-semibold leading-snug text-[#9F376F] shadow-sm">
+                      </p>
+                      <div className="ml-auto w-fit max-w-[85%] rounded-full bg-white px-3 py-1.5 text-[11px] font-semibold leading-snug text-[#9F376F] shadow-sm">
                         A little heavy… but okay 💜
                       </div>
-                      <div className="flex items-center gap-1.5 pl-1">
-                        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white/70" />
-                        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white/55 [animation-delay:150ms]" />
-                        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white/40 [animation-delay:300ms]" />
+                      <div className="flex items-center gap-1.5 pl-1 pt-0.5">
+                        <span className="h-1.5 w-1.5 rounded-full bg-white/55" />
+                        <span className="h-1.5 w-1.5 rounded-full bg-white/40" />
+                        <span className="h-1.5 w-1.5 rounded-full bg-white/25" />
                       </div>
                     </div>
 
                     <div className="relative mt-auto pt-3">
                       <p className="font-display text-lg font-bold">Open Up</p>
-                      <p className="mt-0.5 text-xs text-white/80">
+                      <p className="mt-0.5 text-xs text-white/75">
                         Share what&apos;s on your mind in chat
                       </p>
-                      <span className="mt-2.5 inline-flex items-center gap-1 rounded-full bg-white/15 px-2.5 py-1 text-[11px] font-semibold ring-1 ring-white/20">
+                      <span className="mt-2.5 inline-flex items-center gap-1 rounded-full bg-white/15 px-3 py-1.5 text-[11px] font-semibold ring-1 ring-white/25">
                         Begin session
                         <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" />
                       </span>
@@ -823,29 +819,29 @@ export default function Dashboard() {
                   <button
                     type="button"
                     onClick={handleStartVoiceTherapy}
-                    className="group relative flex min-h-[168px] flex-col overflow-hidden rounded-[22px] border border-[#EADCE5] bg-gradient-to-br from-white via-[#FFF8FB] to-[#F4E8FF] p-3.5 text-left shadow-[0_10px_28px_rgba(123,57,98,0.08)] transition hover:-translate-y-0.5 hover:border-[#B74783]/30 hover:shadow-card sm:min-h-0 sm:p-4"
+                    className="group relative flex min-h-[168px] flex-col overflow-hidden rounded-[22px] border border-[#F3D5E6] bg-gradient-to-b from-white via-[#FFF8FB] to-[#F8E9F4] p-3.5 text-left shadow-[0_10px_28px_rgba(123,57,98,0.08)] transition hover:-translate-y-0.5 hover:border-[#E8A0C4] hover:shadow-card sm:min-h-0 sm:p-4"
                   >
                     <div
                       aria-hidden
-                      className="pointer-events-none absolute -right-8 top-0 h-28 w-28 rounded-full bg-[#FFE5F0]/80 blur-2xl"
+                      className="pointer-events-none absolute -right-8 top-0 h-28 w-28 rounded-full bg-[#FFE5F0]/90 blur-2xl"
                     />
                     <div
                       aria-hidden
-                      className="pointer-events-none absolute -bottom-6 left-8 h-24 w-24 rounded-full bg-[#E8D5FF]/70 blur-2xl"
+                      className="pointer-events-none absolute -bottom-8 left-8 h-24 w-24 rounded-full bg-[#F3D5EE]/70 blur-2xl"
                     />
 
                     <div className="relative flex items-start justify-between gap-2">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#FFE5F0] text-[#B74783] ring-1 ring-[#F0CADA]">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#FFE4F0] text-[#C44B86]">
                         <Mic className="h-5 w-5" />
                       </div>
                       <div className="flex items-center gap-1">
-                        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-base shadow-sm ring-1 ring-[#EADCE5] transition group-hover:-translate-y-0.5">
+                        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-base shadow-sm ring-1 ring-[#F0D9E6] transition group-hover:-translate-y-0.5">
                           🎙️
                         </span>
-                        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-base shadow-sm ring-1 ring-[#EADCE5] transition delay-75 group-hover:-translate-y-1">
+                        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-base shadow-sm ring-1 ring-[#F0D9E6] transition delay-75 group-hover:-translate-y-1">
                           🎧
                         </span>
-                        <span className="hidden h-8 w-8 items-center justify-center rounded-full bg-white text-base shadow-sm ring-1 ring-[#EADCE5] transition delay-100 group-hover:-translate-y-0.5 sm:flex">
+                        <span className="hidden h-8 w-8 items-center justify-center rounded-full bg-white text-base shadow-sm ring-1 ring-[#F0D9E6] transition delay-100 group-hover:-translate-y-0.5 sm:flex">
                           🌙
                         </span>
                       </div>
@@ -860,7 +856,7 @@ export default function Dashboard() {
                         (h, i) => (
                           <span
                             key={i}
-                            className="w-1.5 rounded-full bg-gradient-to-t from-[#B74783] to-[#D9B8F5] opacity-80 transition group-hover:opacity-100"
+                            className="w-1.5 rounded-full bg-gradient-to-t from-[#C44B86] to-[#E7B4D4] opacity-90 transition group-hover:opacity-100"
                             style={{
                               height: `${h}px`,
                               animation: `pulse 1.4s ease-in-out ${i * 0.08}s infinite alternate`,
@@ -877,7 +873,7 @@ export default function Dashboard() {
                       <p className="mt-0.5 text-xs text-[#927C8B]">
                         Voice support that listens with care
                       </p>
-                      <span className="mt-2.5 inline-flex items-center gap-1 rounded-full bg-[#FFF0F6] px-2.5 py-1 text-[11px] font-semibold text-[#B74783] ring-1 ring-[#F0CADA]">
+                      <span className="mt-2.5 inline-flex items-center gap-1 rounded-full bg-[#FFF0F6] px-3 py-1.5 text-[11px] font-semibold text-[#C44B86] ring-1 ring-[#F0CADA]">
                         Start speaking
                         <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" />
                       </span>

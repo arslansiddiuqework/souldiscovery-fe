@@ -22,6 +22,28 @@ function formatTime(seconds: number) {
   return `${m}:${s.toString().padStart(2, "0")}`;
 }
 
+let playbackGeneration = 0;
+let activeAudio: HTMLAudioElement | null = null;
+
+/** Pause Calm Tools music, including a play request that has not settled yet. */
+export function stopRelaxationPlayback() {
+  playbackGeneration += 1;
+  const audio = activeAudio;
+  if (!audio) return;
+  audio.pause();
+}
+
+function playAudio(audio: HTMLAudioElement) {
+  const generation = ++playbackGeneration;
+  const pending = audio.play();
+  pending
+    ?.then(() => {
+      if (generation !== playbackGeneration) audio.pause();
+    })
+    .catch(() => undefined);
+  return generation;
+}
+
 export function RelaxationPlayer({
   track,
   queue,
@@ -32,6 +54,14 @@ export function RelaxationPlayer({
   onSelect: (track: RelaxationTrack) => void;
 }) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const pausedByUser = useRef(false);
+  const pausedTrackId = useRef<string | null>(null);
+  const queueRef = useRef(queue);
+  const trackRef = useRef(track);
+  const onSelectRef = useRef(onSelect);
+  queueRef.current = queue;
+  trackRef.current = track;
+  onSelectRef.current = onSelect;
   const [playing, setPlaying] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -42,9 +72,9 @@ export function RelaxationPlayer({
   const [repeat, setRepeat] = useState(false);
 
   useEffect(() => {
-    const audio = new Audio();
-    audio.preload = "metadata";
-    audioRef.current = audio;
+    const audio = audioRef.current;
+    if (!audio) return;
+    activeAudio = audio;
 
     const onTime = () => setCurrent(audio.currentTime);
     const onMeta = () => setDuration(audio.duration || 0);
@@ -53,13 +83,19 @@ export function RelaxationPlayer({
     const onPlay = () => setPlaying(true);
     const onPause = () => setPlaying(false);
     const onEnded = () => {
-      if (audio.loop) {
-        void audio.play().catch(() => undefined);
+      if (pausedByUser.current) {
+        setPlaying(false);
         return;
       }
-      const idx = queue.findIndex((t) => t.id === track?.id);
-      if (idx >= 0 && idx < queue.length - 1) {
-        onSelect(queue[idx + 1]);
+      if (audio.loop) {
+        playAudio(audio);
+        return;
+      }
+      const list = queueRef.current;
+      const currentTrack = trackRef.current;
+      const index = list.findIndex((item) => item.id === currentTrack?.id);
+      if (index >= 0 && index < list.length - 1) {
+        onSelectRef.current(list[index + 1]);
       } else {
         setPlaying(false);
       }
@@ -80,7 +116,7 @@ export function RelaxationPlayer({
     audio.addEventListener("error", onErr);
 
     return () => {
-      audio.pause();
+      stopRelaxationPlayback();
       audio.removeEventListener("timeupdate", onTime);
       audio.removeEventListener("loadedmetadata", onMeta);
       audio.removeEventListener("waiting", onWait);
@@ -89,27 +125,22 @@ export function RelaxationPlayer({
       audio.removeEventListener("pause", onPause);
       audio.removeEventListener("ended", onEnded);
       audio.removeEventListener("error", onErr);
-      audioRef.current = null;
+      if (activeAudio === audio) activeAudio = null;
     };
-    // queue/track identity handled in separate effect
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [track?.id]);
 
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio || !track) return;
+    if (pausedByUser.current && pausedTrackId.current === track.id) return;
+    pausedByUser.current = false;
+    pausedTrackId.current = null;
     setError(null);
     setLoading(true);
     setCurrent(0);
     audio.src = track.previewUrl;
     audio.load();
-    void audio
-      .play()
-      .then(() => setPlaying(true))
-      .catch(() => {
-        setPlaying(false);
-        setLoading(false);
-      });
+    playAudio(audio);
   }, [track?.id, track?.previewUrl]);
 
   useEffect(() => {
@@ -127,11 +158,15 @@ export function RelaxationPlayer({
   const togglePlay = () => {
     const audio = audioRef.current;
     if (!audio || !track) return;
-    if (audio.paused) {
-      void audio.play().catch(() => setError("Playback blocked — tap again."));
-    } else {
-      audio.pause();
+    if (playing || !audio.paused) {
+      pausedByUser.current = true;
+      pausedTrackId.current = track.id;
+      stopRelaxationPlayback();
+      setPlaying(false);
+      return;
     }
+    pausedByUser.current = false;
+    playAudio(audio);
   };
 
   const seek = (value: number) => {
@@ -152,6 +187,7 @@ export function RelaxationPlayer({
   if (!track) {
     return (
       <div className="flex items-center gap-3 rounded-[18px] bg-[#FBF7FA] px-3 py-2.5">
+        <audio ref={audioRef} preload="none" className="hidden" />
         <AnimatedMusicLogo playing={false} />
         <p className="text-[12px] font-medium text-[#927C8B]">
           Choose a track to begin
@@ -164,6 +200,7 @@ export function RelaxationPlayer({
 
   return (
     <div className="rounded-[18px] bg-[#FBF7FA] px-3 py-2.5">
+      <audio ref={audioRef} preload="metadata" className="hidden" />
       <div className="flex items-center gap-2.5">
         <AnimatedMusicLogo playing={playing && !loading} />
         <div className="min-w-0 flex-1">
