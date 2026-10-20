@@ -242,29 +242,45 @@ export default function Home() {
       icon: HeartPulse,
       title: "24/7 Support",
       description: "Always here to listen and support you, any time of day.",
-      iconClass: "bg-[#FFF0F6] text-[#B74783]",
-      delay: 0.15,
+      accent: "Always on",
+      glow: "rgba(183, 71, 131, 0.22)",
+      iconWell: "from-[#FFE4F0] to-[#F9D0E4]",
+      iconColor: "text-[#B74783]",
+      ring: "group-hover:ring-[#F0CADA]",
+      delay: 0.12,
     },
     {
       icon: Lightbulb,
       title: "Smart Insights",
       description: "Personalized guidance powered by emotional intelligence.",
-      iconClass: "bg-[#EAF6F2] text-[#3D9B84]",
-      delay: 0.25,
+      accent: "Adaptive",
+      glow: "rgba(61, 155, 132, 0.2)",
+      iconWell: "from-[#E3F7F1] to-[#CDEADF]",
+      iconColor: "text-[#2F8F78]",
+      ring: "group-hover:ring-[#C5E8DB]",
+      delay: 0.2,
     },
     {
       icon: Lock,
       title: "Private & Secure",
       description: "Your conversations are always confidential and encrypted.",
-      iconClass: "bg-[#EDF2FF] text-[#5B7CDA]",
-      delay: 0.35,
+      accent: "Encrypted",
+      glow: "rgba(91, 124, 218, 0.2)",
+      iconWell: "from-[#E8EEFF] to-[#D5DFFA]",
+      iconColor: "text-[#4F6ECF]",
+      ring: "group-hover:ring-[#CDD8F5]",
+      delay: 0.28,
     },
     {
       icon: FileText,
       title: "Evidence-Based",
       description: "Therapeutic techniques backed by clinical research.",
-      iconClass: "bg-[#F2ECFF] text-[#8B6BC7]",
-      delay: 0.45,
+      accent: "Trusted",
+      glow: "rgba(139, 107, 199, 0.2)",
+      iconWell: "from-[#F0E9FF] to-[#E0D4FA]",
+      iconColor: "text-[#7A5BB8]",
+      ring: "group-hover:ring-[#DDD0F3]",
+      delay: 0.36,
     },
   ];
 
@@ -430,54 +446,98 @@ export default function Home() {
             </motion.div>
           </div>
 
-          {/* Bottom: Support full width, features in a horizontal row */}
+          {/* Bottom: Support — atmospheric feature strip */}
           <motion.div
-            initial={{ opacity: 0, y: 18 }}
-            animate={{ opacity: mounted ? 1 : 0, y: mounted ? 0 : 18 }}
-            transition={{ delay: 0.18, duration: 0.65 }}
-            className="relative border-t border-[#EADCE5] pt-10"
+            initial={{ opacity: 0, y: 22 }}
+            animate={{ opacity: mounted ? 1 : 0, y: mounted ? 0 : 22 }}
+            transition={{ delay: 0.18, duration: 0.7, ease: "easeOut" }}
+            className="relative overflow-hidden rounded-[28px] border border-[#F0D9E6]/90 bg-gradient-to-br from-white via-[#FFF8FB] to-[#F7EEFF]/70 p-5 shadow-[0_20px_50px_rgba(123,57,98,0.08)] sm:p-7 md:p-8"
             data-particles-mask
             id="features"
           >
-            <div className="mb-6 text-center lg:text-left">
-              <h2
-                className="font-bold tracking-[-0.03em] text-[#49263D]"
-                style={{
-                  fontSize: "clamp(1.35rem, 2.2vw, 1.7rem)",
-                  lineHeight: 1.2,
-                }}
+            {/* Soft atmosphere */}
+            <div
+              aria-hidden
+              className="pointer-events-none absolute -left-16 -top-20 h-56 w-56 rounded-full bg-[#F9DCEB]/55 blur-3xl"
+            />
+            <div
+              aria-hidden
+              className="pointer-events-none absolute -bottom-24 -right-10 h-64 w-64 rounded-full bg-[#E9D5FF]/45 blur-3xl"
+            />
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-[#E8A8C8]/70 to-transparent"
+            />
+
+            <div className="relative mb-7 flex flex-col gap-4 sm:mb-8 lg:flex-row lg:items-end lg:justify-between">
+              <div className="max-w-[34rem] text-center lg:text-left">
+                <span className="badge-soft mx-auto mb-3 lg:mx-0">
+                  <Sparkles className="h-3.5 w-3.5 text-[#B74783]" />
+                  Built for calm, not clutter
+                </span>
+                <h2
+                  className="font-bold tracking-[-0.03em] text-[#49263D]"
+                  style={{
+                    fontSize: "clamp(1.55rem, 2.8vw, 2.05rem)",
+                    lineHeight: 1.15,
+                  }}
+                >
+                  Support that{" "}
+                  <span className="text-gradient-brand">stays with you</span>
+                </h2>
+                <p className="mx-auto mt-2.5 max-w-[44ch] text-[14px] leading-relaxed text-[#795A70] lg:mx-0 sm:text-[15px]">
+                  Powerful tools for reflection, conversation, and calm —
+                  designed to feel quiet, not clinical.
+                </p>
+              </div>
+              <Link
+                href="/features"
+                className="group mx-auto inline-flex items-center gap-1.5 rounded-full border border-[#EADCE5] bg-white/80 px-4 py-2 text-[13px] font-semibold text-[#7B3962] shadow-sm transition hover:-translate-y-0.5 hover:border-[#D9B0C8] hover:bg-[#FFF0F6] lg:mx-0"
               >
-                Support that stays with you
-              </h2>
-              <p className="mx-auto mt-2 max-w-[48ch] text-sm leading-relaxed text-[#795A70] lg:mx-0">
-                Powerful tools for reflection, conversation, and calm — designed
-                to feel quiet, not clinical.
-              </p>
+                See all features
+                <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" />
+              </Link>
             </div>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              {features.map((feature) => (
-                <motion.div
+
+            <div className="relative grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4 lg:gap-4">
+              {features.map((feature, index) => (
+                <motion.article
                   key={feature.title}
-                  initial={{ opacity: 0, y: 12 }}
+                  initial={{ opacity: 0, y: 16 }}
                   animate={{
                     opacity: mounted ? 1 : 0,
-                    y: mounted ? 0 : 12,
+                    y: mounted ? 0 : 16,
                   }}
-                  transition={{ delay: feature.delay, duration: 0.45 }}
-                  className="rounded-[18px] border border-[#EEDCE9] bg-white p-4 shadow-[0_6px_20px_rgba(123,57,98,0.05)]"
+                  transition={{ delay: feature.delay, duration: 0.5, ease: "easeOut" }}
+                  whileHover={{ y: -6 }}
+                  className={`group relative overflow-hidden rounded-[22px] border border-white/80 bg-white/85 p-5 shadow-[0_10px_28px_rgba(123,57,98,0.06)] ring-1 ring-transparent backdrop-blur-sm transition duration-300 hover:shadow-[0_18px_40px_rgba(123,57,98,0.12)] ${feature.ring}`}
                 >
-                  <span
-                    className={`mb-2.5 flex h-9 w-9 items-center justify-center rounded-full ${feature.iconClass}`}
-                  >
-                    <feature.icon className="h-4 w-4" strokeWidth={2} />
-                  </span>
-                  <h3 className="text-[14px] font-bold tracking-[-0.01em] text-[#49263D]">
+                  <div
+                    aria-hidden
+                    className="pointer-events-none absolute -right-8 -top-10 h-28 w-28 rounded-full opacity-0 blur-2xl transition duration-500 group-hover:opacity-100"
+                    style={{ background: feature.glow }}
+                  />
+                  <div className="relative flex items-start justify-between gap-3">
+                    <span
+                      className={`flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br shadow-[inset_0_1px_0_rgba(255,255,255,0.85)] ${feature.iconWell} ${feature.iconColor}`}
+                    >
+                      <feature.icon className="h-[18px] w-[18px]" strokeWidth={2.15} />
+                    </span>
+                    <span className="rounded-full bg-[#FBF5F9] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[#9A6F8E]">
+                      {feature.accent}
+                    </span>
+                  </div>
+                  <h3 className="relative mt-4 text-[15px] font-bold tracking-[-0.02em] text-[#49263D] sm:text-[16px]">
                     {feature.title}
                   </h3>
-                  <p className="mt-1 text-[12px] leading-relaxed text-[#957F94]">
+                  <p className="relative mt-1.5 text-[13px] leading-relaxed text-[#927C8B]">
                     {feature.description}
                   </p>
-                </motion.div>
+                  <div className="relative mt-4 flex items-center gap-2 text-[12px] font-semibold text-[#B74783] opacity-0 transition duration-300 group-hover:opacity-100">
+                    <span className="h-px w-4 bg-[#B74783]/50 transition-all group-hover:w-6" />
+                    0{index + 1}
+                  </div>
+                </motion.article>
               ))}
             </div>
           </motion.div>

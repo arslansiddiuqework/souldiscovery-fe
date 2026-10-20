@@ -74,11 +74,11 @@ export default function AssessmentCenterPage() {
       try {
         const data = await fetchAssessmentCatalog({ search, category });
         if (!active) return;
-        setAssessments(data.assessments);
-        setFeatured(data.featured);
-        setCategories(data.categories);
-        setTrust(data.trust);
-        setCrisis(data.crisis);
+        setAssessments(data.assessments ?? []);
+        setFeatured(data.featured ?? null);
+        setCategories(data.categories ?? []);
+        setTrust(data.trust ?? []);
+        setCrisis(data.crisis ?? null);
       } catch (e) {
         if (!active) return;
         setError(e instanceof Error ? e.message : "Failed to load assessments");
@@ -112,7 +112,7 @@ export default function AssessmentCenterPage() {
       <div className="page-shell relative z-10 pb-14 pt-24 sm:pt-28">
         <div className="container-app">
           {/* Mobile intro strip */}
-          <div className="mb-5 flex items-center justify-between gap-3 lg:hidden">
+          <div className="mb-5 flex flex-col gap-3 lg:hidden">
             <div className="min-w-0">
               <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#7863C6]">
                 Assessment Center
@@ -121,7 +121,7 @@ export default function AssessmentCenterPage() {
                 Understand yourself a little better.
               </h1>
             </div>
-            <div className="flex shrink-0 items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <Link
                 href="/dashboard/assessment-history"
                 className="inline-flex h-9 items-center gap-1.5 rounded-full border border-[#EADCE5] bg-white px-3 text-xs font-bold text-[#49263D] shadow-sm"

@@ -54,7 +54,7 @@ export function TodoComposer({
           }}
           placeholder={placeholder}
           aria-label="New to-do"
-          className="h-11 flex-1 rounded-full border border-[#EADCE5] bg-[#FBF9FF] px-4 text-sm text-[#49263D] outline-none transition placeholder:text-[#927C8B] focus:border-[#B74783]/40 focus:ring-2 focus:ring-[#D98CB4]/50"
+          className="h-11 min-w-0 flex-1 rounded-full border border-[#EADCE5] bg-[#FBF9FF] px-4 text-sm text-[#49263D] outline-none transition placeholder:text-[#927C8B] focus:border-[#B74783]/40 focus:ring-2 focus:ring-[#D98CB4]/50"
         />
         <button
           type="button"

@@ -60,7 +60,7 @@ export function ActivePlanSummary({ plan, onContinue }: ActivePlanSummaryProps) 
           </div>
         </div>
 
-        <div className="grid flex-1 grid-cols-3 gap-3 border-y border-[#F3E6EF] py-3 sm:gap-4 xl:border-y-0 xl:border-l xl:py-0 xl:pl-6">
+        <div className="grid flex-1 grid-cols-1 gap-3 border-y border-[#F3E6EF] py-3 sm:grid-cols-3 sm:gap-4 xl:border-y-0 xl:border-l xl:py-0 xl:pl-6">
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#957F94]">
               Current Streak

@@ -147,6 +147,7 @@
     color-scheme: light;
     scroll-behavior: smooth;
     background: var(--aurora-base, #FBF9FF);
+    overflow-x: hidden;
   }
 
   body {
@@ -157,6 +158,7 @@
     font-weight: 500;
     letter-spacing: -0.01em;
     -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
   }
 
   h1,

@@ -91,7 +91,7 @@ export function TodoItemRow({
         type="button"
         onClick={() => onRemove(todo.id)}
         aria-label={`Delete “${todo.title}”`}
-        className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[#927C8B] opacity-0 transition hover:bg-[#FFF0F2] hover:text-[#B4233D] group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D98CB4]"
+        className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[#927C8B] opacity-100 transition hover:bg-[#FFF0F2] hover:text-[#B4233D] sm:opacity-0 sm:group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D98CB4]"
       >
         <Trash2 className="h-3.5 w-3.5" />
       </button>

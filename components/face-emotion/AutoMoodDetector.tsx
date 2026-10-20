@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useCallback } from "react";
 import { useToast } from "@/components/ui/use-toast";
-import { initializeLandmarker, detectLandmarks, dispose } from "./mediapipeService";
+import { initializeLandmarker, detectLandmarks } from "./mediapipeService";
 import { extractFeatures } from "./emotionFeatureExtractor";
 import { EmotionSmoothingEngine } from "./emotionSmoothingEngine";
 import { calculateRawScore } from "./emotionScoringEngine";
@@ -74,7 +74,7 @@ export function AutoMoodDetector({
     if (videoRef.current) {
       videoRef.current.srcObject = null;
     }
-    dispose();
+    // Keep MediaPipe warm across auto checks
     isRunningRef.current = false;
   }, []);
 
@@ -84,16 +84,19 @@ export function AutoMoodDetector({
     isRunningRef.current = true;
 
     try {
-      const ok = await openCamera();
-      if (!ok) { isRunningRef.current = false; return; }
+      const [, ok] = await Promise.all([
+        initializeLandmarker().catch(() => undefined),
+        openCamera(),
+      ]);
+      if (!ok) {
+        isRunningRef.current = false;
+        return;
+      }
 
-      await initializeLandmarker();
+      // Brief settle for autoexposure
+      await new Promise((r) => setTimeout(r, 400));
 
-      // Wait 2 s warmup
-      await new Promise((r) => setTimeout(r, 2000));
-
-      // We'll run MediaPipe until stable or timeout
-      const smoothingEngine = new EmotionSmoothingEngine(10, 2000); // 2s stability needed
+      const smoothingEngine = new EmotionSmoothingEngine(10, 1500);
 
       const startTime = performance.now();
       const maxDuration = 10000; // 10s max

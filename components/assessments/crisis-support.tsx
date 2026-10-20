@@ -27,13 +27,14 @@ export function NeedSupportNow({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
+        aria-label="Need support now?"
         className={cn(
           "inline-flex items-center gap-2 rounded-full border border-[#EADCE5] bg-white/90 px-3 py-1.5 text-sm font-semibold text-[#795A70] transition hover:bg-[#FFF0F6] hover:text-[#49263D] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(217,140,180,0.55)]",
-          compact && "text-xs px-2.5 py-1"
+          compact && "gap-0 px-2.5 py-1.5"
         )}
       >
         <HeartHandshake className="h-4 w-4 text-[#B74783]" aria-hidden />
-        Need support now?
+        {!compact && <span>Need support now?</span>}
       </button>
 
       {open && (

@@ -134,7 +134,7 @@ function SoftUpperBackdrop() {
       />
       {/* One soft right-side wash only — no full-width stripes */}
       <div
-        className="absolute -right-[8%] top-[12%] h-[62%] w-[48%] rounded-[45%] opacity-50 blur-2xl"
+        className="absolute right-0 top-[12%] h-[62%] w-[48%] max-w-full rounded-[45%] opacity-50 blur-2xl"
         style={{
           background: `radial-gradient(ellipse at center, ${C.blush} 0%, transparent 70%)`,
         }}
@@ -295,7 +295,7 @@ function NewsletterCard() {
         <label htmlFor="footer-email" className="sr-only">
           Email address
         </label>
-        <div className="flex h-[48px] items-center rounded-full border border-[#F0D0E2] bg-white pl-4 pr-1 shadow-[0_4px_14px_rgba(192,68,139,0.05)] transition focus-within:border-[#E8A8C8] focus-within:shadow-[0_4px_16px_rgba(192,68,139,0.1)]">
+        <div className="flex flex-col gap-2 sm:h-[48px] sm:flex-row sm:items-center sm:gap-0 sm:rounded-full sm:border sm:border-[#F0D0E2] sm:bg-white sm:pl-4 sm:pr-1 sm:shadow-[0_4px_14px_rgba(192,68,139,0.05)] sm:transition sm:focus-within:border-[#E8A8C8] sm:focus-within:shadow-[0_4px_16px_rgba(192,68,139,0.1)]">
           <input
             id="footer-email"
             type="email"
@@ -307,12 +307,12 @@ function NewsletterCard() {
               setEmail(event.target.value);
               if (error) setError("");
             }}
-            className="h-full min-w-0 flex-1 border-0 bg-transparent text-[13.5px] shadow-none outline-none ring-0 placeholder:text-[#C4A8B8] focus:border-0 focus:shadow-none focus:outline-none focus:ring-0 focus-visible:border-0 focus-visible:shadow-none focus-visible:outline-none focus-visible:ring-0"
+            className="h-12 min-w-0 flex-1 rounded-full border border-[#F0D0E2] bg-white px-4 text-[13.5px] shadow-none outline-none ring-0 placeholder:text-[#C4A8B8] focus:border-[#E8A8C8] focus:shadow-none focus:outline-none focus:ring-0 focus-visible:border-[#E8A8C8] focus-visible:shadow-none focus-visible:outline-none focus-visible:ring-0 sm:h-full sm:rounded-none sm:border-0 sm:bg-transparent sm:px-0"
             style={{ color: C.deepPlum, boxShadow: "none" }}
           />
           <button
             type="submit"
-            className="inline-flex h-9 shrink-0 items-center gap-1 rounded-full px-4 text-[13px] font-semibold text-white transition hover:brightness-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E65BA5] focus-visible:ring-offset-2"
+            className="inline-flex h-11 w-full shrink-0 items-center justify-center gap-1 rounded-full px-4 text-[13px] font-semibold text-white transition hover:brightness-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E65BA5] focus-visible:ring-offset-2 sm:h-9 sm:w-auto"
             style={{
               background: `linear-gradient(90deg, ${C.bright}, ${C.rose})`,
               boxShadow: "0 6px 14px rgba(192, 68, 139, 0.25)",

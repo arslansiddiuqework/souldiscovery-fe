@@ -129,7 +129,18 @@ export async function fetchAssessmentCatalog(params?: {
   });
   const data = await parseJson(res);
   if (!res.ok) throw new Error(data.message || data.error || "Failed to load assessments");
-  return data as {
+  if (!Array.isArray(data?.assessments)) {
+    throw new Error(
+      data?.message || data?.error || "Assessment catalog unavailable. Check the API connection."
+    );
+  }
+  return {
+    featured: data.featured ?? null,
+    assessments: data.assessments,
+    categories: Array.isArray(data.categories) ? data.categories : [],
+    trust: Array.isArray(data.trust) ? data.trust : [],
+    crisis: data.crisis ?? null,
+  } as {
     featured: (AssessmentCard & { headline: string; cta: string }) | null;
     assessments: AssessmentCard[];
     categories: Array<{ id: string; label: string }>;

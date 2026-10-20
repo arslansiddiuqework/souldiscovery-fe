@@ -65,7 +65,8 @@ export function FaceEmotionModal({ isOpen, onClose, onConfirm }: FaceEmotionModa
           {isInitializing && !error && (
             <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/50 backdrop-blur-sm text-sm">
               <Camera className="w-8 h-8 mb-2 animate-pulse" />
-              <p>Starting camera...</p>
+              <p>Opening camera…</p>
+              <p className="mt-1 text-xs text-muted-foreground">Usually less than a second</p>
             </div>
           )}
 

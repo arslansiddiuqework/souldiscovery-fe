@@ -194,7 +194,7 @@ export const AnxietyGames = ({
           className={cn(
             "grid min-h-0 flex-1 gap-2.5",
             compact
-              ? "grid-cols-3 content-stretch sm:grid-cols-3"
+              ? "grid-cols-2 content-stretch sm:grid-cols-3"
               : "grid-cols-2 content-stretch sm:grid-cols-3"
           )}
         >

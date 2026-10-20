@@ -37,9 +37,40 @@ export async function proxyAssessmentRequest(
       headers,
       body,
       cache: "no-store",
+      redirect: "manual",
     });
 
-    const data = await response.json().catch(() => ({}));
+    // Vercel Deployment Protection / auth walls redirect or return HTML
+    const contentType = response.headers.get("content-type") || "";
+    if (
+      response.status === 301 ||
+      response.status === 302 ||
+      response.status === 303 ||
+      response.status === 307 ||
+      response.status === 308 ||
+      !contentType.includes("application/json")
+    ) {
+      console.error(
+        "Assessment proxy: backend did not return JSON",
+        response.status,
+        contentType
+      );
+      return NextResponse.json(
+        {
+          message:
+            "Assessment service unavailable. Local backend may be down, or BACKEND_API_URL points to a protected deployment.",
+        },
+        { status: 502 }
+      );
+    }
+
+    const data = await response.json().catch(() => null);
+    if (data === null || typeof data !== "object") {
+      return NextResponse.json(
+        { message: "Assessment service returned an invalid response" },
+        { status: 502 }
+      );
+    }
     return NextResponse.json(data, { status: response.status });
   } catch (error) {
     console.error("Assessment proxy error:", error instanceof Error ? error.message : "unknown");

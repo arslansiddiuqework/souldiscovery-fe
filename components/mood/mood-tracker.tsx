@@ -253,7 +253,7 @@ export function MoodTracker() {
             </h4>
             <p className="text-sm text-[#927C8B]">Average mood: 77%</p>
           </div>
-          <div className="grid grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {moodData.monthly.map((week) => (
               <div
                 key={week.week}
