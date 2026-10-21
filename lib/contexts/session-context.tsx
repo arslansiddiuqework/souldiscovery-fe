@@ -12,6 +12,7 @@ interface User {
   aiBehavior?: string;
   aiAvatar?: string;
   aiVoice?: string;
+  websiteTourCompleted?: boolean;
 }
 
 interface SessionContextType {
@@ -20,6 +21,7 @@ interface SessionContextType {
   isAuthenticated: boolean;
   logout: () => Promise<void>;
   checkSession: () => Promise<void>;
+  patchUser: (partial: Partial<User>) => void;
 }
 
 const SessionContext = createContext<SessionContextType | undefined>(undefined);
@@ -116,6 +118,10 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const patchUser = (partial: Partial<User>) => {
+    setUser((prev) => (prev ? { ...prev, ...partial } : prev));
+  };
+
   useEffect(() => {
     checkSession();
   }, []);
@@ -128,6 +134,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
         isAuthenticated: !!user,
         logout,
         checkSession,
+        patchUser,
       }}
     >
       {children}

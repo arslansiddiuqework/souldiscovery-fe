@@ -9,6 +9,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { InfoPageShell } from "@/components/marketing/info-page-shell";
+import { StartWebsiteTourButton } from "@/components/onboarding/start-website-tour-button";
 
 const HELP_LINKS = [
   {
@@ -62,6 +63,7 @@ export default function HelpPage() {
       description="Practical links for getting started, managing your wellness journey, and finding extra support."
     >
       <div className="mx-auto grid max-w-5xl gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <StartWebsiteTourButton />
         {HELP_LINKS.map(({ href, title, description, icon: Icon }) => (
           <Link
             key={href}

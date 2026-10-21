@@ -13,11 +13,13 @@ import {
   Menu,
   MessageCircle,
   ShieldAlert,
+  Compass,
   Sparkles,
   User,
   X,
 } from "lucide-react";
 import { useSession } from "@/lib/contexts/session-context";
+import { useOnboarding } from "@/lib/onboarding/onboarding-context";
 import { cn } from "@/lib/utils";
 import { BrandLogo } from "@/components/brand-logo";
 import { BRAND_NAME } from "@/lib/branding";
@@ -38,6 +40,7 @@ import {
  */
 export function Navbar() {
   const { isAuthenticated, logout, user } = useSession();
+  const { startTour, isActive: tourActive } = useOnboarding();
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [showNotifs, setShowNotifs] = useState(false);
@@ -270,6 +273,7 @@ export function Navbar() {
               <Link
                 key={item.href}
                 href={item.href}
+                data-tour={item.href === "/assessments" ? "assessments" : undefined}
                 data-active={
                   item.href === "/assessments"
                     ? pathname?.startsWith("/assessments")
@@ -284,6 +288,7 @@ export function Navbar() {
               <>
                 <Link
                   href="/wellness-plan"
+                  data-tour="wellness-plan"
                   data-active={pathname?.startsWith("/wellness-plan")}
                   className="nav-link"
                 >
@@ -304,7 +309,7 @@ export function Navbar() {
           <div className="flex shrink-0 items-center gap-2 xl:gap-2.5">
             {isAuthenticated ? (
               <>
-                <Link href="/dashboard" className="nav-dashboard-btn">
+                <Link href="/dashboard" data-tour="dashboard" className="nav-dashboard-btn">
                   Dashboard
                 </Link>
 
@@ -382,6 +387,19 @@ export function Navbar() {
                           <ShieldAlert className="h-4 w-4 text-[#B74783]" />
                           Emergency
                         </Link>
+                        <button
+                          type="button"
+                          role="menuitem"
+                          disabled={tourActive}
+                          onClick={() => {
+                            setShowProfileMenu(false);
+                            startTour();
+                          }}
+                          className="flex w-full items-center gap-2.5 px-3.5 py-2.5 text-left text-sm font-semibold text-[#49263D] transition hover:bg-[#FFF0F6] disabled:opacity-50"
+                        >
+                          <Compass className="h-4 w-4 text-[#B74783]" />
+                          Take a Website Tour
+                        </button>
                         <div className="my-1 border-t border-[#EADCE5]" />
                         <button
                           type="button"
@@ -502,7 +520,11 @@ export function Navbar() {
           <div className="flex shrink-0 items-center gap-1.5">
             {isAuthenticated ? (
               <>
-                <Link href="/dashboard" className="nav-dashboard-btn !h-9 !px-3 !text-[13px]">
+                <Link
+                  href="/dashboard"
+                  data-tour="dashboard"
+                  className="nav-dashboard-btn !h-9 !px-3 !text-[13px]"
+                >
                   Dashboard
                 </Link>
                 <Link
@@ -558,6 +580,7 @@ export function Navbar() {
                 <Link
                   key={item.href}
                   href={item.href}
+                  data-tour={item.href === "/assessments" ? "assessments" : undefined}
                   onClick={closeMobile}
                   className={cn(
                     "rounded-xl px-4 py-3 text-[15px] font-semibold text-[#795A70] transition hover:bg-[#FFF0F6] hover:text-[#49263D]",
@@ -571,6 +594,7 @@ export function Navbar() {
                 <>
                   <Link
                     href="/dashboard"
+                    data-tour="dashboard"
                     onClick={closeMobile}
                     className={cn(
                       "rounded-xl px-4 py-3 text-[15px] font-semibold text-[#795A70] transition hover:bg-[#FFF0F6] hover:text-[#49263D]",
@@ -581,6 +605,7 @@ export function Navbar() {
                   </Link>
                   <Link
                     href="/wellness-plan"
+                    data-tour="wellness-plan"
                     onClick={closeMobile}
                     className={cn(
                       "rounded-xl px-4 py-3 text-[15px] font-semibold text-[#795A70] hover:bg-[#FFF0F6] hover:text-[#49263D]",
@@ -626,6 +651,17 @@ export function Navbar() {
                   >
                     Emergency
                   </Link>
+                  <button
+                    type="button"
+                    disabled={tourActive}
+                    onClick={() => {
+                      closeMobile();
+                      startTour();
+                    }}
+                    className="rounded-xl px-4 py-3 text-left text-[15px] font-semibold text-[#795A70] hover:bg-[#FFF0F6] hover:text-[#49263D] disabled:opacity-50"
+                  >
+                    Take a Website Tour
+                  </button>
                   <button
                     type="button"
                     onClick={requestLogout}

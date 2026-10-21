@@ -3,14 +3,15 @@ const getAuthHeader = (): Record<string, string> => {
   return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
-export const updateProfile = async (data: { 
-  name?: string; 
-  email?: string; 
+export const updateProfile = async (data: {
+  name?: string;
+  email?: string;
   profileImage?: string;
   aiName?: string;
   aiBehavior?: string;
   aiAvatar?: string;
   aiVoice?: string;
+  websiteTourCompleted?: boolean;
 }) => {
   const response = await fetch("/api/user/profile", {
     method: "PUT",
@@ -21,6 +22,23 @@ export const updateProfile = async (data: {
     body: JSON.stringify(data),
   });
   return response.json();
+};
+
+/** Persist that the user finished or skipped the first-time website tour. */
+export const markWebsiteTourCompleted = async () => {
+  const response = await fetch("/api/user/profile", {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      ...getAuthHeader(),
+    },
+    body: JSON.stringify({ websiteTourCompleted: true }),
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.message || data.error || "Failed to save tour progress");
+  }
+  return data;
 };
 
 export const uploadAvatar = async (file: File) => {

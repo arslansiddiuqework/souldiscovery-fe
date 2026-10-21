@@ -312,7 +312,10 @@ export default function AssessmentCenterPage() {
   };
 
   return (
-    <div className="relative min-h-screen bg-[#FBF9FF] text-[#49263D]">
+    <div
+      className="relative min-h-screen bg-[#FBF9FF] text-[#49263D]"
+      data-tour="assessments"
+    >
       <div
         aria-hidden
         className="pointer-events-none absolute inset-x-0 top-0 h-[420px] bg-[radial-gradient(ellipse_at_top,_rgba(183,71,131,0.14),_transparent_58%),radial-gradient(ellipse_at_top_right,_rgba(120,99,198,0.1),_transparent_45%)]"

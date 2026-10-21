@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { motion, useReducedMotion } from "framer-motion";
 import { Flower2, Gamepad2, Heart, LayoutGrid } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -26,12 +27,22 @@ export function WellnessPlansHub({
   onOpenPlan,
 }: WellnessPlansHubProps) {
   const reduceMotion = useReducedMotion();
+  const searchParams = useSearchParams();
   const [deskView, setDeskView] = useState<DeskView>("plans");
   const progress =
     activePlan?.status === "active" ? computePlanProgress(activePlan) : null;
 
+  useEffect(() => {
+    const view = searchParams?.get("view");
+    if (view === "calm") setDeskView("calm");
+    else if (view === "plans") setDeskView("plans");
+  }, [searchParams]);
+
   return (
-    <div className="relative h-[100dvh] max-h-[100dvh] overflow-hidden bg-[#FBF9FF] text-[#49263D]">
+    <div
+      className="relative h-[100dvh] max-h-[100dvh] overflow-hidden bg-[#FBF9FF] text-[#49263D]"
+      data-tour="wellness-plan"
+    >
       <div aria-hidden className="pointer-events-none absolute inset-0">
         <div className="absolute inset-x-0 top-0 h-72 bg-[radial-gradient(ellipse_at_top,rgba(183,71,131,0.14),transparent_58%)]" />
         <div className="absolute -left-20 bottom-10 h-64 w-64 rounded-full bg-[rgba(183,71,131,0.08)] blur-3xl" />
@@ -103,6 +114,7 @@ export function WellnessPlansHub({
                         type="button"
                         role="tab"
                         aria-selected={active}
+                        data-tour={tab.id === "calm" ? "calm-tools" : undefined}
                         onClick={() => setDeskView(tab.id)}
                         className={cn(
                           "relative flex items-center gap-2.5 rounded-full px-2.5 py-2 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D98CB4]",

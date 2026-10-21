@@ -634,7 +634,10 @@ export default function Dashboard() {
     hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
 
   return (
-    <div className="dashboard-shell relative text-[#49263D]">
+    <div
+      className="dashboard-shell relative text-[#49263D]"
+      data-tour="dashboard"
+    >
       <PastelLandscapeBackground />
       <div className="dashboard-canvas relative z-10 flex h-full min-h-0 flex-col gap-3 overflow-hidden sm:gap-3.5">
         <motion.div
