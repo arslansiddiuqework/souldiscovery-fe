@@ -219,65 +219,21 @@ function TileArt({ id, reduceMotion }: { id: ExperienceId; reduceMotion: boolean
   }
   if (id === "yoga") {
     return (
-      <svg viewBox="0 0 80 72" className="h-16 w-20 sm:h-[4.5rem] sm:w-[5.25rem]" aria-hidden>
-        <defs>
-          <linearGradient id="yogaTileGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#E7B4D4" />
-            <stop offset="100%" stopColor="#B74783" />
-          </linearGradient>
-        </defs>
-        {/* Soft mat */}
-        <ellipse cx="40" cy="64" rx="26" ry="5" fill="#F8D5E8" opacity="0.8" />
-        {/* Crossed legs — lotus / easy seated */}
-        <path
-          d="M28 48 Q18 56 14 60 Q22 62 34 54"
-          fill="url(#yogaTileGrad)"
-        />
-        <path
-          d="M52 48 Q62 56 66 60 Q58 62 46 54"
-          fill="url(#yogaTileGrad)"
-        />
-        <ellipse cx="16" cy="60" rx="5" ry="3.2" fill="#E7B4D4" transform="rotate(-18 16 60)" />
-        <ellipse cx="64" cy="60" rx="5" ry="3.2" fill="#E7B4D4" transform="rotate(18 64 60)" />
-        {/* Torso */}
-        <path
-          d="M30 34 Q30 22 40 20 Q50 22 50 34 Q50 46 40 48 Q30 46 30 34Z"
-          fill="url(#yogaTileGrad)"
-        />
-        {/* Arms resting on knees */}
-        <path
-          d="M32 32 Q20 38 16 48"
-          fill="none"
-          stroke="#C45A92"
-          strokeWidth="4"
-          strokeLinecap="round"
-        />
-        <path
-          d="M48 32 Q60 38 64 48"
-          fill="none"
-          stroke="#C45A92"
-          strokeWidth="4"
-          strokeLinecap="round"
-        />
-        <circle cx="16" cy="48" r="3.5" fill="#E7B4D4" />
-        <circle cx="64" cy="48" r="3.5" fill="#E7B4D4" />
-        {/* Head + bun */}
-        <ellipse cx="40" cy="12" rx="6.5" ry="5" fill="#6B4A5A" />
-        <circle cx="40" cy="7" r="3.5" fill="#5C3D4A" />
-        <circle cx="40" cy="16" r="7" fill="#F0B8A8" />
+      <span className="relative flex h-[4.5rem] w-[4.5rem] items-center justify-center sm:h-20 sm:w-20">
         {!reduceMotion && (
-          <circle
-            cx="40"
-            cy="34"
-            r="22"
-            fill="none"
-            stroke="#E7B4D4"
-            strokeWidth="1.5"
-            opacity="0.5"
-            className="motion-safe:animate-pulse"
+          <span
+            aria-hidden
+            className="absolute inset-0 rounded-full bg-[#F8D5E8]/70 motion-safe:animate-pulse"
           />
         )}
-      </svg>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/yoga/lotus.svg"
+          alt=""
+          draggable={false}
+          className="relative z-[1] h-[88%] w-[88%] object-contain drop-shadow-[0_8px_16px_rgba(123,57,98,0.12)]"
+        />
+      </span>
     );
   }
   return null;

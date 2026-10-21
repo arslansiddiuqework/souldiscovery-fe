@@ -212,8 +212,8 @@ function DarkFooterAtmosphere() {
             <stop offset="100%" stopColor={C.darkPlum} stopOpacity="0" />
           </radialGradient>
         </defs>
-        {/* Soft right-side bloom — no hard edges */}
-        <ellipse cx="1180" cy="108" rx="560" ry="78" fill="url(#footerRightGlow)" />
+        {/* Soft right-side bloom — keep inside viewBox so mobile scrollWidth stays clean */}
+        <ellipse cx="1180" cy="92" rx="320" ry="48" fill="url(#footerRightGlow)" />
         {/* Gentle continuous ribbons — full width, low amplitude */}
         <path
           fill="url(#footerWaveFade)"
@@ -353,7 +353,7 @@ function NewsletterCard() {
 
 export function Footer() {
   return (
-    <footer className="relative z-10 mt-8">
+    <footer className="relative z-10 mt-8 overflow-x-hidden">
       {/* Light upper band */}
       <section className="relative overflow-hidden">
         <SoftUpperBackdrop />

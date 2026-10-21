@@ -50,19 +50,34 @@ function themeFor(slug: string) {
   return CARD_THEMES[hash % CARD_THEMES.length];
 }
 
+export type AssessmentCardAction = {
+  label: string;
+  onClick: () => void;
+};
+
 export function AssessmentCard({
   assessment,
   featured = false,
   index = 0,
   onLearnMore,
+  primaryAction,
+  secondaryAction,
+  statusLabel,
 }: {
   assessment: AssessmentCardType & { headline?: string; cta?: string };
   featured?: boolean;
   index?: number;
   onLearnMore?: (slug: string) => void;
+  primaryAction?: AssessmentCardAction;
+  secondaryAction?: AssessmentCardAction;
+  statusLabel?: string | null;
 }) {
   const theme = themeFor(assessment.slug);
   const openLearnMore = () => onLearnMore?.(assessment.slug);
+  const primary = primaryAction ?? {
+    label: "Start Assessment",
+    onClick: openLearnMore,
+  };
 
   if (featured) {
     return (
@@ -145,10 +160,16 @@ export function AssessmentCard({
             <AssessmentIcon name={assessment.icon} className="h-5 w-5" />
           </div>
           <div className="flex flex-wrap items-center justify-end gap-1.5">
-            <span className="inline-flex items-center gap-1 rounded-full bg-white/90 px-2 py-1 text-[10px] font-semibold text-[#B74783] shadow-sm ring-1 ring-[#B74783]/10">
-              <Sparkles className="h-3 w-3" aria-hidden />
-              Free
-            </span>
+            {statusLabel ? (
+              <span className="rounded-full bg-[#EEF8F4] px-2 py-1 text-[10px] font-semibold text-[#287D58] shadow-sm ring-1 ring-[#287D58]/15">
+                {statusLabel}
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1 rounded-full bg-white/90 px-2 py-1 text-[10px] font-semibold text-[#B74783] shadow-sm ring-1 ring-[#B74783]/10">
+                <Sparkles className="h-3 w-3" aria-hidden />
+                Free
+              </span>
+            )}
             <span className="rounded-full bg-white/80 px-2 py-1 text-[10px] font-semibold text-[#7863C6] shadow-sm ring-1 ring-[#7863C6]/10">
               {typeBadgeLabel(assessment.typeBadge)}
             </span>
@@ -164,10 +185,18 @@ export function AssessmentCard({
         </p>
 
         <div className="mt-3 flex flex-wrap gap-1.5">
-          <span className="inline-flex items-center gap-1 rounded-full bg-white/80 px-2 py-1 text-[10px] font-medium text-[#795A70] ring-1 ring-[#EADCE5]/80">
-            <Clock className="h-3 w-3 text-[#B74783]" aria-hidden />
-            About {assessment.estimatedMinutes} min
-          </span>
+          {typeof assessment.estimatedMinutes === "number" && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-white/80 px-2 py-1 text-[10px] font-medium text-[#795A70] ring-1 ring-[#EADCE5]/80">
+              <Clock className="h-3 w-3 text-[#B74783]" aria-hidden />
+              About {assessment.estimatedMinutes} min
+            </span>
+          )}
+          {assessment.questionCount > 0 && (
+            <span className="rounded-full bg-white/80 px-2 py-1 text-[10px] font-medium text-[#795A70] ring-1 ring-[#EADCE5]/80">
+              {assessment.questionCount} question
+              {assessment.questionCount === 1 ? "" : "s"}
+            </span>
+          )}
           <span className="inline-flex items-center gap-1 rounded-full bg-white/80 px-2 py-1 text-[10px] font-medium text-[#795A70] ring-1 ring-[#EADCE5]/80">
             <Users className="h-3 w-3 text-[#7863C6]" aria-hidden />
             {assessment.audience}
@@ -183,18 +212,27 @@ export function AssessmentCard({
           </p>
         ) : null}
 
-        <div className="mt-auto pt-3">
+        <div className="mt-auto space-y-2 pt-3">
           <button
             type="button"
-            onClick={openLearnMore}
+            onClick={primary.onClick}
             className={cn(
               "inline-flex h-9 w-full items-center justify-center gap-1.5 rounded-full border border-[#EADCE5] bg-white/90 px-4 text-sm font-bold text-[#49263D] shadow-sm transition duration-300",
               theme.cta
             )}
           >
-            Get started
+            {primary.label}
             <ArrowUpRight className="h-3.5 w-3.5 opacity-60 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:opacity-100" />
           </button>
+          {secondaryAction ? (
+            <button
+              type="button"
+              onClick={secondaryAction.onClick}
+              className="w-full text-center text-xs font-semibold text-[#B74783] transition hover:underline"
+            >
+              {secondaryAction.label}
+            </button>
+          ) : null}
         </div>
       </div>
     </motion.article>

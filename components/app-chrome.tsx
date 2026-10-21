@@ -6,12 +6,12 @@ import { Footer } from "@/components/footer";
 
 /**
  * Routes that use a focused full-screen chrome (no global nav/footer).
- * Assessment take flow and therapy sessions manage their own headers.
+ * Assessment take flow manages its own header. Therapy keeps the main
+ * Navbar so users stay oriented in Dashboard / site navigation.
  */
 function hideGlobalChrome(pathname: string | null) {
   if (!pathname) return false;
   if (/^\/assessments\/[^/]+\/take\/?$/.test(pathname)) return true;
-  if (/^\/therapy(\/|$)/.test(pathname)) return true;
   return false;
 }
 
@@ -26,10 +26,10 @@ export function AppChrome({ children }: { children: React.ReactNode }) {
   const footerVisible = !focused && showFooter(pathname);
 
   return (
-    <>
+    <div className="relative w-full max-w-[100vw] overflow-x-hidden">
       {!focused && <Navbar />}
-      <main className="min-h-screen">{children}</main>
+      <main className="min-h-screen w-full overflow-x-hidden">{children}</main>
       {footerVisible && <Footer />}
-    </>
+    </div>
   );
 }

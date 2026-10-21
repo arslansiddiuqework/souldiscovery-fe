@@ -24,6 +24,7 @@ import {
   Moon,
   Scale,
   ArrowUp,
+  ArrowLeft,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AvatarImage } from "@/components/ui/avatar-image";
@@ -66,6 +67,7 @@ import Link from "next/link";
 import { applyChatWellnessHint } from "@/lib/api/wellness-plan";
 import { suggestionFromEmotion } from "@/lib/wellness-plan/adaptive";
 import { loadWellnessPlan } from "@/lib/wellness-plan/storage";
+import { PastelLandscapeBackground } from "@/components/ui/pastel-landscape-background";
 
 interface SuggestedQuestion {
   id: string;
@@ -522,37 +524,29 @@ export default function TherapyPage() {
 
   if (!mounted || isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[radial-gradient(ellipse_at_top,_rgba(183,71,131,0.12),_transparent_55%)] px-6">
-        <div className="flex flex-col items-center gap-6">
-          <div className="relative flex h-[72px] w-[72px] items-center justify-center">
-            <motion.span
-              className="absolute inset-0 rounded-full bg-[#B74783]/20 blur-2xl"
-              initial="initial"
-              animate="animate"
-              variants={glowAnimation}
-            />
-            <span className="absolute inset-0 rounded-full border border-[#B74783]/15" />
-            <span className="absolute inset-0 animate-spin rounded-full border-2 border-transparent border-t-[#B74783]" />
-            <div className="relative flex h-11 w-11 items-center justify-center rounded-2xl border border-[#EADCE5] bg-[#FFE5F0] shadow-soft">
-              <Sparkles className="h-5 w-5 text-[#49263D]" />
+      <div className="dashboard-shell relative text-[#49263D]">
+        <PastelLandscapeBackground />
+        <div className="dashboard-canvas relative z-10 flex h-full min-h-0 items-center justify-center">
+          <div className="flex flex-col items-center gap-6 rounded-[28px] border border-[#EADCE5]/90 bg-white/78 px-10 py-12 shadow-[0_18px_50px_rgba(123,57,98,0.1)] backdrop-blur-xl">
+            <div className="relative flex h-[72px] w-[72px] items-center justify-center">
+              <motion.span
+                className="absolute inset-0 rounded-full bg-[#B74783]/20 blur-2xl"
+                initial="initial"
+                animate="animate"
+                variants={glowAnimation}
+              />
+              <span className="absolute inset-0 animate-spin rounded-full border-2 border-transparent border-t-[#B74783]" />
+              <div className="relative flex h-11 w-11 items-center justify-center rounded-2xl border border-[#EADCE5] bg-[#FFE5F0] shadow-soft">
+                <Sparkles className="h-5 w-5 text-[#49263D]" />
+              </div>
             </div>
-          </div>
-          <div className="space-y-2 text-center">
-            <p className="font-display text-lg font-semibold tracking-tight text-[#49263D]">
-              Preparing your session
-            </p>
-            <p className="text-sm text-[#927C8B]">
-              Setting up a calm, private space…
-            </p>
-            <div className="mx-auto mt-3 flex items-center justify-center gap-1.5">
-              {[0, 1, 2].map((i) => (
-                <motion.span
-                  key={i}
-                  className="h-1.5 w-1.5 rounded-full bg-[#B74783]"
-                  animate={{ opacity: [0.3, 1, 0.3], scale: [0.85, 1, 0.85] }}
-                  transition={{ duration: 1.1, repeat: Infinity, delay: i * 0.18 }}
-                />
-              ))}
+            <div className="space-y-2 text-center">
+              <p className="font-display text-lg font-semibold tracking-tight text-[#49263D]">
+                Preparing your session
+              </p>
+              <p className="text-sm text-[#927C8B]">
+                Setting up a calm, private space…
+              </p>
             </div>
           </div>
         </div>
@@ -738,12 +732,13 @@ export default function TherapyPage() {
   const isSessionLocked = currentSession?.status === "completed" || currentSession?.status === "archived";
 
   return (
-    <div className="relative mx-auto w-full max-w-[1440px] lg:px-6">
-      <div className="mt-[72px] flex h-[calc(100dvh-72px)] lg:gap-5 lg:py-4">
+    <div className="dashboard-shell relative text-[#49263D]">
+      <PastelLandscapeBackground />
+      <div className="dashboard-canvas relative z-10 flex h-full min-h-0 gap-3 overflow-hidden sm:gap-3.5">
         {/* Mobile Sidebar Overlay */}
         {isSidebarOpen && (
           <div
-            className="fixed inset-0 z-30 bg-black/60 backdrop-blur-sm lg:hidden"
+            className="fixed inset-0 z-30 bg-[#49263D]/25 backdrop-blur-sm lg:hidden"
             onClick={() => setIsSidebarOpen(false)}
           />
         )}
@@ -751,58 +746,53 @@ export default function TherapyPage() {
         {/* Sidebar with chat history */}
         <aside
           className={cn(
-            "fixed inset-y-0 left-0 z-40 flex w-[86%] max-w-[340px] flex-col border-r border-[#EADCE5] bg-[#080812]/95 pt-[72px] backdrop-blur-xl transition-transform duration-300 ease-out",
-            "lg:relative lg:z-auto lg:w-[300px] lg:max-w-none lg:shrink-0 lg:translate-x-0 lg:rounded-card lg:border lg:border-[#EADCE5] lg:bg-white lg:pt-0 lg:shadow-premium",
-            isSidebarOpen ? "translate-x-0 shadow-premium" : "-translate-x-full"
+            "fixed inset-y-0 left-0 z-40 flex w-[86%] max-w-[320px] flex-col border-r border-[#EADCE5]/90 bg-white/95 pt-[5.5rem] backdrop-blur-2xl transition-transform duration-300 ease-out sm:pt-24",
+            "lg:relative lg:z-auto lg:w-[272px] lg:max-w-none lg:shrink-0 lg:translate-x-0 lg:rounded-[28px] lg:border lg:border-[#EADCE5]/90 lg:bg-white/78 lg:pt-0 lg:shadow-[0_18px_50px_rgba(123,57,98,0.1)]",
+            isSidebarOpen ? "translate-x-0 shadow-[0_18px_50px_rgba(123,57,98,0.18)]" : "-translate-x-full"
           )}
         >
-          <div className="shrink-0 border-b border-[#EADCE5] p-4">
-            <div className="mb-4 flex items-start justify-between gap-2">
+          <div className="shrink-0 border-b border-[#EADCE5]/80 px-4 pb-4 pt-4">
+            <div className="mb-4 flex items-center justify-between gap-2">
+              <Link
+                href="/dashboard"
+                className="inline-flex items-center gap-1.5 rounded-full bg-white/80 px-2.5 py-1 text-[11px] font-semibold text-[#B74783] ring-1 ring-[#EADCE5] transition hover:bg-[#FFF0F6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D98CB4]"
+              >
+                <ArrowLeft className="h-3 w-3" aria-hidden />
+                Dashboard
+              </Link>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsSidebarOpen(false)}
+                className="h-8 w-8 rounded-xl text-[#49263D]/70 lg:hidden"
+                title="Close sidebar"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+            <div className="mb-3 flex items-end justify-between gap-2">
               <div className="min-w-0">
-                <h2 className="font-display text-[15px] font-bold tracking-tight text-[#49263D]">
+                <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#B74783]">
+                  AI Companion
+                </p>
+                <h2 className="font-display text-[17px] font-bold tracking-tight text-[#49263D]">
                   Conversations
                 </h2>
-                <p className="mt-0.5 text-xs text-[#927C8B]">
-                  {sessions.length}{" "}
-                  {sessions.length === 1 ? "session" : "sessions"}
-                </p>
               </div>
-              <div className="flex shrink-0 items-center gap-1">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={handleNewSession}
-                  className="h-9 w-9 rounded-xl text-[#B74783] hover:bg-[#B74783]/10 hover:text-[#B74783]"
-                  disabled={isLoading}
-                  title="New session"
-                >
-                  {isLoading ? (
-                    <Loader2 className="h-5 w-5 animate-spin" />
-                  ) : (
-                    <PlusCircle className="h-5 w-5" />
-                  )}
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setIsSidebarOpen(false)}
-                  className="h-9 w-9 rounded-xl text-[#49263D]/70 lg:hidden"
-                  title="Close sidebar"
-                >
-                  <X className="h-5 w-5" />
-                </Button>
-              </div>
+              <span className="shrink-0 rounded-full bg-[#FFF0F6] px-2 py-0.5 text-[10px] font-semibold text-[#795A70] ring-1 ring-[#EADCE5]">
+                {sessions.length}
+              </span>
             </div>
             <Button
               size="sm"
-              className="h-11 w-full justify-start gap-2 rounded-xl px-4 shadow-soft"
+              className="h-11 w-full justify-center gap-2 rounded-2xl px-4 text-[13px] font-semibold shadow-[0_10px_28px_rgba(183,71,131,0.28)]"
               onClick={handleNewSession}
               disabled={isLoading}
             >
               {isLoading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
-                <MessageSquare className="h-4 w-4" />
+                <PlusCircle className="h-4 w-4" />
               )}
               New chat
             </Button>
@@ -811,8 +801,8 @@ export default function TherapyPage() {
           <div className="min-h-0 flex-1 px-2.5 py-3">
             <div className="h-full space-y-1 overflow-y-auto pr-1">
               {sessions.length === 0 && (
-                <div className="flex h-full flex-col items-center justify-center gap-3 px-6 text-center">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#B74783]/10 text-[#B74783]">
+                <div className="flex h-full flex-col items-center justify-center gap-3 px-5 text-center">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-[#FFE5F0] to-[#F4E8FF] text-[#B74783] ring-1 ring-[#EADCE5]">
                     <MessageSquare className="h-5 w-5" />
                   </div>
                   <p className="font-display text-sm font-semibold text-[#49263D]">
@@ -827,23 +817,25 @@ export default function TherapyPage() {
                 <div
                   key={session.sessionId}
                   className={cn(
-                    "group relative cursor-pointer overflow-hidden rounded-xl px-3 py-2.5 text-sm transition-all duration-200",
+                    "group relative cursor-pointer overflow-hidden rounded-2xl px-3 py-2.5 text-sm transition-all duration-200",
                     session.sessionId === activeSessionId
-                      ? "bg-[#B74783]/15 shadow-sm ring-1 ring-[#B74783]/25"
-                      : "hover:bg-white"
+                      ? "bg-gradient-to-r from-[#FFF0F6] to-[#F8F0FF] shadow-sm ring-1 ring-[#B74783]/20"
+                      : "hover:bg-white/70"
                   )}
                   onClick={() => handleSessionSelect(session.sessionId)}
                 >
                   <div className="mb-0.5 flex min-w-0 items-center justify-between gap-2">
                     <div className="flex min-w-0 items-center gap-2 overflow-hidden">
-                      <MessageSquare
+                      <span
                         className={cn(
-                          "h-3.5 w-3.5 shrink-0",
+                          "flex h-7 w-7 shrink-0 items-center justify-center rounded-xl",
                           session.sessionId === activeSessionId
-                            ? "text-[#B74783]"
-                            : "text-[#795A70]"
+                            ? "bg-[#B74783]/15 text-[#B74783]"
+                            : "bg-[#FFF0F6] text-[#795A70]"
                         )}
-                      />
+                      >
+                        <MessageSquare className="h-3.5 w-3.5" />
+                      </span>
                       <span
                         className={cn(
                           "truncate text-[13px] font-semibold",
@@ -865,15 +857,15 @@ export default function TherapyPage() {
                       <Trash2 className="h-3.5 w-3.5" />
                     </Button>
                   </div>
-                  <p className="line-clamp-1 break-words pl-[22px] text-[11px] leading-relaxed text-[#927C8B]">
+                  <p className="line-clamp-1 break-words pl-9 text-[11px] leading-relaxed text-[#927C8B]">
                     {session.messages[session.messages.length - 1]?.content ||
                       "No messages yet"}
                   </p>
-                  <div className="mt-1.5 flex min-w-0 items-center justify-between gap-2 pl-[22px]">
-                    <span className="badge-soft !px-2 !py-0.5 !text-[10px]">
+                  <div className="mt-1.5 flex min-w-0 items-center justify-between gap-2 pl-9">
+                    <span className="text-[10px] font-medium text-[#B74783]/70">
                       {session.messageCount || 0} msgs
                     </span>
-                    <span className="shrink-0 text-[10px] text-muted-foreground">
+                    <span className="shrink-0 text-[10px] text-[#927C8B]">
                       {formatDistanceToNow(new Date(session.updatedAt), {
                         addSuffix: true,
                       })}
@@ -886,44 +878,58 @@ export default function TherapyPage() {
         </aside>
 
         {/* Main chat area */}
-        <div className="relative flex min-w-0 flex-1 flex-col overflow-hidden border-y border-[#EADCE5] bg-white lg:rounded-card lg:border lg:border-[#EADCE5] lg:shadow-premium">
-          {/* Soft ambient wash behind the thread */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+          className="relative flex min-w-0 flex-1 flex-col overflow-hidden rounded-[28px] border border-[#EADCE5]/90 bg-white/78 shadow-[0_18px_50px_rgba(123,57,98,0.1)] backdrop-blur-xl"
+        >
           <div
             aria-hidden
-            className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(183,71,131,0.08),_transparent_50%)]"
+            className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(183,71,131,0.1),_transparent_52%),radial-gradient(ellipse_at_bottom_right,_rgba(217,184,245,0.12),_transparent_45%)]"
           />
 
           {/* Chat header */}
-          <div className="relative z-10 flex shrink-0 items-center justify-between gap-3 border-b border-[#EADCE5] bg-[#FFF6FA]/60 px-3 py-3.5 backdrop-blur-xl sm:px-5">
+          <div className="relative z-10 flex shrink-0 items-center justify-between gap-3 border-b border-[#EADCE5]/80 bg-gradient-to-r from-[#FFF8FB]/90 via-white/70 to-[#F8F0FF]/50 px-3 py-3 backdrop-blur-xl sm:px-5 sm:py-3.5">
             <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
+              <Link
+                href="/dashboard"
+                className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full border border-[#EADCE5] bg-white/90 px-2.5 text-xs font-semibold text-[#795A70] shadow-sm transition hover:border-[#E7B4D4] hover:bg-[#FFF0F6] hover:text-[#B74783] focus-visible:outline-none focus-visible:!shadow-none focus-visible:ring-2 focus-visible:ring-[#D98CB4] sm:px-3"
+                title="Back to Dashboard"
+              >
+                <ArrowLeft className="h-3.5 w-3.5" aria-hidden />
+                <span className="hidden sm:inline">Back</span>
+              </Link>
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-9 w-9 shrink-0 rounded-xl text-[#49263D] lg:hidden"
+                className="h-9 w-9 shrink-0 rounded-xl bg-white/70 text-[#49263D] ring-1 ring-[#EADCE5] lg:hidden"
                 onClick={() => setIsSidebarOpen(true)}
                 title="Open chat sessions"
               >
                 <Menu className="h-5 w-5" />
               </Button>
               <div className="relative shrink-0">
-                <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-[#EADCE5] bg-[#FFE5F0] shadow-soft">
+                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-[#FFE5F0] to-[#F4E8FF] shadow-soft ring-1 ring-[#EADCE5]">
                   <Bot className="h-5 w-5 text-[#49263D]" />
                 </div>
-                <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-[#080812] bg-success" />
+                <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-white bg-success" />
               </div>
               <div className="min-w-0">
                 <h2 className="truncate font-display text-[15px] font-bold tracking-tight text-[#49263D] sm:text-base">
                   {currentTitle}
                 </h2>
                 <p className="mt-0.5 flex items-center gap-1.5 text-xs text-[#927C8B]">
-                  <span className="font-medium text-[#B74783]">Online</span>
-                  <span className="text-border">·</span>
+                  <span className="inline-flex items-center gap-1 font-medium text-[#B74783]">
+                    <span className="h-1.5 w-1.5 rounded-full bg-success" />
+                    Online
+                  </span>
+                  <span className="text-[#EADCE5]">·</span>
                   <span>{messages.length} messages</span>
                 </p>
               </div>
             </div>
 
-            {/* Auto Mood Toggle & Detector */}
             <div className="flex shrink-0 items-center gap-2">
               {isSessionLocked && (
                 <Badge
@@ -939,78 +945,78 @@ export default function TherapyPage() {
                 size="sm"
                 onClick={() => setIsAutoMoodEnabled(!isAutoMoodEnabled)}
                 className={cn(
-                  "h-9 gap-1.5 rounded-full px-3 text-xs",
-                  !isAutoMoodEnabled && "border-[#EADCE5] bg-white hover:bg-[#B74783]/10 hover:text-[#D9B8F5]"
+                  "h-9 gap-1.5 rounded-full px-3 text-xs font-semibold",
+                  !isAutoMoodEnabled && "border-[#EADCE5] bg-white/80 hover:bg-[#FFF0F6] hover:text-[#B74783]"
                 )}
                 title="Automatically detect mood in background"
               >
-                {isAutoMoodEnabled ? <Video className="w-3.5 h-3.5" /> : <VideoOff className="w-3.5 h-3.5" />}
+                {isAutoMoodEnabled ? <Video className="h-3.5 w-3.5" /> : <VideoOff className="h-3.5 w-3.5" />}
                 <span className="hidden sm:inline">Auto Mood</span>
               </Button>
-              <AutoMoodDetector 
-                isActive={isAutoMoodEnabled && activeSessionId !== "new"} 
-                intervalMinutes={1} 
-                onMoodShiftDetected={handleAutoMoodShift} 
+              <AutoMoodDetector
+                isActive={isAutoMoodEnabled && activeSessionId !== "new"}
+                intervalMinutes={1}
+                onMoodShiftDetected={handleAutoMoodShift}
               />
             </div>
           </div>
 
           {messages.length === 0 ? (
-            // Welcome screen with suggested questions
             <div className="relative z-[1] flex-1 overflow-y-auto">
-              <div className="mx-auto flex min-h-full w-full max-w-2xl flex-col items-center justify-center gap-10 px-4 py-10 sm:px-6 sm:py-14">
-                <div className="flex flex-col items-center text-center">
-                  <div className="relative mb-7 flex h-[88px] w-[88px] items-center justify-center">
+              <div className="mx-auto flex min-h-full w-full max-w-2xl flex-col items-center justify-center gap-9 px-4 py-10 sm:px-6 sm:py-12">
+                <motion.div
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                  className="flex flex-col items-center text-center"
+                >
+                  <div className="relative mb-6 flex h-[84px] w-[84px] items-center justify-center">
                     <motion.div
-                      className="absolute inset-0 rounded-full bg-[#B74783]/20 blur-2xl"
+                      className="absolute inset-0 rounded-full bg-[#B74783]/22 blur-2xl"
                       initial="initial"
                       animate="animate"
                       variants={glowAnimation}
                     />
-                    <div className="relative flex h-[68px] w-[68px] items-center justify-center rounded-[22px] border border-[#EADCE5] bg-[#FFE5F0] shadow-premium">
-                      <Sparkles className="h-7 w-7 text-[#49263D]" />
+                    <div className="relative flex h-[64px] w-[64px] items-center justify-center rounded-[22px] bg-gradient-to-br from-[#FFE5F0] via-white to-[#F4E8FF] shadow-[0_14px_40px_rgba(183,71,131,0.2)] ring-1 ring-[#EADCE5]">
+                      <Sparkles className="h-7 w-7 text-[#B74783]" />
                     </div>
                   </div>
-                  <span className="badge-soft mb-4">
+                  <span className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-white/85 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-[#B74783] ring-1 ring-[#EADCE5]">
                     <Sparkles className="h-3 w-3" />
                     AI Therapist
                   </span>
-                  <h1 className="font-display text-[28px] font-bold tracking-tight text-[#49263D] sm:text-[34px]">
+                  <h1 className="font-display text-[30px] font-bold tracking-tight text-[#49263D] sm:text-[36px]">
                     How can I{" "}
                     <span className="text-gradient-brand">help</span> today?
                   </h1>
                   <p className="mt-3 max-w-md text-[15px] leading-relaxed text-[#927C8B]">
                     Share what&apos;s on your mind, or pick a prompt to begin.
                   </p>
-                </div>
+                </motion.div>
 
-                <div className="relative grid w-full gap-3 sm:grid-cols-2">
+                <div className="grid w-full gap-2.5 sm:grid-cols-2">
                   {SUGGESTED_QUESTIONS.map((q, index) => (
-                    <motion.div
+                    <motion.button
                       key={q.text}
-                      initial={{ opacity: 0, y: 16 }}
+                      type="button"
+                      initial={{ opacity: 0, y: 14 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.08 + 0.25 }}
-                      className="relative"
+                      transition={{ delay: index * 0.07 + 0.2, duration: 0.35 }}
+                      className="group flex w-full items-start gap-3 rounded-[22px] border border-[#EADCE5]/90 bg-white/70 p-4 text-left shadow-[0_8px_28px_rgba(123,57,98,0.06)] backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-[#B74783]/35 hover:bg-white hover:shadow-[0_16px_40px_rgba(183,71,131,0.12)]"
+                      onClick={() => handleSuggestedQuestion(q.text)}
                     >
-                      <button
-                        type="button"
-                        className="group flex h-auto w-full items-start justify-start gap-3 rounded-2xl border border-[#EADCE5] bg-white p-4 text-left shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:border-[#B74783]/30 hover:bg-[#FFF0F6] hover:shadow-premium"
-                        onClick={() => handleSuggestedQuestion(q.text)}
-                      >
-                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#B74783]/10 text-[#B74783] transition-all duration-300 group-hover:bg-white group-hover:text-[#49263D] group-hover:shadow-soft">
-                          <q.icon className="h-4 w-4" />
+                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[#FFE5F0] to-[#F4E8FF] text-[#B74783] transition-transform duration-300 group-hover:scale-105">
+                        <q.icon className="h-4 w-4" />
+                      </span>
+                      <span className="flex min-w-0 flex-col gap-1 pt-0.5">
+                        <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#B74783]">
+                          {q.label}
                         </span>
-                        <span className="flex min-w-0 flex-col gap-1 pt-0.5">
-                          <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#B74783]">
-                            {q.label}
-                          </span>
-                          <span className="whitespace-normal text-[14px] font-medium leading-snug text-[#49263D]">
-                            {q.text}
-                          </span>
+                        <span className="text-[14px] font-medium leading-snug text-[#49263D]">
+                          {q.text}
                         </span>
-                      </button>
-                    </motion.div>
+                      </span>
+                    </motion.button>
                   ))}
                 </div>
               </div>
@@ -1071,8 +1077,8 @@ export default function TherapyPage() {
                               className={cn(
                                 "min-w-0 break-words px-4 py-3.5",
                                 isAssistant
-                                  ? "rounded-[20px] rounded-tl-md border border-[#EADCE5] bg-[rgba(255,255,255,0.04)] text-[#49263D] shadow-card"
-                                  : "rounded-[20px] rounded-tr-md border border-[#B74783]/25 bg-[rgba(183,71,131,0.15)] text-[#49263D] shadow-premium"
+                                  ? "rounded-[22px] rounded-tl-md border border-[#EADCE5]/90 bg-white/90 text-[#49263D] shadow-[0_8px_24px_rgba(123,57,98,0.06)]"
+                                  : "rounded-[22px] rounded-tr-md border border-[#B74783]/20 bg-gradient-to-br from-[#FFF0F6] to-[#F8F0FF] text-[#49263D] shadow-[0_10px_28px_rgba(183,71,131,0.12)]"
                               )}
                             >
                               <div
@@ -1194,7 +1200,7 @@ export default function TherapyPage() {
                         <Bot className="h-4 w-4 text-[#B74783]" />
                       )}
                     </div>
-                    <div className="rounded-[20px] rounded-tl-md border border-[#EADCE5] bg-[rgba(255,255,255,0.04)] px-4 py-3.5 shadow-card">
+                    <div className="rounded-[22px] rounded-tl-md border border-[#EADCE5]/90 bg-white/90 px-4 py-3.5 shadow-[0_8px_24px_rgba(123,57,98,0.06)]">
                       <div className="flex items-center gap-3">
                         <div className="flex items-center gap-1">
                           {[0, 1, 2].map((i) => (
@@ -1224,16 +1230,12 @@ export default function TherapyPage() {
             </div>
           )}
 
-          {/* Input area — ChatGPT/Claude-style composer */}
-          <div className="relative z-10 shrink-0 border-t border-[#EADCE5] bg-gradient-to-t from-[#FFF6FA] via-[#FFF6FA]/90 to-transparent px-3 pb-4 pt-3 backdrop-blur-xl sm:px-5 sm:pb-5">
-            <form
-              onSubmit={handleSubmit}
-              className="relative mx-auto max-w-3xl"
-            >
+          {/* Composer */}
+          <div className="relative z-10 shrink-0 border-t border-[#EADCE5]/80 bg-gradient-to-t from-white/90 via-white/60 to-transparent px-3 pb-3.5 pt-3 sm:px-5 sm:pb-4">
+            <form onSubmit={handleSubmit} className="relative mx-auto max-w-3xl">
               <div
                 className={cn(
-                  "group relative flex items-end gap-2 rounded-[22px] border border-[#EADCE5] bg-[#FFF0F6] p-2 pl-4 shadow-premium backdrop-blur-xl transition-all duration-200",
-                  "focus-within:border-[#B74783]/50 focus-within:ring-4 focus-within:ring-[#B74783]/15",
+                  "group relative flex items-end gap-2 rounded-[24px] border border-[#EADCE5]/90 bg-white/85 p-2 pl-4 shadow-[0_10px_32px_rgba(123,57,98,0.08)] backdrop-blur-xl transition-shadow duration-200 focus-within:shadow-[0_14px_40px_rgba(183,71,131,0.12)]",
                   (isTyping || isChatPaused || isSessionLocked) && "opacity-60"
                 )}
               >
@@ -1248,8 +1250,10 @@ export default function TherapyPage() {
                       : "Message Soul Discovery…"
                   }
                   className={cn(
-                    "max-h-[180px] min-h-[44px] flex-1 resize-none bg-transparent py-2.5 text-[15px] leading-relaxed text-[#49263D]",
-                    "placeholder:text-[#927C8B] focus:outline-none",
+                    "max-h-[180px] min-h-[44px] flex-1 resize-none border-0 bg-transparent py-2.5 text-[15px] leading-relaxed text-[#49263D] shadow-none outline-none ring-0",
+                    "placeholder:text-[#927C8B]",
+                    "focus:border-0 focus:outline-none focus:ring-0 focus:!shadow-none",
+                    "focus-visible:border-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:!shadow-none",
                     (isTyping || isChatPaused || isSessionLocked) &&
                       "cursor-not-allowed"
                   )}
@@ -1266,10 +1270,10 @@ export default function TherapyPage() {
                   type="submit"
                   size="icon"
                   className={cn(
-                    "mb-0.5 h-10 w-10 shrink-0 rounded-xl shadow-soft transition-all duration-200",
+                    "mb-0.5 h-10 w-10 shrink-0 rounded-2xl transition-all duration-200",
                     message.trim() && !isTyping && !isChatPaused && !isSessionLocked
-                      ? "bg-white text-[#49263D] shadow-[rgba(255,255,255,0.7)_0px_1px_0px_0px_inset,rgba(183,71,131,0.35)_0px_10px_30px_0px] hover:brightness-105"
-                      : "bg-[#B74783]/15 text-[#B74783]/50 hover:bg-[#B74783]/20",
+                      ? "bg-[#B74783] text-white shadow-[0_8px_20px_rgba(183,71,131,0.35)] hover:bg-[#9F376F]"
+                      : "bg-[#FFF0F6] text-[#B74783]/45 hover:bg-[#FFE5F0]",
                     (isTyping || isChatPaused || isSessionLocked || !message.trim()) &&
                       "cursor-not-allowed"
                   )}
@@ -1287,25 +1291,18 @@ export default function TherapyPage() {
                 </Button>
               </div>
             </form>
-            <p className="mt-2.5 text-center text-[11px] text-[#927C8B]">
-              <kbd className="rounded-md border border-[#EADCE5] bg-[#FFF0F6] px-1.5 py-0.5 font-sans text-[10px] text-[#49263D]/60">
-                Enter
-              </kbd>{" "}
-              to send ·{" "}
-              <kbd className="rounded-md border border-[#EADCE5] bg-[#FFF0F6] px-1.5 py-0.5 font-sans text-[10px] text-[#49263D]/60">
-                Shift + Enter
-              </kbd>{" "}
-              for a new line
+            <p className="mt-2 text-center text-[11px] text-[#927C8B]">
+              Enter to send · Shift + Enter for a new line
             </p>
           </div>
-        </div>
+        </motion.div>
       </div>
 
       {/* Interactive Activity Modal Overlay */}
       {stressPrompt && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
-          <div className="relative flex max-h-[90vh] w-full max-w-4xl flex-col overflow-y-auto rounded-card border border-[#EADCE5] bg-[#FFF0F6]/95 shadow-premium backdrop-blur-xl">
-            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-[#EADCE5] bg-[#FFF6FA]/80 p-4 backdrop-blur sm:p-5">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#49263D]/40 p-4 backdrop-blur-md">
+          <div className="relative flex max-h-[90vh] w-full max-w-4xl flex-col overflow-y-auto rounded-[28px] border border-[#EADCE5]/90 bg-white/92 shadow-[0_24px_70px_rgba(123,57,98,0.2)] backdrop-blur-xl">
+            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-[#EADCE5]/80 bg-gradient-to-r from-[#FFF8FB] to-white/90 p-4 backdrop-blur sm:p-5">
               <div>
                 <h3 className="font-display text-lg font-semibold text-[#49263D]">
                   {stressPrompt.activity.title}
@@ -1314,9 +1311,9 @@ export default function TherapyPage() {
                   {stressPrompt.activity.description}
                 </p>
               </div>
-              <Button 
-                variant="ghost" 
-                size="icon" 
+              <Button
+                variant="ghost"
+                size="icon"
                 className="h-9 w-9 shrink-0 rounded-xl"
                 onClick={() => setStressPrompt(null)}
               >

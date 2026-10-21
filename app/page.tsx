@@ -285,9 +285,9 @@ export default function Home() {
   ];
 
   return (
-    <div className="relative flex min-h-screen flex-col">
+    <div className="relative flex min-h-screen w-full max-w-[100vw] flex-col overflow-x-hidden">
       {/* Hero — top: clarity ‖ mood · bottom: support full-width horizontal */}
-      <section className="relative px-4 pb-12 pt-24 md:pb-16 md:pt-28">
+      <section className="relative overflow-x-hidden px-4 pb-12 pt-24 md:pb-16 md:pt-28">
         <div className="mx-auto flex w-full max-w-[1080px] flex-col gap-10 md:gap-12">
           {/* Top row: Discover clarity ‖ Mood */}
           <div className="grid items-center gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:gap-12 xl:gap-14">
@@ -458,11 +458,11 @@ export default function Home() {
             {/* Soft atmosphere */}
             <div
               aria-hidden
-              className="pointer-events-none absolute -left-16 -top-20 h-56 w-56 rounded-full bg-[#F9DCEB]/55 blur-3xl"
+              className="pointer-events-none absolute -left-8 -top-16 h-40 w-40 rounded-full bg-[#F9DCEB]/55 blur-3xl sm:-left-16 sm:-top-20 sm:h-56 sm:w-56"
             />
             <div
               aria-hidden
-              className="pointer-events-none absolute -bottom-24 -right-10 h-64 w-64 rounded-full bg-[#E9D5FF]/45 blur-3xl"
+              className="pointer-events-none absolute -bottom-16 -right-6 h-44 w-44 rounded-full bg-[#E9D5FF]/45 blur-3xl sm:-bottom-24 sm:-right-10 sm:h-64 sm:w-64"
             />
             <div
               aria-hidden
