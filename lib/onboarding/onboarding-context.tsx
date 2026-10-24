@@ -92,14 +92,46 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
     setPhase("welcome");
   }, []);
 
+  const goToStepRoute = useCallback(
+    (step: TourSpotlightStep | undefined) => {
+      if (!step || !pathname) return;
+      const [targetPath, query = ""] = step.href.split("?");
+      const onPath =
+        pathname === targetPath || pathname.startsWith(`${targetPath}/`);
+      const currentQuery =
+        typeof window !== "undefined"
+          ? window.location.search.replace(/^\?/, "")
+          : "";
+
+      if (!onPath) {
+        router.push(step.href);
+        return;
+      }
+
+      // Query steps (e.g. calm tools) must land on the exact search string.
+      if (query) {
+        if (currentQuery !== query) {
+          router.push(step.href);
+        }
+        return;
+      }
+
+      // Leaving calm view: clear `?view=` so the plans desk is visible again.
+      if (
+        targetPath === "/wellness-plan" &&
+        currentQuery.includes("view=")
+      ) {
+        router.push("/wellness-plan");
+      }
+    },
+    [pathname, router]
+  );
+
   const beginSpotlight = useCallback(() => {
     setSpotlightIndex(0);
     setPhase("spotlight");
-    const first = TOUR_SPOTLIGHT_STEPS[0];
-    if (first && pathname !== first.href.split("?")[0]) {
-      router.push(first.href);
-    }
-  }, [pathname, router]);
+    goToStepRoute(TOUR_SPOTLIGHT_STEPS[0]);
+  }, [goToStepRoute]);
 
   const next = useCallback(() => {
     if (phase === "welcome") {
@@ -113,19 +145,15 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
     }
     const nextIndex = spotlightIndex + 1;
     setSpotlightIndex(nextIndex);
-    const step = TOUR_SPOTLIGHT_STEPS[nextIndex];
-    if (step) {
-      const targetPath = step.href.split("?")[0];
-      if (!pathname?.startsWith(targetPath) || step.href.includes("?")) {
-        router.push(step.href);
-      }
-    }
-  }, [beginSpotlight, phase, pathname, router, spotlightIndex]);
+    goToStepRoute(TOUR_SPOTLIGHT_STEPS[nextIndex]);
+  }, [beginSpotlight, goToStepRoute, phase, spotlightIndex]);
 
   const back = useCallback(() => {
     if (phase === "complete") {
       setPhase("spotlight");
-      setSpotlightIndex(TOUR_SPOTLIGHT_STEPS.length - 1);
+      const last = TOUR_SPOTLIGHT_STEPS.length - 1;
+      setSpotlightIndex(last);
+      goToStepRoute(TOUR_SPOTLIGHT_STEPS[last]);
       return;
     }
     if (phase !== "spotlight") return;
@@ -135,11 +163,8 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
     }
     const prevIndex = spotlightIndex - 1;
     setSpotlightIndex(prevIndex);
-    const step = TOUR_SPOTLIGHT_STEPS[prevIndex];
-    if (step) {
-      router.push(step.href);
-    }
-  }, [phase, router, spotlightIndex]);
+    goToStepRoute(TOUR_SPOTLIGHT_STEPS[prevIndex]);
+  }, [goToStepRoute, phase, spotlightIndex]);
 
   const skip = useCallback(() => {
     void closeToIdle();
@@ -160,27 +185,54 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
     [persistCompletion, restoreFocus, router]
   );
 
-  // Auto-offer welcome after first successful login lands on dashboard
+  // Auto-offer welcome after first successful login lands on dashboard.
+  // Wait out blocking dialogs (e.g. mood check-in) instead of giving up once.
   useEffect(() => {
     if (loading || !isAuthenticated || !user) return;
     if (user.websiteTourCompleted) return;
     if (autoStartedRef.current) return;
     if (pathname !== "/dashboard") return;
-    if (hasBlockingDialog()) return;
 
     autoStartedRef.current = true;
-    const timer = window.setTimeout(() => {
-      if (hasBlockingDialog()) {
-        autoStartedRef.current = false;
-        return;
-      }
+    let attempts = 0;
+    const maxAttempts = 24; // ~12s
+    let pollId: number | null = null;
+
+    const openWelcome = () => {
       if (typeof document !== "undefined") {
         returnFocusRef.current = document.activeElement as HTMLElement | null;
       }
       setPhase("welcome");
-    }, 700);
+    };
 
-    return () => window.clearTimeout(timer);
+    const tryOpen = () => {
+      attempts += 1;
+      if (hasBlockingDialog()) {
+        if (attempts >= maxAttempts) {
+          // Don't block the account forever — user can still start from Help / profile.
+          autoStartedRef.current = false;
+          return true;
+        }
+        return false;
+      }
+      openWelcome();
+      return true;
+    };
+
+    const startTimer = window.setTimeout(() => {
+      if (tryOpen()) return;
+      pollId = window.setInterval(() => {
+        if (tryOpen() && pollId != null) {
+          window.clearInterval(pollId);
+          pollId = null;
+        }
+      }, 500);
+    }, 600);
+
+    return () => {
+      window.clearTimeout(startTimer);
+      if (pollId != null) window.clearInterval(pollId);
+    };
   }, [isAuthenticated, loading, pathname, user]);
 
   // Reset auto-start gate on logout so a new account can see the tour

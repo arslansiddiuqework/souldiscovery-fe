@@ -9,6 +9,7 @@ import {
   useState,
 } from "react";
 import { createPortal } from "react-dom";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useReducedMotion } from "framer-motion";
 import { Compass, X } from "lucide-react";
 import { BrandLogo } from "@/components/brand-logo";
@@ -16,7 +17,11 @@ import { BRAND_CAPTION, BRAND_NAME } from "@/lib/branding";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useOnboarding } from "@/lib/onboarding/onboarding-context";
-import { findVisibleTourTarget } from "@/lib/onboarding/tour-steps";
+import {
+  findVisibleTourTarget,
+  isTourRouteReady,
+  TOUR_TOTAL_STEPS,
+} from "@/lib/onboarding/tour-steps";
 
 type Rect = { top: number; left: number; width: number; height: number };
 
@@ -36,6 +41,16 @@ function clamp(n: number, min: number, max: number) {
   return Math.min(max, Math.max(min, n));
 }
 
+function rectsClose(a: Rect | null, b: Rect | null) {
+  if (!a || !b) return a === b;
+  return (
+    Math.abs(a.top - b.top) < 1 &&
+    Math.abs(a.left - b.left) < 1 &&
+    Math.abs(a.width - b.width) < 1 &&
+    Math.abs(a.height - b.height) < 1
+  );
+}
+
 export function WebsiteTour() {
   const {
     phase,
@@ -47,15 +62,22 @@ export function WebsiteTour() {
     finish,
     beginSpotlight,
   } = useOnboarding();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const search = searchParams?.toString() ? `?${searchParams.toString()}` : "";
   const reduceMotion = useReducedMotion();
   const titleId = useId();
   const descId = useId();
   const liveRef = useRef<HTMLDivElement>(null);
+  const nextBtnRef = useRef<HTMLButtonElement>(null);
   const [mounted, setMounted] = useState(false);
   const [targetRect, setTargetRect] = useState<Rect | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   const [missingTarget, setMissingTarget] = useState(false);
+  const [routeSettling, setRouteSettling] = useState(false);
   const tooltipRef = useRef<HTMLDivElement>(null);
+  const scrollTimerRef = useRef<number | null>(null);
+  const lastStepIdRef = useRef<string | null>(null);
 
   useEffect(() => setMounted(true), []);
 
@@ -63,81 +85,132 @@ export function WebsiteTour() {
     setIsMobile(window.innerWidth < 768);
   }, []);
 
-  const refreshTarget = useCallback(() => {
-    if (phase !== "spotlight" || !currentStep) {
-      setTargetRect(null);
+  const refreshTarget = useCallback(
+    (opts?: { allowScroll?: boolean }) => {
+      if (phase !== "spotlight" || !currentStep) {
+        setTargetRect(null);
+        setMissingTarget(false);
+        setRouteSettling(false);
+        return;
+      }
+
+      const routeReady = isTourRouteReady(
+        pathname,
+        currentStep.href,
+        search
+      );
+      if (!routeReady) {
+        setRouteSettling(true);
+        setMissingTarget(false);
+        setTargetRect(null);
+        return;
+      }
+
+      setRouteSettling(false);
+      const el = findVisibleTourTarget(currentStep.target);
+      if (!el) {
+        setMissingTarget(true);
+        return;
+      }
+
       setMissingTarget(false);
-      return;
-    }
+      const rect = measure(el);
+      setTargetRect((prev) => (rectsClose(prev, rect) ? prev : rect));
 
-    const el = findVisibleTourTarget(currentStep.target);
-    if (!el) {
-      setTargetRect(null);
-      setMissingTarget(true);
-      return;
-    }
+      if (opts?.allowScroll === false) return;
 
-    setMissingTarget(false);
-    const rect = measure(el);
-    setTargetRect(rect);
+      const fullyVisible =
+        rect.top >= 72 &&
+        rect.top + rect.height <= window.innerHeight - 24 &&
+        rect.left >= 8 &&
+        rect.left + rect.width <= window.innerWidth - 8;
 
-    const fullyVisible =
-      rect.top >= 72 &&
-      rect.top + rect.height <= window.innerHeight - 24 &&
-      rect.left >= 8 &&
-      rect.left + rect.width <= window.innerWidth - 8;
-
-    if (!fullyVisible) {
-      el.scrollIntoView({
-        block: "center",
-        inline: "nearest",
-        behavior: reduceMotion ? "auto" : "smooth",
-      });
-      window.setTimeout(() => {
-        const again = findVisibleTourTarget(currentStep.target);
-        if (again) setTargetRect(measure(again));
-      }, reduceMotion ? 50 : 320);
-    }
-  }, [currentStep, phase, reduceMotion]);
+      if (!fullyVisible) {
+        if (scrollTimerRef.current) window.clearTimeout(scrollTimerRef.current);
+        el.scrollIntoView({
+          block: "center",
+          inline: "nearest",
+          behavior: reduceMotion ? "auto" : "smooth",
+        });
+        scrollTimerRef.current = window.setTimeout(() => {
+          const again = findVisibleTourTarget(currentStep.target);
+          if (again) {
+            const nextRect = measure(again);
+            setTargetRect((prev) =>
+              rectsClose(prev, nextRect) ? prev : nextRect
+            );
+          }
+        }, reduceMotion ? 40 : 280);
+      }
+    },
+    [currentStep, phase, pathname, reduceMotion, search]
+  );
 
   useLayoutEffect(() => {
     if (!mounted) return;
     updateViewport();
-    refreshTarget();
-  }, [mounted, phase, currentStep, updateViewport, refreshTarget]);
+    refreshTarget({ allowScroll: true });
+  }, [mounted, phase, currentStep, pathname, search, updateViewport, refreshTarget]);
 
+  // Re-measure while spotlight is open (layout shifts, fonts, tabs)
   useEffect(() => {
-    if (phase !== "spotlight") return;
+    if (phase !== "spotlight" || !currentStep) return;
 
     const onResize = () => {
       updateViewport();
-      refreshTarget();
+      refreshTarget({ allowScroll: false });
     };
-    const onScroll = () => refreshTarget();
+    const onScroll = () => refreshTarget({ allowScroll: false });
 
     window.addEventListener("resize", onResize);
     window.addEventListener("scroll", onScroll, true);
-    const interval = window.setInterval(refreshTarget, 500);
 
-    // Wait briefly for route content / desk tabs to mount
-    const boot = window.setTimeout(refreshTarget, 180);
-    const boot2 = window.setTimeout(refreshTarget, 600);
+    const boots = [80, 220, 500, 900, 1400].map((ms) =>
+      window.setTimeout(() => refreshTarget({ allowScroll: ms <= 500 }), ms)
+    );
+    const interval = window.setInterval(
+      () => refreshTarget({ allowScroll: false }),
+      700
+    );
 
     return () => {
       window.removeEventListener("resize", onResize);
       window.removeEventListener("scroll", onScroll, true);
+      boots.forEach((id) => window.clearTimeout(id));
       window.clearInterval(interval);
-      window.clearTimeout(boot);
-      window.clearTimeout(boot2);
+      if (scrollTimerRef.current) window.clearTimeout(scrollTimerRef.current);
     };
-  }, [phase, currentStep, refreshTarget, updateViewport]);
+  }, [phase, currentStep, pathname, search, refreshTarget, updateViewport]);
 
-  // Skip unavailable spotlight targets after a short wait for route content
+  // Only auto-advance when the route is ready AND the target stays missing.
+  // Prevents skipping a step during client-side navigation.
   useEffect(() => {
-    if (phase !== "spotlight" || !missingTarget) return;
-    const timer = window.setTimeout(() => next(), 1200);
+    if (phase !== "spotlight" || !currentStep || !missingTarget || routeSettling) {
+      return;
+    }
+    if (!isTourRouteReady(pathname, currentStep.href, search)) return;
+
+    const timer = window.setTimeout(() => {
+      // Re-check once more before skipping
+      if (findVisibleTourTarget(currentStep.target)) {
+        setMissingTarget(false);
+        refreshTarget({ allowScroll: true });
+        return;
+      }
+      next();
+    }, 2800);
+
     return () => window.clearTimeout(timer);
-  }, [missingTarget, next, phase, currentStep?.id]);
+  }, [
+    missingTarget,
+    next,
+    phase,
+    currentStep,
+    pathname,
+    search,
+    routeSettling,
+    refreshTarget,
+  ]);
 
   useEffect(() => {
     if (phase === "idle") return;
@@ -154,17 +227,42 @@ export function WebsiteTour() {
     }
   }, [phase, currentStep]);
 
+  // Focus primary action when a new spotlight step lands
   useEffect(() => {
-    if (phase === "idle") return;
+    if (phase !== "spotlight" || !currentStep) return;
+    if (lastStepIdRef.current === currentStep.id) return;
+    lastStepIdRef.current = currentStep.id;
+    const t = window.setTimeout(() => nextBtnRef.current?.focus(), 180);
+    return () => window.clearTimeout(t);
+  }, [phase, currentStep]);
+
+  useEffect(() => {
+    if (phase === "idle") {
+      lastStepIdRef.current = null;
+      return;
+    }
 
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         e.preventDefault();
         skip();
+        return;
+      }
+      if (phase === "spotlight" && (e.key === "Enter" || e.key === "ArrowRight")) {
+        const tag = (e.target as HTMLElement | null)?.tagName;
+        if (tag === "INPUT" || tag === "TEXTAREA") return;
+        e.preventDefault();
+        next();
+      }
+      if (phase === "spotlight" && e.key === "ArrowLeft") {
+        e.preventDefault();
+        back();
       }
     };
     window.addEventListener("keydown", onKey);
     const prevOverflow = document.body.style.overflow;
+    // Keep page scrollable under spotlight so scrollIntoView can settle,
+    // but lock scroll for modal phases.
     if (phase === "welcome" || phase === "complete") {
       document.body.style.overflow = "hidden";
     }
@@ -172,9 +270,14 @@ export function WebsiteTour() {
       window.removeEventListener("keydown", onKey);
       document.body.style.overflow = prevOverflow;
     };
-  }, [phase, skip]);
+  }, [phase, skip, next, back]);
 
   if (!mounted || phase === "idle") return null;
+
+  const showSpotlightChrome =
+    phase === "spotlight" &&
+    !!currentStep &&
+    (!!targetRect || routeSettling || missingTarget);
 
   const spotlightPad = {
     top: targetRect ? Math.max(8, targetRect.top - PAD) : 0,
@@ -190,26 +293,51 @@ export function WebsiteTour() {
     const tipW = 320;
     const tipH = tooltipRef.current?.offsetHeight || 200;
     const gap = 14;
-    let top = spotlightPad.top + spotlightPad.height + gap;
-    let left = spotlightPad.left + spotlightPad.width / 2 - tipW / 2;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const spaceBelow = vh - (spotlightPad.top + spotlightPad.height) - 16;
+    const spaceAbove = spotlightPad.top - 16;
+    const spaceRight = vw - (spotlightPad.left + spotlightPad.width) - 16;
+    const spaceLeft = spotlightPad.left - 16;
 
-    if (top + tipH > window.innerHeight - 16) {
-      top = spotlightPad.top - tipH - gap;
-    }
-    if (top < 16) {
-      top = clamp(
-        spotlightPad.top,
-        16,
-        window.innerHeight - tipH - 16
-      );
-      left = spotlightPad.left + spotlightPad.width + gap;
-      if (left + tipW > window.innerWidth - 16) {
-        left = spotlightPad.left - tipW - gap;
+    let top: number;
+    let left: number;
+
+    // Prefer below / above for compact targets; side only when vertical space is tight.
+    if (spaceBelow >= tipH + gap || spaceBelow >= spaceAbove) {
+      top = spotlightPad.top + spotlightPad.height + gap;
+      left = spotlightPad.left + spotlightPad.width / 2 - tipW / 2;
+      if (top + tipH > vh - 16 && spaceAbove >= tipH + gap) {
+        top = spotlightPad.top - tipH - gap;
       }
+    } else if (spaceAbove >= tipH + gap) {
+      top = spotlightPad.top - tipH - gap;
+      left = spotlightPad.left + spotlightPad.width / 2 - tipW / 2;
+    } else if (spaceRight >= tipW + gap) {
+      left = spotlightPad.left + spotlightPad.width + gap;
+      top = clamp(
+        spotlightPad.top + spotlightPad.height / 2 - tipH / 2,
+        16,
+        vh - tipH - 16
+      );
+    } else if (spaceLeft >= tipW + gap) {
+      left = spotlightPad.left - tipW - gap;
+      top = clamp(
+        spotlightPad.top + spotlightPad.height / 2 - tipH / 2,
+        16,
+        vh - tipH - 16
+      );
+    } else {
+      top = clamp(
+        spotlightPad.top + spotlightPad.height + gap,
+        16,
+        vh - tipH - 16
+      );
+      left = spotlightPad.left + spotlightPad.width / 2 - tipW / 2;
     }
 
-    left = clamp(left, 16, window.innerWidth - tipW - 16);
-    top = clamp(top, 16, window.innerHeight - tipH - 16);
+    left = clamp(left, 16, vw - tipW - 16);
+    top = clamp(top, 16, vh - tipH - 16);
 
     return { top, left, width: tipW };
   })();
@@ -252,6 +380,7 @@ export function WebsiteTour() {
                 type="button"
                 className="h-11 w-full rounded-full bg-[#B74783] text-white hover:bg-[#9F376F]"
                 onClick={beginSpotlight}
+                autoFocus
               >
                 Show me around
               </Button>
@@ -268,12 +397,12 @@ export function WebsiteTour() {
       )}
 
       {/* Spotlight + tooltip */}
-      {phase === "spotlight" && currentStep && !missingTarget && (
+      {showSpotlightChrome && currentStep && (
         <>
-          {targetRect && (
+          {targetRect ? (
             <div
               aria-hidden
-              className="pointer-events-none fixed z-[91] rounded-[20px] ring-2 ring-[#D9B8F5] ring-offset-2 ring-offset-transparent transition-[top,left,width,height] duration-300 ease-out"
+              className="pointer-events-none fixed z-[91] rounded-[20px] ring-2 ring-[#D9B8F5] ring-offset-2 ring-offset-transparent transition-[top,left,width,height,opacity] duration-300 ease-out"
               style={{
                 top: spotlightPad.top,
                 left: spotlightPad.left,
@@ -281,6 +410,11 @@ export function WebsiteTour() {
                 height: spotlightPad.height,
                 boxShadow: "0 0 0 9999px rgba(73, 38, 61, 0.3)",
               }}
+            />
+          ) : (
+            <div
+              aria-hidden
+              className="pointer-events-none fixed inset-0 z-[91] bg-[rgba(73,38,61,0.22)] transition-opacity duration-300"
             />
           )}
 
@@ -298,7 +432,8 @@ export function WebsiteTour() {
               isMobile || !tooltipStyle
                 ? "inset-x-3 bottom-3 rounded-[24px] p-4 sm:inset-x-auto"
                 : "rounded-[22px] p-4",
-              !reduceMotion && "animate-in fade-in-0 slide-in-from-bottom-2 duration-250"
+              !reduceMotion &&
+                "animate-in fade-in-0 slide-in-from-bottom-2 duration-250"
             )}
             style={
               isMobile || !tooltipStyle
@@ -314,6 +449,7 @@ export function WebsiteTour() {
               <div>
                 <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#927C8B]">
                   {stepLabel}
+                  {routeSettling ? " · loading…" : null}
                 </p>
                 <h3
                   id={titleId}
@@ -338,7 +474,7 @@ export function WebsiteTour() {
               <button
                 type="button"
                 onClick={skip}
-                className="text-xs font-semibold text-[#927C8B] transition hover:text-[#B74783] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D98CB4] rounded-md px-1"
+                className="rounded-md px-1 text-xs font-semibold text-[#927C8B] transition hover:text-[#B74783] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D98CB4]"
               >
                 Skip tour
               </button>
@@ -353,12 +489,16 @@ export function WebsiteTour() {
                   Back
                 </Button>
                 <Button
+                  ref={nextBtnRef}
                   type="button"
                   size="sm"
                   className="rounded-full bg-[#B74783] text-white hover:bg-[#9F376F]"
                   onClick={next}
+                  disabled={routeSettling}
                 >
-                  Next
+                  {stepLabel.startsWith(`${TOUR_TOTAL_STEPS} of`)
+                    ? "Done"
+                    : "Next"}
                 </Button>
               </div>
             </div>
@@ -399,6 +539,7 @@ export function WebsiteTour() {
                 type="button"
                 className="h-11 w-full rounded-full bg-[#B74783] text-white hover:bg-[#9F376F]"
                 onClick={() => finish({ navigateToDashboard: true })}
+                autoFocus
               >
                 Explore My Dashboard
               </Button>

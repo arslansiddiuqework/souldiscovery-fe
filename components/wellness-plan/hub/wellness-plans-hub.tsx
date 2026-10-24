@@ -28,7 +28,9 @@ export function WellnessPlansHub({
 }: WellnessPlansHubProps) {
   const reduceMotion = useReducedMotion();
   const searchParams = useSearchParams();
-  const [deskView, setDeskView] = useState<DeskView>("plans");
+  const [deskView, setDeskView] = useState<DeskView>(() =>
+    searchParams?.get("view") === "calm" ? "calm" : "plans"
+  );
   const progress =
     activePlan?.status === "active" ? computePlanProgress(activePlan) : null;
 
@@ -39,10 +41,7 @@ export function WellnessPlansHub({
   }, [searchParams]);
 
   return (
-    <div
-      className="relative h-[100dvh] max-h-[100dvh] overflow-hidden bg-[#FBF9FF] text-[#49263D]"
-      data-tour="wellness-plan"
-    >
+    <div className="relative h-[100dvh] max-h-[100dvh] overflow-hidden bg-[#FBF9FF] text-[#49263D]">
       <div aria-hidden className="pointer-events-none absolute inset-0">
         <div className="absolute inset-x-0 top-0 h-72 bg-[radial-gradient(ellipse_at_top,rgba(183,71,131,0.14),transparent_58%)]" />
         <div className="absolute -left-20 bottom-10 h-64 w-64 rounded-full bg-[rgba(183,71,131,0.08)] blur-3xl" />
@@ -56,7 +55,11 @@ export function WellnessPlansHub({
           transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
           className="mx-auto flex h-full min-h-0 w-full max-w-[1180px] flex-col overflow-hidden rounded-[28px] border border-[#EADCE5]/90 bg-white/85 shadow-[0_18px_50px_rgba(123,57,98,0.1)] backdrop-blur-xl"
         >
-          <div className="relative shrink-0 overflow-hidden border-b border-[#EADCE5]/70 bg-[linear-gradient(105deg,#FFF7FB_0%,#FFFFFF_42%,#F7F1FF_100%)] px-4 py-4 sm:px-6 sm:py-5">
+          <div
+            data-tour="wellness-plan"
+            data-tour-priority="high"
+            className="relative shrink-0 overflow-hidden border-b border-[#EADCE5]/70 bg-[linear-gradient(105deg,#FFF7FB_0%,#FFFFFF_42%,#F7F1FF_100%)] px-4 py-4 sm:px-6 sm:py-5"
+          >
             <div
               aria-hidden
               className="pointer-events-none absolute inset-y-0 right-0 w-1/3 bg-[radial-gradient(ellipse_at_right,rgba(217,184,245,0.35),transparent_70%)]"
@@ -115,6 +118,7 @@ export function WellnessPlansHub({
                         role="tab"
                         aria-selected={active}
                         data-tour={tab.id === "calm" ? "calm-tools" : undefined}
+                        data-tour-priority={tab.id === "calm" ? "high" : undefined}
                         onClick={() => setDeskView(tab.id)}
                         className={cn(
                           "relative flex items-center gap-2.5 rounded-full px-2.5 py-2 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D98CB4]",
@@ -225,7 +229,11 @@ export function WellnessPlansHub({
                     <div className="absolute inset-0 bg-[radial-gradient(80%_50%_at_0%_0%,rgba(255,240,246,0.9)_0%,transparent_60%),radial-gradient(60%_40%_at_100%_100%,rgba(243,232,248,0.55)_0%,transparent_55%),linear-gradient(180deg,#FFFBFD_0%,#FBF7FB_100%)]" />
                   </div>
 
-                  <div className="relative flex shrink-0 items-center justify-between gap-3 px-4 pb-2 pt-3.5 sm:px-5 sm:pt-4">
+                  <div
+                    className="relative flex shrink-0 items-center justify-between gap-3 px-4 pb-2 pt-3.5 sm:px-5 sm:pt-4"
+                    data-tour="calm-tools"
+                    data-tour-priority="normal"
+                  >
                     <div className="min-w-0">
                       <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#B74783]">
                         Calm toolkit

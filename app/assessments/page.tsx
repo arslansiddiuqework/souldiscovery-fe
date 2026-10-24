@@ -312,10 +312,7 @@ export default function AssessmentCenterPage() {
   };
 
   return (
-    <div
-      className="relative min-h-screen bg-[#FBF9FF] text-[#49263D]"
-      data-tour="assessments"
-    >
+    <div className="relative min-h-screen bg-[#FBF9FF] text-[#49263D]">
       <div
         aria-hidden
         className="pointer-events-none absolute inset-x-0 top-0 h-[420px] bg-[radial-gradient(ellipse_at_top,_rgba(183,71,131,0.14),_transparent_58%),radial-gradient(ellipse_at_top_right,_rgba(120,99,198,0.1),_transparent_45%)]"
@@ -346,7 +343,11 @@ export default function AssessmentCenterPage() {
               </div>
 
               <div className="relative z-10 grid gap-6 px-5 pb-8 pt-5 sm:px-8 sm:pb-10 sm:pt-6 lg:min-h-[320px] lg:grid-cols-[minmax(0,1.15fr)_minmax(160px,0.7fr)_minmax(240px,280px)] lg:items-center lg:gap-5 lg:px-10 lg:pb-12 lg:pt-8">
-                <div className="max-w-lg">
+                <div
+                  className="max-w-lg"
+                  data-tour="assessments"
+                  data-tour-priority="high"
+                >
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="inline-flex items-center rounded-full bg-[#EDE5FF]/90 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-[#6D5BD0] shadow-sm backdrop-blur">
                       Wellness check-in

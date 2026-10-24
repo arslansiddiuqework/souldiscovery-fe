@@ -9,7 +9,7 @@ import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Mail, User, Lock, Eye, EyeOff } from "lucide-react";
 import { registerUser, loginWithGoogle } from "@/lib/api/auth";
-import { GoogleButton } from "@/components/auth/google-button";
+import { GoogleAuthSection } from "@/components/auth/google-auth-section";
 import { useSession } from "@/lib/contexts/session-context";
 import { BrandLogo } from "@/components/brand-logo";
 import { BRAND_NAME } from "@/lib/branding";
@@ -182,25 +182,12 @@ export default function SignupPage() {
             </Button>
           </form>
 
-          {process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID?.trim() ? (
-            <div className="mt-6 flex w-full flex-col items-center justify-center gap-4">
-              <div className="relative w-full">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t border-[#EADCE5]" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase tracking-wide">
-                  <span className="bg-white px-3 text-[#927C8B]">Or continue with</span>
-                </div>
-              </div>
-              <div className="w-full pt-1">
-                <GoogleButton
-                  onSuccess={handleGoogleSuccess}
-                  onError={() => setError("Google signup failed. Please try again.")}
-                  text="Continue with Google"
-                />
-              </div>
-            </div>
-          ) : null}
+          <GoogleAuthSection
+            onSuccess={handleGoogleSuccess}
+            onError={setError}
+            text="Continue with Google"
+            disabled={loading}
+          />
 
           <div className="mt-8 border-t border-[#EADCE5] pt-6">
             <p className="text-center text-sm text-[#927C8B]">

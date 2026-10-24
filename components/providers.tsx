@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { ThemeProvider } from "next-themes";
 import { SessionProvider as CustomSessionProvider } from "@/lib/contexts/session-context";
 import { AuthGuard } from "@/components/auth/auth-guard";
@@ -19,7 +20,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
         <AuthGuard>
           <OnboardingProvider>
             {children}
-            <WebsiteTour />
+            <Suspense fallback={null}>
+              <WebsiteTour />
+            </Suspense>
           </OnboardingProvider>
         </AuthGuard>
       </ThemeProvider>

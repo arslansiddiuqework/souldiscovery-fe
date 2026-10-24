@@ -634,10 +634,7 @@ export default function Dashboard() {
     hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
 
   return (
-    <div
-      className="dashboard-shell relative text-[#49263D]"
-      data-tour="dashboard"
-    >
+    <div className="dashboard-shell relative text-[#49263D]">
       <PastelLandscapeBackground />
       <div className="dashboard-canvas relative z-10 flex h-full min-h-0 flex-col gap-3 overflow-hidden sm:gap-3.5">
         <motion.div
@@ -649,6 +646,8 @@ export default function Dashboard() {
           {/* Slim top bar — greeting + metrics + actions */}
           <header
             data-particles-mask
+            data-tour="dashboard"
+            data-tour-priority="high"
             className="shrink-0 border-b border-[#EADCE5]/80 bg-gradient-to-r from-[#FFF8FB] via-white/95 to-[#F8F0FF]/60 px-3 py-2.5 sm:px-4"
           >
             <div className="flex flex-wrap items-center gap-x-3 gap-y-2">

@@ -105,7 +105,10 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID?.trim() || "";
+  const rawGoogleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID?.trim() || "";
+  const googleClientId = rawGoogleClientId.includes(".apps.googleusercontent.com")
+    ? rawGoogleClientId
+    : "";
 
   const app = (
     <Providers>

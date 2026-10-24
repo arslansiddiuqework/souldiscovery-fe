@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { loginUser, loginWithGoogle } from "@/lib/api/auth";
-import { GoogleButton } from "@/components/auth/google-button";
+import { GoogleAuthSection } from "@/components/auth/google-auth-section";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Container } from "@/components/ui/container";
@@ -135,25 +135,12 @@ export default function LoginPage() {
             </Button>
           </form>
 
-          {process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID?.trim() ? (
-            <div className="mt-6 flex w-full flex-col items-center justify-center gap-4">
-              <div className="relative w-full">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t border-[#EADCE5]" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase tracking-wide">
-                  <span className="bg-white px-3 text-[#927C8B]">Or continue with</span>
-                </div>
-              </div>
-              <div className="w-full pt-1">
-                <GoogleButton
-                  onSuccess={handleGoogleSuccess}
-                  onError={() => setError("Google login failed. Please try again.")}
-                  text="Continue with Google"
-                />
-              </div>
-            </div>
-          ) : null}
+          <GoogleAuthSection
+            onSuccess={handleGoogleSuccess}
+            onError={setError}
+            text="Continue with Google"
+            disabled={loading}
+          />
 
           <div className="mt-8 border-t border-[#EADCE5] pt-6">
             <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-sm">

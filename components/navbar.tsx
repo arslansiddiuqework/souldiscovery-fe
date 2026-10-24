@@ -274,6 +274,7 @@ export function Navbar() {
                 key={item.href}
                 href={item.href}
                 data-tour={item.href === "/assessments" ? "assessments" : undefined}
+                data-tour-priority={item.href === "/assessments" ? "low" : undefined}
                 data-active={
                   item.href === "/assessments"
                     ? pathname?.startsWith("/assessments")
@@ -289,6 +290,7 @@ export function Navbar() {
                 <Link
                   href="/wellness-plan"
                   data-tour="wellness-plan"
+                  data-tour-priority="low"
                   data-active={pathname?.startsWith("/wellness-plan")}
                   className="nav-link"
                 >
@@ -309,7 +311,12 @@ export function Navbar() {
           <div className="flex shrink-0 items-center gap-2 xl:gap-2.5">
             {isAuthenticated ? (
               <>
-                <Link href="/dashboard" data-tour="dashboard" className="nav-dashboard-btn">
+                <Link
+                  href="/dashboard"
+                  data-tour="dashboard"
+                  data-tour-priority="low"
+                  className="nav-dashboard-btn"
+                >
                   Dashboard
                 </Link>
 
@@ -523,6 +530,7 @@ export function Navbar() {
                 <Link
                   href="/dashboard"
                   data-tour="dashboard"
+                  data-tour-priority="low"
                   className="nav-dashboard-btn !h-9 !px-3 !text-[13px]"
                 >
                   Dashboard
@@ -581,6 +589,7 @@ export function Navbar() {
                   key={item.href}
                   href={item.href}
                   data-tour={item.href === "/assessments" ? "assessments" : undefined}
+                  data-tour-priority={item.href === "/assessments" ? "low" : undefined}
                   onClick={closeMobile}
                   className={cn(
                     "rounded-xl px-4 py-3 text-[15px] font-semibold text-[#795A70] transition hover:bg-[#FFF0F6] hover:text-[#49263D]",
@@ -595,6 +604,7 @@ export function Navbar() {
                   <Link
                     href="/dashboard"
                     data-tour="dashboard"
+                    data-tour-priority="low"
                     onClick={closeMobile}
                     className={cn(
                       "rounded-xl px-4 py-3 text-[15px] font-semibold text-[#795A70] transition hover:bg-[#FFF0F6] hover:text-[#49263D]",
@@ -606,6 +616,7 @@ export function Navbar() {
                   <Link
                     href="/wellness-plan"
                     data-tour="wellness-plan"
+                    data-tour-priority="low"
                     onClick={closeMobile}
                     className={cn(
                       "rounded-xl px-4 py-3 text-[15px] font-semibold text-[#795A70] hover:bg-[#FFF0F6] hover:text-[#49263D]",

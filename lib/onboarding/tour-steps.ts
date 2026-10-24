@@ -48,39 +48,87 @@ export const TOUR_SPOTLIGHT_STEPS: TourSpotlightStep[] = [
 
 export const TOUR_TOTAL_STEPS = 1 + TOUR_SPOTLIGHT_STEPS.length;
 
+function priorityScore(el: HTMLElement): number {
+  const raw = (el.getAttribute("data-tour-priority") || "normal").toLowerCase();
+  if (raw === "high") return 3;
+  if (raw === "low") return 1;
+  return 2;
+}
+
+/**
+ * Pick the best visible tour anchor.
+ * Prefers high-priority, in-viewport, mid-sized targets over full-page shells.
+ */
 export function findVisibleTourTarget(target: TourTargetId): HTMLElement | null {
   if (typeof document === "undefined") return null;
   const nodes = document.querySelectorAll<HTMLElement>(`[data-tour="${target}"]`);
-  let bestInView: HTMLElement | null = null;
-  let bestInViewArea = 0;
-  let bestAny: HTMLElement | null = null;
-  let bestAnyArea = 0;
+  const viewportArea = Math.max(1, window.innerWidth * window.innerHeight);
+
+  let best: HTMLElement | null = null;
+  let bestScore = -Infinity;
 
   for (const el of nodes) {
     const style = window.getComputedStyle(el);
-    if (style.display === "none" || style.visibility === "hidden" || style.opacity === "0") {
+    if (
+      style.display === "none" ||
+      style.visibility === "hidden" ||
+      Number(style.opacity) === 0
+    ) {
       continue;
     }
     const rect = el.getBoundingClientRect();
     if (rect.width < 2 || rect.height < 2) continue;
+
     const area = rect.width * rect.height;
-
-    if (area > bestAnyArea) {
-      bestAny = el;
-      bestAnyArea = area;
-    }
-
     const inViewport =
       rect.bottom > 0 &&
       rect.right > 0 &&
       rect.top < window.innerHeight &&
       rect.left < window.innerWidth;
 
-    if (inViewport && area > bestInViewArea) {
-      bestInView = el;
-      bestInViewArea = area;
+    // Huge page shells make a poor spotlight — demote them hard.
+    const sizePenalty = area > viewportArea * 0.55 ? -1000 : area > viewportArea * 0.28 ? -120 : 0;
+    // Prefer compact-but-readable targets (nav chips, cards, panels).
+    const sizeBonus = area > 2400 && area < viewportArea * 0.22 ? 40 : 0;
+
+    const score =
+      priorityScore(el) * 500 +
+      (inViewport ? 200 : 0) +
+      sizeBonus +
+      sizePenalty +
+      Math.min(area / 4000, 30);
+
+    if (score > bestScore) {
+      best = el;
+      bestScore = score;
     }
   }
 
-  return bestInView || bestAny;
+  return best;
+}
+
+/**
+ * True when the current path (and required query, if any) match a tour step.
+ * Query-aware so calm tools wait for `?view=calm` instead of flashing early.
+ */
+export function isTourRouteReady(
+  pathname: string | null | undefined,
+  href: string,
+  search?: string | null
+): boolean {
+  if (!pathname) return false;
+  const [targetPath, query = ""] = href.split("?");
+  const pathOk =
+    pathname === targetPath || pathname.startsWith(`${targetPath}/`);
+  if (!pathOk) return false;
+  if (!query) return true;
+
+  const current = new URLSearchParams(
+    (search || "").startsWith("?") ? search!.slice(1) : search || ""
+  );
+  const required = new URLSearchParams(query);
+  for (const [key, value] of required.entries()) {
+    if (current.get(key) !== value) return false;
+  }
+  return true;
 }
