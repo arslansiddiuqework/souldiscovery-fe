@@ -74,25 +74,35 @@ const TABS: Array<{
   },
 ];
 
-const API = process.env.NEXT_PUBLIC_API_URL;
-
 function getToken(): string {
   if (typeof window === "undefined") return "";
   return localStorage.getItem("token") || sessionStorage.getItem("token") || "";
 }
 
+/** Same-origin BFF — do not call the Express host from the browser. */
 async function apiFetch(path: string, options: RequestInit = {}) {
-  const res = await fetch(`${API}${path}`, {
+  const token = getToken();
+  if (!token) {
+    throw new Error("Please sign in again to continue.");
+  }
+
+  const res = await fetch(path, {
     ...options,
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${getToken()}`,
+      Authorization: `Bearer ${token}`,
       ...(options.headers || {}),
     },
   });
   if (!res.ok) {
-    const err = await res.json().catch(() => ({ message: "Request failed" }));
-    throw new Error(err.message || "Request failed");
+    const err = await res.json().catch(() => ({} as { message?: string; error?: string }));
+    const message =
+      err.message ||
+      err.error ||
+      (res.status === 404
+        ? "Emergency API is not available on this deploy. Please refresh after the latest update."
+        : `Request failed (${res.status})`);
+    throw new Error(message);
   }
   return res.json();
 }
@@ -141,8 +151,11 @@ export default function EmergencySettingsPage() {
       showToast("Consent accepted — you can now add emergency contacts.");
       await loadData();
       setActiveTab("contacts");
-    } catch {
-      showToast("Failed to save consent", "err");
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : "Failed to save consent";
+      showToast(message, "err");
+      throw err instanceof Error ? err : new Error(message);
     }
   };
 
