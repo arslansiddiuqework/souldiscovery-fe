@@ -10,7 +10,6 @@ import {
   Paintbrush,
   Palette,
   PersonStanding,
-  Sparkles,
   Star,
   TreePine,
   Volume2,
@@ -25,7 +24,6 @@ import { ZenGarden } from "@/components/games/zen-garden";
 import { cn } from "@/lib/utils";
 import { BreatheOrb } from "./calm/breathe-orb";
 import { ColorSketch } from "./calm/color-sketch";
-import { FidgetPlayground } from "./calm/fidget-playground";
 import { SoundStudio } from "./calm/sound-studio";
 import { StarSky } from "./calm/star-sky";
 import { ZenCanvas } from "./calm/zen-canvas";
@@ -33,7 +31,6 @@ import { YogaExperience } from "./calm/yoga/yoga-experience";
 
 type ExperienceId =
   | "breathe"
-  | "play"
   | "listen"
   | "create"
   | "garden"
@@ -60,13 +57,6 @@ const TILES: Array<{
     icon: Wind,
     tone: "from-[#FFF0F6] via-[#FCE4EF] to-[#F3D0E4]",
     featured: true,
-  },
-  {
-    id: "play",
-    title: "Play",
-    hint: "Bubbles",
-    icon: Sparkles,
-    tone: "from-[#FFF8FB] via-[#F8E8F2] to-[#EFD9EA]",
   },
   {
     id: "listen",
@@ -136,15 +126,6 @@ function TileArt({ id, reduceMotion }: { id: ExperienceId; reduceMotion: boolean
         />
         <span className="absolute h-[72%] w-[72%] rounded-full bg-gradient-to-br from-[#FFF8FB] via-[#E7B4D4] to-[#B74783] shadow-[0_16px_40px_rgba(183,71,131,0.32)]" />
         <span className="absolute h-[38%] w-[38%] rounded-full bg-white/70" />
-      </span>
-    );
-  }
-  if (id === "play") {
-    return (
-      <span className="relative h-16 w-28 sm:h-20 sm:w-32">
-        <span className="absolute left-1 top-3 h-11 w-11 rounded-full bg-white/95 shadow-[inset_-6px_-8px_16px_rgba(196,90,146,0.28)] ring-1 ring-[#E7B4D4]/80" />
-        <span className="absolute left-10 top-0 h-8 w-8 rounded-full bg-gradient-to-br from-[#F8D5E8] to-[#E7B4D4] ring-1 ring-white/90" />
-        <span className="absolute bottom-1 right-2 h-7 w-7 rounded-full bg-[#C45A92]/75 ring-1 ring-white/80" />
       </span>
     );
   }
@@ -267,7 +248,6 @@ export function CalmToolsPanel() {
         </div>
         <div className="min-h-0 flex-1 overflow-y-auto">
           {open === "breathe" && <BreatheOrb />}
-          {open === "play" && <FidgetPlayground />}
           {open === "listen" && <SoundStudio />}
           {open === "create" && <ZenCanvas />}
           {open === "garden" && (

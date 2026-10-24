@@ -6,6 +6,7 @@ import {
   CircleDot,
   CloudRain,
   Compass,
+  Flame,
   Heart,
   Leaf,
   Moon,
@@ -38,6 +39,7 @@ const ICON_MAP: Record<string, LucideIcon> = {
   baby: Baby,
   sun: Sun,
   "circle-dot": CircleDot,
+  flame: Flame,
 };
 
 export function AssessmentIcon({

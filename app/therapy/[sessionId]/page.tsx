@@ -37,13 +37,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { BreathingGame } from "@/components/games/breathing-game";
-import { ZenGarden } from "@/components/games/zen-garden";
-import { ForestGame } from "@/components/games/forest-game";
-import { OceanWaves } from "@/components/games/ocean-waves";
-import { RainGame } from "@/components/games/rain-game";
-import { CampfireGame } from "@/components/games/campfire-game";
-import { SpotifyCard } from "@/components/music/spotify-card";
 import { Badge } from "@/components/ui/badge";
 import {
   createChatSession,
@@ -64,32 +57,11 @@ import { AutoMoodDetector } from "@/components/face-emotion/AutoMoodDetector";
 import { trackMood } from "@/lib/api/mood";
 import { Video, VideoOff } from "lucide-react";
 import Link from "next/link";
-import { applyChatWellnessHint } from "@/lib/api/wellness-plan";
-import { suggestionFromEmotion } from "@/lib/wellness-plan/adaptive";
-import { loadWellnessPlan } from "@/lib/wellness-plan/storage";
 import { PastelLandscapeBackground } from "@/components/ui/pastel-landscape-background";
 
 interface SuggestedQuestion {
   id: string;
   text: string;
-}
-
-interface StressPrompt {
-  trigger: string;
-  activity: {
-    type: "breathing" | "garden" | "forest" | "waves" | "rain" | "campfire";
-    title: string;
-    description: string;
-  };
-}
-
-interface ApiResponse {
-  message: string;
-  metadata: {
-    technique: string;
-    goal: string;
-    progress: any[];
-  };
 }
 
 const SUGGESTED_QUESTIONS = [
@@ -98,6 +70,30 @@ const SUGGESTED_QUESTIONS = [
   { text: "Can we talk about improving sleep?", label: "Sleep", icon: Moon },
   { text: "I need help with work-life balance", label: "Balance", icon: Scale },
 ];
+
+/** Chat companion brand name shown in the therapy UI. */
+const COMPANION_NAME = "Soul Discovery";
+
+function appendAssistantChunk(
+  prev: ChatMessage[],
+  chunk: string
+): ChatMessage[] {
+  const next = [...prev];
+  const last = next[next.length - 1];
+  if (last?.role === "assistant") {
+    next[next.length - 1] = {
+      ...last,
+      content: last.content + chunk,
+    };
+    return next;
+  }
+  next.push({
+    role: "assistant",
+    content: chunk,
+    timestamp: new Date(),
+  });
+  return next;
+}
 
 // Markdown typography (the typography plugin is not enabled, so bubbles style
 // their own rendered markdown).
@@ -152,8 +148,6 @@ export default function TherapyPage() {
   const [mounted, setMounted] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [stressPrompt, setStressPrompt] = useState<StressPrompt | null>(null);
-  const [showActivity, setShowActivity] = useState(false);
   const [isChatPaused, setIsChatPaused] = useState(false);
   const [showNFTCelebration, setShowNFTCelebration] = useState(false);
   const [isCompletingSession, setIsCompletingSession] = useState(false);
@@ -358,20 +352,17 @@ export default function TherapyPage() {
         content: currentMessage,
         timestamp: new Date(),
       };
-      const assistantMessage: ChatMessage = {
-        role: "assistant",
-        content: "",
-        timestamp: new Date(),
-      };
 
       const optimisticSessionId = isNewSession ? `pending-${Date.now()}` : targetSessionId;
       const shouldAppendToCurrentMessages =
         messagesSessionIdRef.current === optimisticSessionId;
       optimisticSessionIdRef.current = optimisticSessionId;
       messagesSessionIdRef.current = optimisticSessionId;
+      // Only show the user bubble up front — thinking row covers the wait.
+      // Adding an empty assistant bubble here caused a blank second bot.
       setMessages((prev) => {
         const nextMessages = shouldAppendToCurrentMessages ? prev : [];
-        return [...nextMessages, userMessage, assistantMessage];
+        return [...nextMessages, userMessage];
       });
 
       // Create session only if we're on "new" and not already creating
@@ -419,25 +410,11 @@ export default function TherapyPage() {
           const data = JSON.parse(line);
 
           if (data.t === "chunk") {
-            // Hide thinking, start typing
             setIsThinking(false);
             setIsTyping(true);
-
-            // Append text chunk to the last message
-            setMessages((prev) => {
-              const newMessages = [...prev];
-              const lastMessage = newMessages[newMessages.length - 1];
-              if (lastMessage?.role === "assistant") {
-                newMessages[newMessages.length - 1] = {
-                  ...lastMessage,
-                  content: lastMessage.content + data.d,
-                };
-              }
-              return newMessages;
-            });
+            setMessages((prev) => appendAssistantChunk(prev, data.d || ""));
             scrollToBottom();
           } else if (data.t === "done") {
-            // Finalize message with metadata (including Spotify recommendations)
             setMessages((prev) => {
               const newMessages = [...prev];
               const lastMessage = newMessages[newMessages.length - 1];
@@ -450,35 +427,13 @@ export default function TherapyPage() {
                     goal: data.metadata?.currentGoal || "Provide support",
                     progress: data.metadata?.progress,
                     emotionMeta: data.metadata?.emotionMeta,
-                    spotifyRecommendations: data.metadata?.spotifyRecommendations || undefined,
+                    spotifyRecommendations:
+                      data.metadata?.spotifyRecommendations || undefined,
                   },
                 };
               }
               return newMessages;
             });
-
-            // Auto-trigger activity modal if backend says so
-            if (
-              data.metadata?.emotionMeta?.suggestedActivity
-            ) {
-              handleActivityTrigger(
-                data.metadata.emotionMeta.suggestedActivity,
-                data.metadata.emotionMeta.emotion
-              );
-            }
-
-            // Wellness plan adaptation hint from emotion signals
-            const emotionMeta = data.metadata?.emotionMeta;
-            if (emotionMeta?.emotion) {
-              try {
-                applyChatWellnessHint(
-                  emotionMeta.emotion,
-                  emotionMeta.intensity ?? 0.5
-                );
-              } catch {
-                /* non-blocking */
-              }
-            }
           }
         } catch (e) {
           console.error("Error parsing NDJSON chunk:", e);
@@ -507,12 +462,15 @@ export default function TherapyPage() {
       scrollToBottom();
     } catch (error) {
       console.error("Error in chat:", error);
+      const friendly =
+        error instanceof Error && error.message
+          ? error.message
+          : "I apologize, but I'm having trouble connecting right now. Please try again in a moment.";
       setMessages((prev) => [
         ...prev,
         {
           role: "assistant",
-          content:
-            "I apologize, but I'm having trouble connecting right now. Please try again in a moment.",
+          content: friendly,
           timestamp: new Date(),
         },
       ]);
@@ -554,52 +512,6 @@ export default function TherapyPage() {
     );
   }
 
-  const handleActivityTrigger = (
-    activityType: "breathing" | "ocean" | "forest" | "zen" | "rain" | "campfire",
-    triggerReason: string = "support"
-  ) => {
-    let type: "breathing" | "garden" | "forest" | "waves" | "rain" | "campfire" = "breathing";
-    let title = "Calming Activity";
-    let description = "Take a moment to center yourself";
-
-    switch (activityType) {
-      case "breathing":
-        type = "breathing";
-        title = "Breathing Patterns";
-        description = "Follow calming breathing exercises with visual guidance";
-        break;
-      case "ocean":
-        type = "waves";
-        title = "Ocean Waves";
-        description = "Match your breath with gentle ocean waves";
-        break;
-      case "forest":
-        type = "forest";
-        title = "Mindful Forest";
-        description = "Take a peaceful walk through a virtual forest";
-        break;
-      case "zen":
-        type = "garden";
-        title = "Zen Garden";
-        description = "Create and maintain your digital peaceful space";
-        break;
-      case "rain":
-        type = "rain";
-        title = "Gentle Rain";
-        description = "Drift into calm with the soothing sound of rainfall";
-        break;
-      case "campfire":
-        type = "campfire";
-        title = "Campfire Night";
-        description = "Unwind by a crackling fire under a starry sky";
-        break;
-    }
-
-    setStressPrompt({
-      trigger: triggerReason,
-      activity: { type, title, description },
-    });
-  };
   const handleSuggestedQuestion = (text: string) => {
     if (activeSessionId === "new") {
       setMessage(text);
@@ -646,13 +558,8 @@ export default function TherapyPage() {
           content: systemPrompt,
           timestamp: new Date(),
         };
-        const assistantMessage: ChatMessage = {
-          role: "assistant",
-          content: "",
-          timestamp: new Date(),
-        };
 
-        setMessages((prev) => [...prev, userMessage, assistantMessage]);
+        setMessages((prev) => [...prev, userMessage]);
         
         // Stream the message
         const response = await sendChatMessageStream(activeSessionId, systemPrompt);
@@ -669,17 +576,7 @@ export default function TherapyPage() {
             if (data.t === "chunk") {
               setIsThinking(false);
               setIsTyping(true);
-              setMessages((prev) => {
-                const newMessages = [...prev];
-                const lastMessage = newMessages[newMessages.length - 1];
-                if (lastMessage?.role === "assistant") {
-                  newMessages[newMessages.length - 1] = {
-                    ...lastMessage,
-                    content: lastMessage.content + data.d,
-                  };
-                }
-                return newMessages;
-              });
+              setMessages((prev) => appendAssistantChunk(prev, data.d || ""));
               scrollToBottom();
             } else if (data.t === "done") {
               setMessages((prev) => {
@@ -1033,7 +930,9 @@ export default function TherapyPage() {
                     const avatarSrc = isAssistant 
                       ? user?.aiAvatar
                       : user?.profileImage;
-                    const displayName = isAssistant ? (user?.aiName || "Maya") : (user?.name || "User");
+                    const displayName = isAssistant
+                      ? COMPANION_NAME
+                      : user?.name || "User";
 
                     return (
                       <motion.div
@@ -1090,88 +989,19 @@ export default function TherapyPage() {
                                 <ReactMarkdown>{msg.content}</ReactMarkdown>
                               </div>
 
-                              {/* Emotion Suggestion UI */}
-                              {isAssistant && msg.metadata?.emotionMeta?.suggestedActivity && (
-                                <div className="mt-4 rounded-xl border border-[#B74783]/25 bg-[#B74783]/10 p-3.5">
-                                   <p className="mb-2.5 flex items-center gap-2 text-xs font-semibold text-[#B74783]">
-                                      <Sparkles className="h-3.5 w-3.5" />
-                                      Try a calming exercise?
-                                   </p>
-                                   <Button 
-                                      variant="outline" 
-                                      size="sm" 
-                                      className="h-9 w-full rounded-xl border-[#B74783]/30 bg-white text-xs font-semibold text-[#D9B8F5] hover:bg-[#B74783]/15 hover:text-[#D9B8F5]"
-                                      onClick={() => handleActivityTrigger(msg.metadata?.emotionMeta?.suggestedActivity as any, msg.metadata?.emotionMeta?.emotion)}
-                                   >
-                                      Start {
-                                        (msg.metadata.emotionMeta.suggestedActivity as string) === 'zen' ? 'Zen Garden' :
-                                        (msg.metadata.emotionMeta.suggestedActivity as string) === 'forest' ? 'Forest Walk' :
-                                        (msg.metadata.emotionMeta.suggestedActivity as string) === 'ocean' ? 'Ocean Waves' :
-                                        (msg.metadata.emotionMeta.suggestedActivity as string) === 'rain' ? 'Gentle Rain' :
-                                        (msg.metadata.emotionMeta.suggestedActivity as string) === 'campfire' ? 'Campfire Night' :
-                                        'Breathing'
-                                      }
-                                   </Button>
-                                </div>
-                              )}
-
-                              {/* Wellness Plan suggestion from emotion signals */}
-                              {isAssistant &&
-                                msg.metadata?.emotionMeta &&
-                                (() => {
-                                  const hasPlan = !!loadWellnessPlan()?.weeks?.length;
-                                  const hint = suggestionFromEmotion(
-                                    msg.metadata.emotionMeta.emotion,
-                                    msg.metadata.emotionMeta.intensity ?? 0.5,
-                                    hasPlan
-                                  );
-                                  if (!hint) return null;
-                                  return (
-                                    <div className="mt-3 rounded-xl border border-[#B74783]/25 bg-[#B74783]/10 p-3.5">
-                                      <p className="mb-2.5 flex items-center gap-2 text-xs font-semibold text-[#B74783]">
-                                        <Brain className="h-3.5 w-3.5" />
-                                        Wellness Plan
-                                      </p>
-                                      <p className="mb-3 text-xs leading-relaxed text-[#795A70]">
-                                        {hint.message}
-                                      </p>
-                                      <Button
-                                        asChild
-                                        variant="outline"
-                                        size="sm"
-                                        className="h-9 w-full rounded-xl border-[#B74783]/30 bg-white text-xs font-semibold text-[#D9B8F5] hover:bg-[#B74783]/15 hover:text-[#D9B8F5]"
-                                      >
-                                        <Link href="/wellness-plan">
-                                          {hint.action === "create"
-                                            ? "Create Wellness Plan"
-                                            : "Update Wellness Plan"}
-                                        </Link>
-                                      </Button>
-                                    </div>
-                                  );
-                                })()}
-
-                              {/* Spotify Music Recommendations */}
-                              {isAssistant && msg.metadata?.spotifyRecommendations && msg.metadata.spotifyRecommendations.length > 0 && (
-                                <SpotifyCard 
-                                  playlists={msg.metadata.spotifyRecommendations}
-                                  reason={msg.metadata?.emotionMeta ? `Suggested for your ${msg.metadata.emotionMeta.emotion} mood` : undefined}
-                                />
-                              )}
                             </div>
 
-                            {/* Metadata */}
-                            <div className={cn(
-                              "flex items-center gap-2 px-1",
-                              isAssistant ? "justify-start" : "justify-end"
-                            )}>
-                              {isAssistant && msg.metadata?.technique && (
-                                <span className="badge-soft !px-2 !py-0.5 !text-[10px]">
-                                  {msg.metadata.technique}
-                                </span>
+                            <div
+                              className={cn(
+                                "flex items-center gap-2 px-1",
+                                isAssistant ? "justify-start" : "justify-end"
                               )}
+                            >
                               <span className="text-[10px] text-muted-foreground/80">
-                                {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                {new Date(msg.timestamp).toLocaleTimeString([], {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                })}
                               </span>
                             </div>
                           </div>
@@ -1181,7 +1011,8 @@ export default function TherapyPage() {
                   })}
                 </AnimatePresence>
 
-                {(isThinking || isTyping) && (
+                {/* Only while waiting for the first token — avoids a blank bot + thinking row */}
+                {isThinking && (
                   <motion.div
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -1191,7 +1022,7 @@ export default function TherapyPage() {
                       {user?.aiAvatar ? (
                         <AvatarImage
                           src={user.aiAvatar}
-                          alt="AI"
+                          alt={COMPANION_NAME}
                           width={36}
                           height={36}
                           className="h-full w-full object-cover"
@@ -1218,8 +1049,7 @@ export default function TherapyPage() {
                           ))}
                         </div>
                         <p className="text-xs font-medium text-[#927C8B]">
-                          {user?.aiName || "Maya"} is{" "}
-                          {isThinking ? "thinking" : "replying"}…
+                          {COMPANION_NAME} is thinking…
                         </p>
                       </div>
                     </div>
@@ -1298,39 +1128,6 @@ export default function TherapyPage() {
         </motion.div>
       </div>
 
-      {/* Interactive Activity Modal Overlay */}
-      {stressPrompt && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#49263D]/40 p-4 backdrop-blur-md">
-          <div className="relative flex max-h-[90vh] w-full max-w-4xl flex-col overflow-y-auto rounded-[28px] border border-[#EADCE5]/90 bg-white/92 shadow-[0_24px_70px_rgba(123,57,98,0.2)] backdrop-blur-xl">
-            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-[#EADCE5]/80 bg-gradient-to-r from-[#FFF8FB] to-white/90 p-4 backdrop-blur sm:p-5">
-              <div>
-                <h3 className="font-display text-lg font-semibold text-[#49263D]">
-                  {stressPrompt.activity.title}
-                </h3>
-                <p className="text-sm text-[#927C8B]">
-                  {stressPrompt.activity.description}
-                </p>
-              </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-9 w-9 shrink-0 rounded-xl"
-                onClick={() => setStressPrompt(null)}
-              >
-                <X className="h-5 w-5" />
-              </Button>
-            </div>
-            <div className="flex-1 p-4 sm:p-5">
-              {stressPrompt.activity.type === "breathing" && <BreathingGame />}
-              {stressPrompt.activity.type === "waves" && <OceanWaves />}
-              {stressPrompt.activity.type === "forest" && <ForestGame />}
-              {stressPrompt.activity.type === "garden" && <ZenGarden />}
-              {stressPrompt.activity.type === "rain" && <RainGame />}
-              {stressPrompt.activity.type === "campfire" && <CampfireGame />}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

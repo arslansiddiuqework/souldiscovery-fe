@@ -20,7 +20,7 @@ export async function DELETE(
 
     const BACKEND_API_URL = getBackendUrl();
     const response = await fetch(
-      `${BACKEND_API_URL}/chat/sessions/${sessionId}`,
+      `${BACKEND_API_URL}/chat/sessions/${encodeURIComponent(sessionId)}`,
       {
         method: "DELETE",
         headers: {

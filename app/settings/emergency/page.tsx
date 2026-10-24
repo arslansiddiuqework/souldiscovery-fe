@@ -214,9 +214,9 @@ export default function EmergencySettingsPage() {
         method: "POST",
         body: JSON.stringify({ contactId }),
       });
-      showToast(res.message || "Test call initiated successfully.");
+      showToast(res.message || "Test SMS accepted by provider (queued).");
     } catch (err: unknown) {
-      showToast(err instanceof Error ? err.message : "Failed to initiate test call", "err");
+      showToast(err instanceof Error ? err.message : "Failed to send test SMS", "err");
     } finally {
       setTestCallLoadingId(null);
     }

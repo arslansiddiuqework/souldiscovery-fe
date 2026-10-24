@@ -132,17 +132,17 @@ export function AddContactModal({ onAdd, onClose }: Props) {
   const methods = [
     {
       id: "phone" as const,
-      label: "Phone Call",
+      label: "SMS (phone)",
       icon: Phone,
     },
     {
       id: "whatsapp" as const,
-      label: "WhatsApp",
+      label: "SMS (alt number)",
       icon: WhatsAppGlyph,
     },
     {
       id: "both" as const,
-      label: "Both",
+      label: "Both numbers",
       icon: MessageCircle,
     },
   ];

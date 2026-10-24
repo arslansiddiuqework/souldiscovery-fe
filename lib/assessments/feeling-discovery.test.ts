@@ -69,10 +69,20 @@ const catalog: AssessmentCard[] = [
     status: "coming_soon",
     questionCount: 0,
   }),
+  card({
+    slug: "anger-management",
+    title: "Anger Management Reflection",
+    shortDescription: "Notice anger triggers and responses",
+    status: "published",
+    estimatedMinutes: 6,
+    questionCount: 8,
+    icon: "flame",
+  }),
 ];
 
 assert.equal(matchesFeeling(catalog[0], "stress"), true);
 assert.equal(matchesFeeling(catalog[1], "sleep"), true);
+assert.equal(matchesFeeling(catalog[5], "anger"), true);
 assert.equal(matchesSearch(catalog[0], "  STRESS  "), true);
 assert.equal(matchesSearch(catalog[0], "xyzzy"), false);
 

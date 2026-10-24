@@ -105,14 +105,22 @@ export async function createChatSession(): Promise<string> {
   return data.sessionId;
 }
 
+function newClientRequestId(): string {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  return `req-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+}
+
 export async function sendChatMessage(
   sessionId: string,
-  message: string
+  message: string,
+  clientRequestId: string = newClientRequestId()
 ): Promise<SendMessageResponse> {
   const response = await fetch(`${API_BASE}/sessions/${sessionId}/messages`, {
     method: "POST",
     headers: getAuthHeaders(),
-    body: JSON.stringify({ message }),
+    body: JSON.stringify({ message, clientRequestId }),
   });
 
   return parseJson<SendMessageResponse>(response);
@@ -120,12 +128,13 @@ export async function sendChatMessage(
 
 export async function sendChatMessageStream(
   sessionId: string,
-  message: string
+  message: string,
+  clientRequestId: string = newClientRequestId()
 ): Promise<Response> {
   const response = await fetch(`${API_BASE}/sessions/${sessionId}/messages`, {
     method: "POST",
     headers: getAuthHeaders(),
-    body: JSON.stringify({ message }),
+    body: JSON.stringify({ message, clientRequestId }),
   });
 
   if (!response.ok) {

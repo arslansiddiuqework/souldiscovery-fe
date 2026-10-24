@@ -8,7 +8,7 @@ export async function POST(
   try {
     const { sessionId } = params;
     const body = await req.json();
-    const { message } = body;
+    const { message, clientRequestId, source } = body;
 
     if (!message) {
       return NextResponse.json(
@@ -27,14 +27,14 @@ export async function POST(
 
     const BACKEND_API_URL = getBackendUrl();
     const response = await fetch(
-      `${BACKEND_API_URL}/chat/sessions/${sessionId}/messages`,
+      `${BACKEND_API_URL}/chat/sessions/${encodeURIComponent(sessionId)}/messages`,
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: authHeader,
         },
-        body: JSON.stringify({ message }),
+        body: JSON.stringify({ message, clientRequestId, source }),
       }
     );
 
@@ -42,10 +42,13 @@ export async function POST(
       let errorMessage = "Failed to send message";
       try {
         const error = await response.json();
-        errorMessage = error.error || errorMessage;
+        errorMessage = error.message || error.error || errorMessage;
       } catch (e) {}
       console.error("Failed to send message:", errorMessage);
-      return NextResponse.json({ error: errorMessage }, { status: response.status });
+      return NextResponse.json(
+        { error: errorMessage, message: errorMessage },
+        { status: response.status }
+      );
     }
 
     // Return the response body directly to stream it to the client

@@ -14,7 +14,7 @@ export async function DELETE(
 
   try {
     const response = await fetch(
-      getBackendApiUrl(`/api/wellness-plan/${params.planId}`),
+      getBackendApiUrl(`/api/wellness-plan/${encodeURIComponent(params.planId)}`),
       {
         method: "DELETE",
         headers: { Authorization: token },

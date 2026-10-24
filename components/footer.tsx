@@ -154,7 +154,7 @@ function SoftUpperBackdrop() {
 }
 
 /**
- * Compact join: thin blush lip + single deep-plum crest (IMAGE 1 silhouette).
+ * Compact join: thin blush lip + single deep-plum crest.
  */
 function OrganicWaveTransition() {
   return (

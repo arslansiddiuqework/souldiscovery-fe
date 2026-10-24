@@ -10,6 +10,7 @@ export type FeelingId =
   | "anxiety"
   | "low_mood"
   | "stress"
+  | "anger"
   | "sleep"
   | "social"
   | "general";
@@ -56,6 +57,14 @@ export const FEELING_CATEGORIES: FeelingCategory[] = [
     icon: "wind",
     slugs: ["stress-check-in", "starting-point-finder"],
     keywords: ["stress", "stressed", "overwhelm", "overwhelmed"],
+  },
+  {
+    id: "anger",
+    title: "Anger & Frustration",
+    description: "Reflect on triggers, reactions, and healthier responses.",
+    icon: "flame",
+    slugs: ["anger-management", "starting-point-finder"],
+    keywords: ["anger", "angry", "frustration", "frustrated", "irritation", "temper"],
   },
   {
     id: "sleep",

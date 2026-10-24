@@ -19,7 +19,7 @@ export async function GET(
 
     const BACKEND_API_URL = getBackendUrl();
     const response = await fetch(
-      `${BACKEND_API_URL}/chat/sessions/${sessionId}/history`,
+      `${BACKEND_API_URL}/chat/sessions/${encodeURIComponent(sessionId)}/history`,
       {
         method: "GET",
         headers: {

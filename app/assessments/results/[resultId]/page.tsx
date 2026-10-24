@@ -153,6 +153,7 @@ export default function AssessmentResultsPage() {
       key: string;
       label: string;
       tone: "green" | "rose" | "muted";
+      href?: string;
     }> = [];
     scoring.goingWell.slice(0, 2).forEach((item, i) => {
       items.push({
@@ -168,6 +169,14 @@ export default function AssessmentResultsPage() {
         tone: "rose",
       });
     });
+    (result?.recommendations || []).slice(0, 2).forEach((rec) => {
+      items.push({
+        key: `plan-${rec.planSlug}`,
+        label: rec.planSlug.replace(/-/g, " "),
+        tone: "rose",
+        href: rec.href || `/wellness-plan?plan=${encodeURIComponent(rec.planSlug)}`,
+      });
+    });
     if (items.length === 0) {
       items.push({
         key: "neutral",
@@ -178,8 +187,8 @@ export default function AssessmentResultsPage() {
         tone: "muted",
       });
     }
-    return items.slice(0, 4);
-  }, [scoring, isRouting]);
+    return items.slice(0, 5);
+  }, [scoring, isRouting, result?.recommendations]);
 
   const headline =
     scoring?.interpretationLabel ||

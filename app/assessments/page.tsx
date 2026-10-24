@@ -72,6 +72,11 @@ const FEELING_VISUAL: Record<
     iconWrap: "bg-[#DCEBFF] text-[#4F7FE8]",
     arrow: "bg-[#DCEBFF] text-[#4F7FE8]",
   },
+  anger: {
+    wash: "from-[#FFF1E9] via-white to-white",
+    iconWrap: "bg-[#FFE4D4] text-[#C45A4A]",
+    arrow: "bg-[#FFE4D4] text-[#C45A4A]",
+  },
   sleep: {
     wash: "from-[#F0EAFE] via-white to-white",
     iconWrap: "bg-[#E2D6FF] text-[#5B3FA8]",

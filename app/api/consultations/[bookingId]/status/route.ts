@@ -15,7 +15,7 @@ export async function PATCH(
   try {
     const body = await req.json();
     const response = await fetch(
-      getBackendApiUrl(`/api/consultations/${params.bookingId}/status`),
+      getBackendApiUrl(`/api/consultations/${encodeURIComponent(params.bookingId)}/status`),
       {
         method: "PATCH",
         headers: {

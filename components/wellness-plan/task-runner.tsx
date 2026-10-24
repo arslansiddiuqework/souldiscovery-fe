@@ -187,10 +187,18 @@ export function TaskRunner({ task, open, onClose, onComplete }: TaskRunnerProps)
               placeholder={
                 task.type === "gratitude"
                   ? "List three things you're grateful for…"
-                  : "Write freely. Nothing has to be polished."
+                  : /trigger|time-out|anger|boundary|reframe|i-statement|problem/i.test(
+                        task.title
+                      )
+                    ? "Keep it brief and general — no names or private details required."
+                    : "Write freely. Nothing has to be polished."
               }
               className="w-full resize-none rounded-2xl border border-[#EADCE5] bg-white px-4 py-3 text-sm text-[#49263D] outline-none placeholder:text-[#927C8B] focus:border-[#B74783]/40"
             />
+            <p className="text-xs text-[#927C8B]">
+              Optional notes stay on your device/account. Avoid logging anything you
+              would not want stored.
+            </p>
             <Button
               className="btn-spatium w-full gap-2"
               disabled={journalText.trim().length < 3}
@@ -205,11 +213,12 @@ export function TaskRunner({ task, open, onClose, onComplete }: TaskRunnerProps)
         {task.type === "breathing" && (
           <div className="space-y-4 py-2">
             <div className="overflow-hidden rounded-[18px] border border-[#EEDCE9] bg-[#FCF8FC] p-2">
-              <BreathingGame />
+              <BreathingGame longerExhale={/exhale|pause/i.test(task.title)} />
             </div>
             <p className="text-xs text-[#927C8B]">
-              Stop anytime if breath focus feels uncomfortable. This does not
-              claim to stop panic or treat medical conditions.
+              Stop anytime if breath focus feels uncomfortable. Breathing is not
+              enough if you fear harm — move to safety and seek urgent local help.
+              This does not treat medical conditions.
             </p>
             <Button
               className="btn-spatium w-full gap-2"

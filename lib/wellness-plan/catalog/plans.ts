@@ -553,43 +553,111 @@ export const WELLNESS_PLAN_CATALOG: CatalogPlan[] = [
   },
   {
     slug: "anger-frustration",
-    title: "Anger & Frustration",
+    title: "Anger Management",
     category: "Emotional Wellbeing",
     tags: ["Emotional Wellbeing", "Stress"],
     shortDescription:
-      "Recognize triggers and create space for more thoughtful responses.",
+      "Understand anger, spot triggers early, pause, and practice healthier responses.",
     introduction:
-      "Notice early signs of frustration, pause, and practice safer responses—never encouraging confrontation in unsafe situations.",
+      "Anger is a normal emotion. This free pathway helps you understand it, recognize warning signs, pause before reacting, regulate your body, reframe unhelpful thoughts, communicate assertively, and repair when needed — without suppressing how you feel. You preview and start the plan yourself; an active plan is never overwritten automatically.",
     goals: [
-      "Identify triggers early",
-      "Pause before reacting",
-      "Express boundaries respectfully",
-      "Create a de-escalation plan",
+      "Understand anger without shame",
+      "Map triggers and body warning signs",
+      "Pause and regulate before reacting",
+      "Communicate assertively and repair thoughtfully",
     ],
     whoItsFor:
-      "People who want more space between trigger and response when frustration rises.",
-    suggestedDurationDays: 14,
-    estimatedMinutesPerDay: "5–10 min/day",
+      "Adults who want practical skills for frustration and anger — not a clinical treatment program.",
+    suggestedDurationDays: 21,
+    estimatedMinutesPerDay: "5–12 min/day",
     accent: "peach",
     icon: "flame",
-    keywords: ["anger", "frustration", "irritation", " temper", "boundaries"],
+    keywords: [
+      "anger",
+      "anger management",
+      "frustration",
+      "irritation",
+      "temper",
+      "triggers",
+      "boundaries",
+      "pause",
+    ],
     primaryGoal: "reduce_stress",
-    defaultActivities: ["breathing", "journaling", "mindfulness"],
+    defaultActivities: ["breathing", "journaling", "mindfulness", "walking"],
     defaultDailyTime: "10_minutes",
     activityOutline: [
-      { title: "Identify an Emotion or Trigger", type: "mood_checkin" },
-      { title: "Notice Early Signs of Frustration", type: "journal" },
-      { title: "Pause Before Reacting", type: "breathing" },
-      { title: "Explore What Is Within Your Control", type: "journal" },
-      { title: "Practice a Grounding Technique", type: "mindfulness" },
-      { title: "Identify an Unmet Need", type: "journal" },
-      { title: "Express a Boundary Respectfully", type: "ai_conversation" },
-      { title: "Plan a Difficult Conversation", type: "journal" },
-      { title: "Reflect on a Reaction Without Shame", type: "journal" },
-      { title: "Create a Personal De-Escalation Plan", type: "gratitude" },
+      // Stage: understand anger
+      {
+        title: "Understand Anger — What It Protects",
+        type: "journal",
+      },
+      // Stage: recognize triggers and warning signs
+      {
+        title: "Trigger Mapping (no private details required)",
+        type: "journal",
+      },
+      {
+        title: "Body-Signal Check-In",
+        type: "mood_checkin",
+      },
+      // Stage: pause before reacting
+      {
+        title: "Timed Pause Before Reacting",
+        type: "breathing",
+      },
+      // Stage: regulate body and emotions
+      {
+        title: "Guided Breathing — Longer Comfortable Exhale",
+        type: "breathing",
+      },
+      {
+        title: "Grounding When Frustration Rises",
+        type: "mindfulness",
+      },
+      {
+        title: "Safe Time-Out Plan",
+        type: "journal",
+      },
+      // Stage: reframe unhelpful thoughts
+      {
+        title: "Thought Reframing Practice",
+        type: "journal",
+      },
+      // Stage: communicate assertively
+      {
+        title: "I-Statement Practice",
+        type: "ai_conversation",
+      },
+      {
+        title: "Listening Practice Reflection",
+        type: "journal",
+      },
+      // Stage: solve recurring problems
+      {
+        title: "Problem-Solving One Recurring Trigger",
+        type: "journal",
+      },
+      // Stage: repair relationships and reflect
+      {
+        title: "Anger Journal — Reflect Without Shame",
+        type: "journal",
+      },
+      {
+        title: "Gentle Movement / Stretch Reset",
+        type: "walk",
+      },
+      {
+        title: "Calming Audio or Quiet Sit",
+        type: "meditation",
+      },
+      // Stage: maintain progress
+      {
+        title: "Weekly Reflection — What Helped",
+        type: "gratitude",
+      },
     ],
     safetyNotes:
-      "If you are in immediate danger, prioritize physical safety and local assistance.",
+      "Anger is normal; the goal is healthier responses, not suppressing feelings. Soul Discovery does not diagnose, promise outcomes, or replace therapy, and it is not an emergency service. If you fear you may harm yourself or someone else: move away from the conflict and from dangerous objects if it is safe to do so, contact a trusted person, and seek urgent local emergency or professional support. Breathing and grounding are not enough when danger is imminent — get real-world help first.",
   },
   {
     slug: "relationship-stress",

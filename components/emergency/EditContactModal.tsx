@@ -143,7 +143,7 @@ export function EditContactModal({ initialData, onEdit, onClose }: Props) {
                       : "text-[#927C8B] hover:text-[#49263D]"
                   }`}
                 >
-                  {method === "phone" ? "Phone Call" : method === "whatsapp" ? "WhatsApp" : "Both"}
+                  {method === "phone" ? "SMS (phone)" : method === "whatsapp" ? "SMS (alt number)" : "Both numbers"}
                 </button>
               ))}
             </div>

@@ -70,7 +70,7 @@ export function EmergencyContactCard({ contact, onDelete, onToggle, onEdit, onTe
           }`}
           title="Send a test emergency call"
         >
-          {testCallLoading ? "Calling..." : "Test Call"}
+          {testCallLoading ? "Sending..." : "Test SMS"}
         </button>
 
         <button

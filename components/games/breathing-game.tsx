@@ -8,57 +8,55 @@ import { Button } from "@/components/ui/button";
 
 const TOTAL_ROUNDS = 5;
 
-export function BreathingGame() {
+type BreathingGameProps = {
+  /** Slightly longer comfortable exhale (anger / regulation practice). */
+  longerExhale?: boolean;
+};
+
+export function BreathingGame({ longerExhale = false }: BreathingGameProps) {
   const [phase, setPhase] = useState<"inhale" | "hold" | "exhale">("inhale");
   const [progress, setProgress] = useState(0);
   const [round, setRound] = useState(1);
   const [isComplete, setIsComplete] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
 
+  // Progress increment per 100ms tick — lower = longer phase
+  const inhaleStep = 2.2;
+  const holdStep = 4;
+  const exhaleStep = longerExhale ? 1.35 : 2;
+
   useEffect(() => {
     if (isComplete || isPaused) return;
 
     let timer: NodeJS.Timeout;
+    const step =
+      phase === "inhale" ? inhaleStep : phase === "hold" ? holdStep : exhaleStep;
 
-    if (phase === "inhale") {
-      timer = setInterval(() => {
-        setProgress((p) => {
-          if (p >= 100) {
+    timer = setInterval(() => {
+      setProgress((p) => {
+        if (p >= 100) {
+          if (phase === "inhale") {
             setPhase("hold");
             return 0;
           }
-          return p + 2;
-        });
-      }, 100);
-    } else if (phase === "hold") {
-      timer = setInterval(() => {
-        setProgress((p) => {
-          if (p >= 100) {
+          if (phase === "hold") {
             setPhase("exhale");
             return 0;
           }
-          return p + 4;
-        });
-      }, 100);
-    } else {
-      timer = setInterval(() => {
-        setProgress((p) => {
-          if (p >= 100) {
-            if (round >= TOTAL_ROUNDS) {
-              setIsComplete(true);
-              return p;
-            }
-            setPhase("inhale");
-            setRound((r) => r + 1);
-            return 0;
+          if (round >= TOTAL_ROUNDS) {
+            setIsComplete(true);
+            return p;
           }
-          return p + 2;
-        });
-      }, 100);
-    }
+          setPhase("inhale");
+          setRound((r) => r + 1);
+          return 0;
+        }
+        return p + step;
+      });
+    }, 100);
 
     return () => clearInterval(timer);
-  }, [phase, round, isComplete, isPaused]);
+  }, [phase, round, isComplete, isPaused, inhaleStep, holdStep, exhaleStep]);
 
   const handleReset = () => {
     setPhase("inhale");
@@ -80,8 +78,7 @@ export function BreathingGame() {
         </motion.div>
         <h3 className="text-2xl font-semibold">Great job!</h3>
         <p className="text-muted-foreground text-center max-w-sm">
-          You've completed {TOTAL_ROUNDS} rounds of breathing exercises. How do
-          you feel?
+          You&apos;ve completed {TOTAL_ROUNDS} rounds of breathing. How do you feel?
         </p>
         <Button onClick={handleReset} className="mt-4">
           Start Again
@@ -105,7 +102,10 @@ export function BreathingGame() {
               animate={{
                 scale: phase === "inhale" ? 1.5 : phase === "exhale" ? 1 : 1.2,
               }}
-              transition={{ duration: 4, ease: "easeInOut" }}
+              transition={{
+                duration: phase === "exhale" && longerExhale ? 6 : 4,
+                ease: "easeInOut",
+              }}
               className="absolute inset-0 bg-primary/10 rounded-full"
             />
             <div className="absolute inset-0 flex items-center justify-center">
@@ -116,9 +116,16 @@ export function BreathingGame() {
             {phase === "inhale"
               ? "Breathe In"
               : phase === "hold"
-              ? "Hold"
-              : "Breathe Out"}
+                ? "Hold"
+                : longerExhale
+                  ? "Longer comfortable exhale"
+                  : "Breathe Out"}
           </h3>
+          {longerExhale && phase === "exhale" ? (
+            <p className="text-sm text-muted-foreground">
+              Keep the exhale gentle — never force the breath.
+            </p>
+          ) : null}
         </motion.div>
       </AnimatePresence>
 
