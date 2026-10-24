@@ -158,11 +158,11 @@ export default function LoginPage() {
           <div className="mt-8 border-t border-[#EADCE5] pt-6">
             <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-sm">
               <span className="text-[#927C8B]">Don&apos;t have an account?</span>
-              <Link href="/signup" className="font-semibold text-[#D9B8F5] hover:underline">
+              <Link href="/signup" className="font-semibold text-[#B47BCF] hover:underline">
                 Sign up
               </Link>
               <span className="text-[#795A70]">·</span>
-              <Link href="/forgot-password" className="font-medium text-[#D9B8F5] hover:underline">
+              <Link href="/forgot-password" className="font-medium text-[#B47BCF] hover:underline">
                 Forgot password?
               </Link>
             </div>
